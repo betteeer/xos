@@ -1,0 +1,30 @@
+package com.inossem.oms.base.svc.domain.VO;
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Data;
+import org.hibernate.validator.constraints.Length;
+
+import java.util.List;
+
+/**
+ * @author zoutong
+ * @date 2022/10/25
+ **/
+@Data
+@ApiModel(description = "SoAddressVO")
+public class SoAddressVO {
+
+    @ApiModelProperty(value = "refeenceKey", name = "refeenceKey")
+    @Length(max = 10,message = "address refeenceKey Max Length is 10")
+    private String refeenceKey;
+
+    @ApiModelProperty(value = "CompanyCode", name = "CompanyCode")
+    private String CompanyCode;
+
+    @ApiModelProperty(value = "BillingAddressList",name = "BillingAddressList")
+    List<AddressVO> BillingAddressList;
+
+    @ApiModelProperty(value = "ShippingAddressList",name = "ShippingAddressList")
+    List<AddressVO> ShippingAddressList;
+}

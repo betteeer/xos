@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.BkCoaRelMapper">
+    
+    <resultMap type="com.inossem.oms.base.svc.domain.BkCoaRel" id="BkCoaRelResult">
+        <result property="id"    column="id"    />
+        <result property="companyCode"    column="company_code"    />
+        <result property="companyId"    column="company_id"    />
+        <result property="companyCodeEx"    column="company_code_ex"    />
+        <result property="type"    column="type"    />
+        <result property="code"    column="code"    />
+        <result property="codeCategory"    column="code_category"    />
+        <result property="coaId"    column="coa_id"    />
+        <result property="coaCode"    column="coa_code"    />
+        <result property="coaName"    column="coa_name"    />
+        <result property="debitCoaId"    column="debit_coa_id"    />
+        <result property="debitCoaCode"    column="debit_coa_code"    />
+        <result property="debitCoaName"    column="debit_coa_name"    />
+        <result property="creator"    column="creator"    />
+        <result property="createTime"    column="create_time"    />
+        <result property="updateTime"    column="update_time"    />
+        <result property="delFlag"    column="del_flag"    />
+    </resultMap>
+
+    <sql id="selectBkCoaRelVo">
+        select id, company_code, company_id, company_code_ex, type, code, code_category, coa_id, coa_code,coa_name, debit_coa_id, debit_coa_code, debit_coa_name,creator, create_time, update_time, del_flag from bk_coa_rel
+    </sql>
+
+    <select id="selectBkCoaRelList" parameterType="com.inossem.oms.base.svc.domain.BkCoaRel" resultMap="BkCoaRelResult">
+        <include refid="selectBkCoaRelVo"/>
+        <where>  
+            <if test="companyCode != null  and companyCode != ''"> and company_code = #{companyCode}</if>
+            <if test="companyId != 0 "> and company_id = #{companyId}</if>
+            <if test="companyCodeEx != null  and companyCodeEx != ''"> and company_code_ex = #{companyCodeEx}</if>
+            <if test="type != null  and type != ''"> and type = #{type}</if>
+            <if test="code != null  and code != ''"> and code = #{code}</if>
+            <if test="codeCategory != 0 "> and code_category = #{codeCategory}</if>
+            <if test="coaId != 0 "> and coa_id = #{coaId}</if>
+            <if test="coaCode != null  and coaCode != ''"> and coa_code = #{coaCode}</if>
+            <if test="debitCoaId != 0 "> and debit_coa_id = #{debitCoaId}</if>
+            <if test="debitCoaCode != null  and debitCoaCode != ''"> and debit_coa_code = #{debitCoaCode}</if>
+            <if test="creator != null  and creator != ''"> and creator = #{creator}</if>
+        </where>
+    </select>
+    
+    <select id="selectBkCoaRelById" parameterType="Long" resultMap="BkCoaRelResult">
+        <include refid="selectBkCoaRelVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertBkCoaRel" parameterType="com.inossem.oms.base.svc.domain.BkCoaRel" useGeneratedKeys="true" keyProperty="id">
+        insert into bk_coa_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null">company_code,</if>
+            <if test="companyId != null">company_id,</if>
+            <if test="companyCodeEx != null">company_code_ex,</if>
+            <if test="type != null">type,</if>
+            <if test="code != null">code,</if>
+            <if test="codeCategory != null">code_category,</if>
+            <if test="coaId != null">coa_id,</if>
+            <if test="coaCode != null">coa_code,</if>
+            <if test="coaName != null">coa_name,</if>
+            <if test="debitCoaId != null">debit_coa_id,</if>
+            <if test="debitCoaCode != null">debit_coa_code,</if>
+            <if test="debitCoaName != null">debit_coa_name,</if>
+            <if test="creator != null">creator,</if>
+            <if test="createTime != null">create_time,</if>
+            <if test="updateTime != null">update_time,</if>
+            <if test="delFlag != null">del_flag,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null">#{companyCode},</if>
+            <if test="companyId != null">#{companyId},</if>
+            <if test="companyCodeEx != null">#{companyCodeEx},</if>
+            <if test="type != null">#{type},</if>
+            <if test="code != null">#{code},</if>
+            <if test="codeCategory != null">#{codeCategory},</if>
+            <if test="coaId != null">#{coaId},</if>
+            <if test="coaCode != null">#{coaCode},</if>
+            <if test="coaName != null">#{coaName},</if>
+            <if test="debitCoaId != null">#{debitCoaId},</if>
+            <if test="debitCoaCode != null">#{debitCoaCode},</if>
+            <if test="debitCoaName != null">#{debitCoaName},</if>
+            <if test="creator != null">#{creator},</if>
+            <if test="createTime != null">#{createTime},</if>
+            <if test="updateTime != null">#{updateTime},</if>
+            <if test="delFlag != null">#{delFlag},</if>
+         </trim>
+    </insert>
+
+    <update id="updateBkCoaRel" parameterType="com.inossem.oms.base.svc.domain.BkCoaRel">
+        update bk_coa_rel
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyCode != null">company_code = #{companyCode},</if>
+            <if test="companyId != null">company_id = #{companyId},</if>
+            <if test="companyCodeEx != null">company_code_ex = #{companyCodeEx},</if>
+            <if test="type != null">type = #{type},</if>
+            <if test="code != null">code = #{code},</if>
+            <if test="codeCategory != null">code_category = #{codeCategory},</if>
+            <if test="coaId != null">coa_id = #{coaId},</if>
+            <if test="coaCode != null">coa_code = #{coaCode},</if>
+            <if test="coaName != null">coa_name = #{coaName},</if>
+            <if test="debitCoaId != null">debit_coa_id = #{debitCoaId},</if>
+            <if test="debitCoaCode != null">debit_coa_code = #{debitCoaCode},</if>
+            <if test="debitCoaName != null">debit_coa_name = #{debitCoaName},</if>
+            <if test="creator != null">creator = #{creator},</if>
+            <if test="createTime != null">create_time = #{createTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="delFlag != null">del_flag = #{delFlag},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteBkCoaRelById" parameterType="Long">
+        delete from bk_coa_rel where id = #{id}
+    </delete>
+
+    <delete id="deleteBkCoaRelByIds" parameterType="String">
+        delete from bk_coa_rel where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

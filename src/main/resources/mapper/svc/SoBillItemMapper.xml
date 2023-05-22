@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.SoBillItemMapper">
+    
+    <resultMap type="com.inossem.oms.base.svc.domain.SoBillItem" id="SoBillItemResult">
+        <result property="id"    column="id"    />
+        <result property="companyCode"    column="company_code"    />
+        <result property="billingNumber"    column="billing_number"    />
+        <result property="billingItem"    column="billing_item"    />
+        <result property="referenceDoc"    column="reference_doc"    />
+        <result property="referenceDocItem"    column="reference_doc_item"    />
+        <result property="skuNumber"    column="sku_number"    />
+        <result property="billQty"    column="bill_qty"    />
+        <result property="billUom"    column="bill_uom"    />
+        <result property="unitPrice"    column="unit_price"    />
+        <result property="grossAmount"    column="gross_amount"    />
+        <result property="taxExmpt"    column="tax_exmpt"    />
+        <result property="currencyCode"    column="currency_code"    />
+        <result property="gstAmount"    column="gst_amount"    />
+        <result property="hstAcmount"    column="hst_acmount"    />
+        <result property="pstAmount"    column="pst_amount"    />
+        <result property="qstAmount"    column="qst_amount"    />
+        <result property="netAmount"    column="net_amount"    />
+        <result property="gmtCreate"    column="gmt_create"    />
+        <result property="gmtModified"    column="gmt_modified"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="modifiedBy"    column="modified_by"    />
+    </resultMap>
+
+    <sql id="selectSoBillItemVo">
+        select id, company_code, billing_number, billing_item, reference_doc, reference_doc_item, sku_number, bill_qty, bill_uom, unit_price, gross_amount, tax_exmpt, currency_code, gst_amount, hst_acmount, pst_amount, qst_amount, net_amount, gmt_create, gmt_modified, create_by, modified_by from so_bill_item
+    </sql>
+
+    <select id="selectSoBillItemList" parameterType="com.inossem.oms.base.svc.domain.SoBillItem" resultMap="SoBillItemResult">
+        <include refid="selectSoBillItemVo"/>
+        <where>  
+            <if test="companyCode != null  and companyCode != ''"> and company_code = #{companyCode}</if>
+            <if test="billingNumber != null  and billingNumber != ''"> and billing_number = #{billingNumber}</if>
+            <if test="billingItem != null  and billingItem != ''"> and billing_item = #{billingItem}</if>
+            <if test="referenceDoc != null  and referenceDoc != ''"> and reference_doc = #{referenceDoc}</if>
+            <if test="referenceDocItem != null  and referenceDocItem != ''"> and reference_doc_item = #{referenceDocItem}</if>
+            <if test="skuNumber != null  and skuNumber != ''"> and sku_number = #{skuNumber}</if>
+            <if test="billQty != null "> and bill_qty = #{billQty}</if>
+            <if test="billUom != null  and billUom != ''"> and bill_uom = #{billUom}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="grossAmount != null "> and gross_amount = #{grossAmount}</if>
+            <if test="taxExmpt != null "> and tax_exmpt = #{taxExmpt}</if>
+            <if test="currencyCode != null  and currencyCode != ''"> and currency_code = #{currencyCode}</if>
+            <if test="gstAmount != null "> and gst_amount = #{gstAmount}</if>
+            <if test="hstAcmount != null "> and hst_acmount = #{hstAcmount}</if>
+            <if test="pstAmount != null "> and pst_amount = #{pstAmount}</if>
+            <if test="qstAmount != null "> and qst_amount = #{qstAmount}</if>
+            <if test="netAmount != null "> and net_amount = #{netAmount}</if>
+            <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
+            <if test="gmtModified != null "> and gmt_modified = #{gmtModified}</if>
+            <if test="modifiedBy != null  and modifiedBy != ''"> and modified_by = #{modifiedBy}</if>
+        </where>
+    </select>
+    
+    <select id="selectSoBillItemById" parameterType="Long" resultMap="SoBillItemResult">
+        <include refid="selectSoBillItemVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertSoBillItem" parameterType="com.inossem.oms.base.svc.domain.SoBillItem">
+        insert into so_bill_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="companyCode != null and companyCode != ''">company_code,</if>
+            <if test="billingNumber != null and billingNumber != ''">billing_number,</if>
+            <if test="billingItem != null and billingItem != ''">billing_item,</if>
+            <if test="referenceDoc != null and referenceDoc != ''">reference_doc,</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">reference_doc_item,</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number,</if>
+            <if test="billQty != null">bill_qty,</if>
+            <if test="billUom != null and billUom != ''">bill_uom,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="grossAmount != null">gross_amount,</if>
+            <if test="taxExmpt != null">tax_exmpt,</if>
+            <if test="currencyCode != null">currency_code,</if>
+            <if test="gstAmount != null">gst_amount,</if>
+            <if test="hstAcmount != null">hst_acmount,</if>
+            <if test="pstAmount != null">pst_amount,</if>
+            <if test="qstAmount != null">qst_amount,</if>
+            <if test="netAmount != null">net_amount,</if>
+            <if test="gmtCreate != null">gmt_create,</if>
+            <if test="gmtModified != null">gmt_modified,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="companyCode != null and companyCode != ''">#{companyCode},</if>
+            <if test="billingNumber != null and billingNumber != ''">#{billingNumber},</if>
+            <if test="billingItem != null and billingItem != ''">#{billingItem},</if>
+            <if test="referenceDoc != null and referenceDoc != ''">#{referenceDoc},</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">#{referenceDocItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">#{skuNumber},</if>
+            <if test="billQty != null">#{billQty},</if>
+            <if test="billUom != null and billUom != ''">#{billUom},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="grossAmount != null">#{grossAmount},</if>
+            <if test="taxExmpt != null">#{taxExmpt},</if>
+            <if test="currencyCode != null">#{currencyCode},</if>
+            <if test="gstAmount != null">#{gstAmount},</if>
+            <if test="hstAcmount != null">#{hstAcmount},</if>
+            <if test="pstAmount != null">#{pstAmount},</if>
+            <if test="qstAmount != null">#{qstAmount},</if>
+            <if test="netAmount != null">#{netAmount},</if>
+            <if test="gmtCreate != null">#{gmtCreate},</if>
+            <if test="gmtModified != null">#{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">#{modifiedBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updateSoBillItem" parameterType="com.inossem.oms.base.svc.domain.SoBillItem">
+        update so_bill_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">company_code = #{companyCode},</if>
+            <if test="billingNumber != null and billingNumber != ''">billing_number = #{billingNumber},</if>
+            <if test="billingItem != null and billingItem != ''">billing_item = #{billingItem},</if>
+            <if test="referenceDoc != null and referenceDoc != ''">reference_doc = #{referenceDoc},</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">reference_doc_item = #{referenceDocItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number = #{skuNumber},</if>
+            <if test="billQty != null">bill_qty = #{billQty},</if>
+            <if test="billUom != null and billUom != ''">bill_uom = #{billUom},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="grossAmount != null">gross_amount = #{grossAmount},</if>
+            <if test="taxExmpt != null">tax_exmpt = #{taxExmpt},</if>
+            <if test="currencyCode != null">currency_code = #{currencyCode},</if>
+            <if test="gstAmount != null">gst_amount = #{gstAmount},</if>
+            <if test="hstAcmount != null">hst_acmount = #{hstAcmount},</if>
+            <if test="pstAmount != null">pst_amount = #{pstAmount},</if>
+            <if test="qstAmount != null">qst_amount = #{qstAmount},</if>
+            <if test="netAmount != null">net_amount = #{netAmount},</if>
+            <if test="gmtCreate != null">gmt_create = #{gmtCreate},</if>
+            <if test="gmtModified != null">gmt_modified = #{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by = #{modifiedBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteSoBillItemById" parameterType="Long">
+        delete from so_bill_item where id = #{id}
+    </delete>
+
+    <delete id="deleteSoBillItemByIds" parameterType="String">
+        delete from so_bill_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.PoInvoiceItemMapper">
+    
+    <resultMap type="com.inossem.oms.base.svc.domain.PoInvoiceItem" id="PoInvoiceItemResult">
+        <result property="id"    column="id"    />
+        <result property="companyCode"    column="company_code"    />
+        <result property="invoiceingNumber"    column="invoiceing_number"    />
+        <result property="invoiceItem"    column="invoice_item"    />
+        <result property="referenceDoc"    column="reference_doc"    />
+        <result property="referenceDocItem"    column="reference_doc_item"    />
+        <result property="skuNumber"    column="sku_number"    />
+        <result property="invoiceQty"    column="invoice_qty"    />
+        <result property="invoiceUom"    column="invoice_uom"    />
+        <result property="unitPrice"    column="unit_price"    />
+        <result property="grossAmount"    column="gross_amount"    />
+        <result property="taxExmpt"    column="tax_exmpt"    />
+        <result property="currencyCode"    column="currency_code"    />
+        <result property="gstAmount"    column="gst_amount"    />
+        <result property="hstAcmount"    column="hst_acmount"    />
+        <result property="pstAmount"    column="pst_amount"    />
+        <result property="qstAmount"    column="qst_amount"    />
+        <result property="netAmount"    column="net_amount"    />
+        <result property="gmtCreate"    column="gmt_create"    />
+        <result property="gmtModified"    column="gmt_modified"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="modifiedBy"    column="modified_by"    />
+    </resultMap>
+
+    <sql id="selectPoInvoiceItemVo">
+        select id, company_code, invoiceing_number, invoice_item, reference_doc, reference_doc_item, sku_number, invoice_qty, invoice_uom, unit_price, gross_amount, tax_exmpt, currency_code, gst_amount, hst_acmount, pst_amount, qst_amount, net_amount, gmt_create, gmt_modified, create_by, modified_by from po_invoice_item
+    </sql>
+
+    <select id="selectPoInvoiceItemList" parameterType="com.inossem.oms.base.svc.domain.PoInvoiceItem" resultMap="PoInvoiceItemResult">
+        <include refid="selectPoInvoiceItemVo"/>
+        <where>  
+            <if test="companyCode != null  and companyCode != ''"> and company_code = #{companyCode}</if>
+            <if test="invoiceingNumber != null  and invoiceingNumber != ''"> and invoiceing_number = #{invoiceingNumber}</if>
+            <if test="invoiceItem != null  and invoiceItem != ''"> and invoice_item = #{invoiceItem}</if>
+            <if test="referenceDoc != null  and referenceDoc != ''"> and reference_doc = #{referenceDoc}</if>
+            <if test="referenceDocItem != null  and referenceDocItem != ''"> and reference_doc_item = #{referenceDocItem}</if>
+            <if test="skuNumber != null  and skuNumber != ''"> and sku_number = #{skuNumber}</if>
+            <if test="invoiceQty != null "> and invoice_qty = #{invoiceQty}</if>
+            <if test="invoiceUom != null  and invoiceUom != ''"> and invoice_uom = #{invoiceUom}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="grossAmount != null "> and gross_amount = #{grossAmount}</if>
+            <if test="taxExmpt != null "> and tax_exmpt = #{taxExmpt}</if>
+            <if test="currencyCode != null  and currencyCode != ''"> and currency_code = #{currencyCode}</if>
+            <if test="gstAmount != null "> and gst_amount = #{gstAmount}</if>
+            <if test="hstAcmount != null "> and hst_acmount = #{hstAcmount}</if>
+            <if test="pstAmount != null "> and pst_amount = #{pstAmount}</if>
+            <if test="qstAmount != null "> and qst_amount = #{qstAmount}</if>
+            <if test="netAmount != null "> and net_amount = #{netAmount}</if>
+            <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
+            <if test="gmtModified != null "> and gmt_modified = #{gmtModified}</if>
+            <if test="modifiedBy != null  and modifiedBy != ''"> and modified_by = #{modifiedBy}</if>
+        </where>
+    </select>
+    
+    <select id="selectPoInvoiceItemById" parameterType="Long" resultMap="PoInvoiceItemResult">
+        <include refid="selectPoInvoiceItemVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertPoInvoiceItem" parameterType="com.inossem.oms.base.svc.domain.PoInvoiceItem" useGeneratedKeys="true" keyProperty="id">
+        insert into po_invoice_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">company_code,</if>
+            <if test="invoiceingNumber != null and invoiceingNumber != ''">invoiceing_number,</if>
+            <if test="invoiceItem != null and invoiceItem != ''">invoice_item,</if>
+            <if test="referenceDoc != null and referenceDoc != ''">reference_doc,</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">reference_doc_item,</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number,</if>
+            <if test="invoiceQty != null">invoice_qty,</if>
+            <if test="invoiceUom != null and invoiceUom != ''">invoice_uom,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="grossAmount != null">gross_amount,</if>
+            <if test="taxExmpt != null">tax_exmpt,</if>
+            <if test="currencyCode != null">currency_code,</if>
+            <if test="gstAmount != null">gst_amount,</if>
+            <if test="hstAcmount != null">hst_acmount,</if>
+            <if test="pstAmount != null">pst_amount,</if>
+            <if test="qstAmount != null">qst_amount,</if>
+            <if test="netAmount != null">net_amount,</if>
+            <if test="gmtCreate != null">gmt_create,</if>
+            <if test="gmtModified != null">gmt_modified,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">#{companyCode},</if>
+            <if test="invoiceingNumber != null and invoiceingNumber != ''">#{invoiceingNumber},</if>
+            <if test="invoiceItem != null and invoiceItem != ''">#{invoiceItem},</if>
+            <if test="referenceDoc != null and referenceDoc != ''">#{referenceDoc},</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">#{referenceDocItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">#{skuNumber},</if>
+            <if test="invoiceQty != null">#{invoiceQty},</if>
+            <if test="invoiceUom != null and invoiceUom != ''">#{invoiceUom},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="grossAmount != null">#{grossAmount},</if>
+            <if test="taxExmpt != null">#{taxExmpt},</if>
+            <if test="currencyCode != null">#{currencyCode},</if>
+            <if test="gstAmount != null">#{gstAmount},</if>
+            <if test="hstAcmount != null">#{hstAcmount},</if>
+            <if test="pstAmount != null">#{pstAmount},</if>
+            <if test="qstAmount != null">#{qstAmount},</if>
+            <if test="netAmount != null">#{netAmount},</if>
+            <if test="gmtCreate != null">#{gmtCreate},</if>
+            <if test="gmtModified != null">#{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">#{modifiedBy},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePoInvoiceItem" parameterType="com.inossem.oms.base.svc.domain.PoInvoiceItem">
+        update po_invoice_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">company_code = #{companyCode},</if>
+            <if test="invoiceingNumber != null and invoiceingNumber != ''">invoiceing_number = #{invoiceingNumber},</if>
+            <if test="invoiceItem != null and invoiceItem != ''">invoice_item = #{invoiceItem},</if>
+            <if test="referenceDoc != null and referenceDoc != ''">reference_doc = #{referenceDoc},</if>
+            <if test="referenceDocItem != null and referenceDocItem != ''">reference_doc_item = #{referenceDocItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number = #{skuNumber},</if>
+            <if test="invoiceQty != null">invoice_qty = #{invoiceQty},</if>
+            <if test="invoiceUom != null and invoiceUom != ''">invoice_uom = #{invoiceUom},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="grossAmount != null">gross_amount = #{grossAmount},</if>
+            <if test="taxExmpt != null">tax_exmpt = #{taxExmpt},</if>
+            <if test="currencyCode != null">currency_code = #{currencyCode},</if>
+            <if test="gstAmount != null">gst_amount = #{gstAmount},</if>
+            <if test="hstAcmount != null">hst_acmount = #{hstAcmount},</if>
+            <if test="pstAmount != null">pst_amount = #{pstAmount},</if>
+            <if test="qstAmount != null">qst_amount = #{qstAmount},</if>
+            <if test="netAmount != null">net_amount = #{netAmount},</if>
+            <if test="gmtCreate != null">gmt_create = #{gmtCreate},</if>
+            <if test="gmtModified != null">gmt_modified = #{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by = #{modifiedBy},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePoInvoiceItemById" parameterType="Long">
+        delete from po_invoice_item where id = #{id}
+    </delete>
+
+    <delete id="deletePoInvoiceItemByIds" parameterType="String">
+        delete from po_invoice_item where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

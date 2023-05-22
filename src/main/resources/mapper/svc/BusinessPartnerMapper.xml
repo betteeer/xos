@@ -1,0 +1,355 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.BusinessPartnerMapper">
+    <resultMap type="com.inossem.oms.base.svc.domain.BusinessPartner" id="BusinessPartnerResult">
+        <result property="id" column="bp_id"/>
+        <result property="companyCode" column="bp_company_code"/>
+        <result property="isCustomer" column="is_customer"/>
+        <result property="isVendor" column="is_vendor"/>
+        <result property="bpNumber" column="bp_bp_number"/>
+        <result property="bpName" column="bp_name"/>
+        <result property="bpTel" column="bp_tel"/>
+        <result property="bpEmail" column="bp_email"/>
+        <result property="bpContact" column="bp_contact"/>
+        <result property="syncBk" column="sync_bk"/>
+        <result property="bkBpNumberCustomer" column="bk_bp_number_customer"/>
+        <result property="bkBpNumberVendor" column="bk_bp_number_vendor"/>
+        <result property="bpNumberEx" column="bp_number_ex"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="createBy" column="create_by"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="isBlock" column="is_block"/>
+        <result property="notes" column="notes"/>
+        <result property="wmsIndicator" column="wms_indicator"/>
+    </resultMap>
+
+
+    <resultMap type="com.inossem.oms.base.svc.domain.BusinessPartner" id="BusinessPartnerResults">
+        <result property="id" column="bp_id"/>
+        <result property="companyCode" column="bp_company_code"/>
+        <result property="isCustomer" column="is_customer"/>
+        <result property="isVendor" column="is_vendor"/>
+        <result property="bpNumber" column="bp_bp_number"/>
+        <result property="bpName" column="bp_name"/>
+        <result property="bpTel" column="bp_tel"/>
+        <result property="bpEmail" column="bp_email"/>
+        <result property="bpContact" column="bp_contact"/>
+        <result property="syncBk" column="sync_bk"/>
+        <result property="bkBpNumberCustomer" column="bk_bp_number_customer"/>
+        <result property="bkBpNumberVendor" column="bk_bp_number_vendor"/>
+        <result property="bpNumberEx" column="bp_number_ex"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="createBy" column="create_by"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="isBlock" column="is_block"/>
+        <result property="notes" column="notes"/>
+        <result property="wmsIndicator" column="wms_indicator"/>
+
+        <collection property="contactList" ofType="com.inossem.oms.base.svc.domain.Contact">
+            <result property="id" column="contact_id"/>
+            <result property="companyCode" column="contact_company_code"/>
+            <result property="bpNumber" column="contact_bp_number"/>
+            <result property="contactType" column="contact_type"/>
+            <result property="contactPerson" column="contact_person"/>
+            <result property="contactTel" column="contact_tel"/>
+            <result property="contactEmail" column="contact_email"/>
+            <result property="contactEmail" column="contact_note"/>
+        </collection>
+
+        <collection property="officeList" ofType="com.inossem.oms.base.svc.domain.VO.AddressVO">
+            <result property="id" column="office_id"/>
+            <result property="street" column="office_address1"/>
+            <result property="city" column="office_city"/>
+            <result property="province" column="office_region_code"/>
+            <result property="country" column="office_country_code"/>
+            <result property="postCode" column="office_postal_code"/>
+            <result property="isDefault" column="office_is_default"/>
+        </collection>
+
+        <collection property="billtoList" ofType="com.inossem.oms.base.svc.domain.VO.AddressVO">
+            <result property="id" column="billto_id"/>
+            <result property="street" column="billto_address1"/>
+            <result property="city" column="billto_city"/>
+            <result property="province" column="billto_region_code"/>
+            <result property="country" column="billto_country_code"/>
+            <result property="postCode" column="billto_postal_code"/>
+            <result property="isDefault" column="billto_is_default"/>
+        </collection>
+
+
+        <collection property="shiptoList" ofType="com.inossem.oms.base.svc.domain.VO.AddressVO">
+            <result property="id" column="shipto_id"/>
+            <result property="street" column="shipto_company_code"/>
+            <result property="city" column="shipto_bp_number"/>
+            <result property="province" column="shipto_type"/>
+            <result property="country" column="shipto_person"/>
+            <result property="postCode" column="shipto_tel"/>
+            <result property="isDefault" column="shipto_email"/>
+        </collection>
+
+
+    </resultMap>
+
+    <sql id="selectBPVo">
+        select DISTINCT
+            t.id as bp_id,
+            t.company_code,
+            t.is_customer,
+            t.is_vendor,
+            t.bp_number,
+            t.bp_name,
+            t.bp_tel,
+            t.bp_email,
+            t.bp_contact,
+            t.sync_bk,
+            t.bk_bp_number_customer,
+            t.bk_bp_number_vendor,
+            t.bp_number_ex,
+            t.gmt_create,
+            t.gmt_modified,
+            t.create_by,
+            t.modified_by,
+            t.is_block,
+            t.notes,
+            t.wms_indicator
+        from business_partner t
+    </sql>
+
+
+    <sql id="selectBPVos">
+        select DISTINCT
+            t.id as bp_id,
+            t.company_code as bp_company_code,
+            t.is_customer,
+            t.is_vendor,
+            t.bp_number as bp_bp_number,
+            t.bp_name,
+            t.bp_tel,
+            t.bp_email,
+            t.bp_contact,
+            t.sync_bk,
+            t.bk_bp_number_customer,
+            t.bk_bp_number_vendor,
+            t.bp_number_ex,
+            t.gmt_create,
+            t.gmt_modified,
+            t.create_by,
+            t.modified_by,
+            t.is_block,
+            t.notes,
+            t.wms_indicator
+    </sql>
+
+
+    <select id="selectBusinessPartnerInfoByBpList" parameterType="com.inossem.oms.base.svc.domain.VO.BPListVO"
+            resultMap="BusinessPartnerResults">
+        SELECT
+        t.id AS bp_id,
+        t.company_code AS bp_company_code,
+        t.is_customer,
+        t.is_vendor,
+        t.bp_number AS bp_bp_number,
+        t.bp_name,
+        t.bp_tel,
+        t.bp_email,
+        t.bp_contact,
+        t.sync_bk,
+        t.bk_bp_number_customer,
+        t.bk_bp_number_vendor,
+        t.bp_number_ex,
+        t.gmt_create,
+        t.gmt_modified,
+        t.create_by,
+        t.modified_by,
+        t.is_block,
+        ctt.contact_id,
+        ctt.contact_company_code,
+        ctt.contact_bp_number,
+        ctt.contact_type,
+        ctt.contact_person,
+        ctt.contact_tel,
+        ctt.contact_email,
+        ctt.contact_note,
+        atbo.office_id,
+        atbo.office_company_code,
+        atbo.office_type,
+        atbo.office_sub_type,
+        atbo.office_reference_key,
+        atbo.office_address1,
+        atbo.office_address2,
+        atbo.office_phone,
+        atbo.office_contact_person,
+        atbo.office_city,
+        atbo.office_region_code,
+        atbo.office_country_code,
+        atbo.office_postal_code,
+        atbo.office_is_default,
+        atbb.billto_id,
+        atbb.billto_company_code,
+        atbb.billto_type,
+        atbb.billto_sub_type,
+        atbb.billto_reference_key,
+        atbb.billto_address1,
+        atbb.billto_address2,
+        atbb.billto_phone,
+        atbb.billto_contact_person,
+        atbb.billto_city,
+        atbb.billto_region_code,
+        atbb.billto_country_code,
+        atbb.billto_postal_code,
+        atbb.billto_is_default,
+        atbs.shipto_id,
+        atbs.shipto_company_code,
+        atbs.shipto_type,
+        atbs.shipto_sub_type,
+        atbs.shipto_reference_key,
+        atbs.shipto_address1,
+        atbs.shipto_address2,
+        atbs.shipto_phone,
+        atbs.shipto_contact_person,
+        atbs.shipto_city,
+        atbs.shipto_region_code,
+        atbs.shipto_country_code,
+        atbs.shipto_postal_code,
+        atbs.shipto_is_default
+        FROM
+        business_partner t
+
+        LEFT JOIN (
+        SELECT
+        ct.id AS contact_id,
+        ct.company_code AS contact_company_code,
+        ct.bp_number AS contact_bp_number,
+        ct.contact_type,
+        ct.contact_person,
+        ct.contact_tel,
+        ct.contact_email,
+        ct.contact_note
+        FROM
+        contact_table ct
+        WHERE
+        ct.company_code = #{bpListVO.companyCode}
+        AND ct.is_deleted = 0
+        ) ctt ON t.bp_number = ctt.contact_bp_number
+
+
+        LEFT JOIN (
+        SELECT
+        atb.id AS office_id,
+        atb.company_code AS office_company_code,
+        atb.type AS office_type,
+        atb.sub_type AS office_sub_type,
+        atb.reference_key AS office_reference_key,
+        atb.address1 AS office_address1,
+        atb.address2 AS office_address2,
+        atb.phone AS office_phone,
+        atb.contact_person AS office_contact_person,
+        atb.city AS office_city,
+        atb.region_code AS office_region_code,
+        atb.country_code AS office_country_code,
+        atb.postal_code AS office_postal_code,
+        atb.is_default AS office_is_default
+        FROM
+        address_table atb
+        WHERE
+        atb.company_code = #{bpListVO.companyCode}
+        AND atb.is_deleted = 0
+        AND atb.type = "bp"
+        AND atb.sub_type = "office"
+        ) atbo ON t.bp_number = atbo.office_reference_key
+
+
+        LEFT JOIN (
+        SELECT
+        atb.id AS billto_id,
+        atb.company_code AS billto_company_code,
+        atb.type AS billto_type,
+        atb.sub_type AS billto_sub_type,
+        atb.reference_key AS billto_reference_key,
+        atb.address1 AS billto_address1,
+        atb.address2 AS billto_address2,
+        atb.phone AS billto_phone,
+        atb.contact_person AS billto_contact_person,
+        atb.city AS billto_city,
+        atb.region_code AS billto_region_code,
+        atb.country_code AS billto_country_code,
+        atb.postal_code AS billto_postal_code,
+        atb.is_default AS billto_is_default
+        FROM
+        address_table atb
+        WHERE
+        atb.company_code = #{bpListVO.companyCode}
+        AND atb.is_deleted = 0
+        AND atb.type = "bp"
+        AND atb.sub_type = "billto"
+        ) atbb ON t.bp_number = atbb.billto_reference_key
+
+
+        LEFT JOIN (
+        SELECT
+        atb.id AS shipto_id,
+        atb.company_code AS shipto_company_code,
+        atb.type AS shipto_type,
+        atb.sub_type AS shipto_sub_type,
+        atb.reference_key AS shipto_reference_key,
+        atb.address1 AS shipto_address1,
+        atb.address2 AS shipto_address2,
+        atb.phone AS shipto_phone,
+        atb.contact_person AS shipto_contact_person,
+        atb.city AS shipto_city,
+        atb.region_code AS shipto_region_code,
+        atb.country_code AS shipto_country_code,
+        atb.postal_code AS shipto_postal_code,
+        atb.is_default AS shipto_is_default
+        FROM
+        address_table atb
+        WHERE
+        atb.company_code = #{bpListVO.companyCode}
+        AND atb.is_deleted = 0
+        AND atb.type = "bp"
+        AND atb.sub_type = "shipto"
+        ) atbs ON t.bp_number = atbs.shipto_reference_key
+
+        <where>
+<!--            AND t.id IN-->
+<!--            <foreach collection="bp" item="id" open="(" separator="," close=")">-->
+<!--                #{id.id}-->
+<!--            </foreach>-->
+            <if test="bpListVO.seachText !='' and bpListVO.seachText !=null">
+                and CONCAT(
+                t.bp_name,
+                t.bp_tel,
+                t.bp_email)
+                like
+                CONCAT('%',#{bpListVO.seachText},'%')
+            </if>
+            and t.company_code = #{bpListVO.companyCode}
+            and t.is_block = 0
+        </where>
+        order by t.gmt_create desc
+    </select>
+
+
+    <select id="selectPageList" parameterType="com.inossem.oms.base.svc.domain.VO.BPListVO"
+            resultMap="BusinessPartnerResult">
+       <include refid="selectBPVos"/>
+        FROM business_partner t
+        <where>
+            <if test="seachText !='' and seachText !=null">
+                and CONCAT(
+                t.bp_name,
+                t.bp_tel,
+                t.bp_email)
+                like
+                CONCAT('%',#{seachText},'%')
+            </if>
+            and t.company_code = #{companyCode}
+            and t.is_block = 0
+        </where>
+        order by t.gmt_create desc
+    </select>
+</mapper>

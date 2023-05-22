@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.common.mapper.ConfigBasicUomConversionMapper">
+    
+    <resultMap type="com.inossem.oms.base.common.domain.ConfigBasicUomConversion" id="ConfigBasicUomConversionResult">
+        <result property="id"    column="id"    />
+        <result property="fromUom"    column="from_uom"    />
+        <result property="toUom"    column="to_uom"    />
+        <result property="denominator"    column="denominator"    />
+        <result property="numerator"    column="numerator"    />
+    </resultMap>
+
+    <sql id="selectConfigBasicUomConversionVo">
+        select id, from_uom, to_uom, denominator, numerator from config_basic_uom_conversion
+    </sql>
+
+    <select id="selectConfigBasicUomConversionList" parameterType="com.inossem.oms.base.common.domain.ConfigBasicUomConversion" resultMap="ConfigBasicUomConversionResult">
+        <include refid="selectConfigBasicUomConversionVo"/>
+        <where>  
+            <if test="fromUom != null  and fromUom != ''"> and from_uom = #{fromUom}</if>
+            <if test="toUom != null  and toUom != ''"> and to_uom = #{toUom}</if>
+            <if test="denominator != null "> and denominator = #{denominator}</if>
+            <if test="numerator != null "> and numerator = #{numerator}</if>
+        </where>
+    </select>
+    
+    <select id="selectConfigBasicUomConversionById" parameterType="Long" resultMap="ConfigBasicUomConversionResult">
+        <include refid="selectConfigBasicUomConversionVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertConfigBasicUomConversion" parameterType="com.inossem.oms.base.common.domain.ConfigBasicUomConversion" useGeneratedKeys="true" keyProperty="id">
+        insert into config_basic_uom_conversion
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="fromUom != null and fromUom != ''">from_uom,</if>
+            <if test="toUom != null and toUom != ''">to_uom,</if>
+            <if test="denominator != null">denominator,</if>
+            <if test="numerator != null">numerator,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="fromUom != null and fromUom != ''">#{fromUom},</if>
+            <if test="toUom != null and toUom != ''">#{toUom},</if>
+            <if test="denominator != null">#{denominator},</if>
+            <if test="numerator != null">#{numerator},</if>
+         </trim>
+    </insert>
+
+    <update id="updateConfigBasicUomConversion" parameterType="com.inossem.oms.base.common.domain.ConfigBasicUomConversion">
+        update config_basic_uom_conversion
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="fromUom != null and fromUom != ''">from_uom = #{fromUom},</if>
+            <if test="toUom != null and toUom != ''">to_uom = #{toUom},</if>
+            <if test="denominator != null">denominator = #{denominator},</if>
+            <if test="numerator != null">numerator = #{numerator},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteConfigBasicUomConversionById" parameterType="Long">
+        delete from config_basic_uom_conversion where id = #{id}
+    </delete>
+
+    <delete id="deleteConfigBasicUomConversionByIds" parameterType="String">
+        delete from config_basic_uom_conversion where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

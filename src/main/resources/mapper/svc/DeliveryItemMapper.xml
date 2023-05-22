@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.DeliveryItemMapper">
+
+    <resultMap type="com.inossem.oms.base.svc.domain.DeliveryItem" id="DeliveryItemResult">
+        <result property="id" column="id"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="deliveryItem" column="delivery_item"/>
+        <result property="referenceDoc" column="reference_doc"/>
+        <result property="referenceDocItem" column="reference_doc_item"/>
+        <result property="skuNumber" column="sku_number"/>
+        <result property="kittingSku" column="kitting_sku"/>
+        <result property="kittingDeliveryQty" column="kitting_delivery_qty"/>
+        <result property="bpSkuNumber" column="bp_sku_number"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="completeDelivery" column="complete_delivery"/>
+        <result property="deliveryQty" column="delivery_qty"/>
+        <result property="deliveredQty" column="delivered_qty"/>
+        <result property="basicUom" column="basic_uom"/>
+        <result property="isDeleted" column="is_deleted"/>
+    </resultMap>
+
+    <resultMap id="DeliveryShippedResult" type="com.inossem.oms.base.svc.domain.VO.DeliveryShippedResp">
+        <result property="deliveryId" column="delivery_id"/>
+        <result property="businessPartner" column="bp_customer"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="bpName" column="bp_name"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="carrier" column="carrier_code"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="shippedDate" column="posting_date"/>
+    </resultMap>
+
+    <resultMap id="PoDeliveryShippedResult" type="com.inossem.oms.base.svc.domain.VO.PoDeliveryShippedResp">
+        <result property="businessPartner" column="bp_vendor"/>
+        <result property="bpName" column="bp_name"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="carrier" column="carrier_code"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="shippedDate" column="posting_date"/>
+    </resultMap>
+
+    <sql id="selectDeliveryItemVo">
+        select id,
+               company_code,
+               delivery_number,
+               delivery_item,
+               reference_doc,
+               reference_doc_item,
+               sku_number,
+               kitting_sku,
+               kitting_delivery_qty,
+               bp_sku_number,
+               warehouse_code,
+               complete_delivery,
+               delivery_qty,
+               delivered_qty,
+               basic_uom,
+               is_deleted
+        from delivery_item
+    </sql>
+
+    <select id="selectShippedHeader" resultMap="DeliveryShippedResult">
+        SELECT dh.id             as `delivery_id`,
+               dh.warehouse_code as warehouse_code,
+               so.bp_customer,
+               so.bp_name,
+               so.delivery_date,
+               dh.delivery_number,
+               dh.carrier_code,
+               dh.tracking_number,
+               dh.posting_date
+        FROM delivery_item di
+                 LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+                 LEFT JOIN so_header so ON di.reference_doc = so.so_number
+        WHERE di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+          AND dh.complete_delivery = 1
+          AND di.complete_delivery = 1
+          AND dh.posting_date IS NOT NULL
+        GROUP BY dh.delivery_number
+        ORDER BY dh.delivery_number DESC
+    </select>
+
+
+    <select id="selectUnBillShippedHeader" resultMap="DeliveryShippedResult">
+        SELECT dh.id as `delivery_id`,
+               so.bp_customer,
+               so.bp_name,
+               so.delivery_date,
+               dh.delivery_number,
+               dh.carrier_code,
+               dh.tracking_number,
+               dh.posting_date
+        FROM delivery_item di
+                 LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+                 LEFT JOIN so_header so ON di.reference_doc = so.so_number
+        WHERE di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+          AND dh.complete_delivery = 1
+          AND di.complete_delivery = 1
+          AND dh.posting_date IS NOT NULL
+          AND (dh.complete_billing IS NULL OR dh.complete_billing = 0)
+        GROUP BY dh.delivery_number
+        ORDER BY dh.delivery_number DESC
+    </select>
+
+
+    <select id="selectFullyBillList" resultMap="DeliveryShippedResult">
+        SELECT dh.id as `delivery_id`,
+               so.bp_customer,
+               so.bp_name,
+               so.delivery_date,
+               dh.delivery_number,
+               dh.carrier_code,
+               dh.tracking_number,
+               dh.posting_date
+        FROM delivery_item di
+                 LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+                 LEFT JOIN so_header so ON di.reference_doc = so.so_number
+        WHERE di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+          AND dh.complete_delivery = 1
+          AND di.complete_delivery = 1
+          AND dh.posting_date IS NOT NULL
+          AND dh.complete_billing = 1
+        GROUP BY dh.delivery_number
+        ORDER BY dh.delivery_number DESC
+    </select>
+
+    <select id="selectPoShippedHeader" resultMap="PoDeliveryShippedResult">
+        SELECT po.bp_vendor,
+               po.bp_name,
+               po.delivery_date,
+               dh.delivery_number,
+               dh.carrier_code,
+               dh.tracking_number,
+               dh.posting_date
+        FROM delivery_item di
+                 LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+                 LEFT JOIN po_header po ON di.reference_doc = po.po_number
+        WHERE di.reference_doc = #{poNumber}
+          AND di.company_code = #{companyCode}
+          AND dh.complete_delivery = 1
+          AND di.complete_delivery = 1
+          AND dh.posting_date IS NOT NULL
+        GROUP BY dh.delivery_number
+        ORDER BY dh.delivery_number DESC
+    </select>
+
+    <select id="selectShippedItems" resultMap="DeliveryItemResult">
+        SELECT id,
+               sku_number,
+               kitting_sku,
+               kitting_delivery_qty,
+               warehouse_code,
+               delivery_qty,
+               delivered_qty
+        FROM delivery_item
+        WHERE delivery_number = #{deliveryNumber}
+        AND  company_code = #{companyCode}
+          AND complete_delivery = 1
+    </select>
+
+    <select id="getDeliveyItemsInfo" resultType="com.inossem.oms.base.svc.domain.DeliveryItem">
+        SELECT di.id,
+               di.delivery_number,
+               di.reference_doc,
+               di.sku_number,
+               di.delivery_qty,
+               di.delivered_qty,
+               dh.posting_date
+        FROM delivery_item di
+                 LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+        WHERE di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+        ORDER BY di.id DESC,
+                 di.delivery_number DESC
+    </select>
+
+    <select id="getShippedDateIsNull" resultType="java.lang.String">
+        SELECT
+        di.id
+        FROM
+        delivery_item di
+        LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+        WHERE
+        di.reference_doc = #{soNumber}
+        AND di.company_code = #{companyCode}
+        <if test="deliveryType != null">
+            AND dh.delivery_type = #{deliveryType}
+        </if>
+        AND dh.posting_date IS NULL
+    </select>
+
+    <select id="getShippedDateIsNullItemId" resultType="Long">
+        SELECT
+        di.id
+        FROM
+        delivery_item di
+        LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
+        <where>
+            <if test="soNumber != null">
+                AND di.reference_doc = #{soNumber}
+            </if>
+            <if test="companyCode != null">
+                AND di.company_code = #{companyCode}
+            </if>
+            <if test="skuNumber != null">
+                AND di.sku_number = #{skuNumber}
+            </if>
+            <if test="deliveryType != null">
+                AND dh.delivery_type = #{deliveryType}
+            </if>
+            <if test="kittingSku != null">
+                AND di.kitting_sku = #{kittingSku}
+            </if>
+            <if test="kittingSku == null">
+                AND di.kitting_sku is null
+            </if>
+            <if test="soItemNum != null">
+                AND di.reference_doc_item = #{soItemNum}
+            </if>
+            AND dh.posting_date IS NULL
+        </where>
+    </select>
+
+    <select id="getShippedQTY" resultType="java.math.BigDecimal">
+        SELECT
+        Sum( di.delivered_qty ) AS shippedQTY
+        FROM
+        delivery_item di
+        <where>
+            <if test="skuNumber != null">
+                AND di.sku_number = #{skuNumber}
+            </if>
+            <if test="soNumber != null">
+                AND di.reference_doc = #{soNumber}
+            </if>
+            <if test="kittingSku != null">
+                AND di.kitting_sku = #{kittingSku}
+            </if>
+            <if test="kittingSku == null">
+                AND di.kitting_sku is null
+            </if>
+            <if test="companyCode != null">
+                AND di.company_code = #{companyCode}
+            </if>
+            <if test="soItemNum != null">
+                AND di.reference_doc_item = #{soItemNum}
+            </if>
+            AND di.is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getPoShippedQTY" resultType="java.math.BigDecimal">
+        SELECT
+        Sum( di.delivered_qty ) AS shippedQTY
+        FROM
+        delivery_item di
+        <where>
+            <if test="skuNumber != null">
+                AND di.sku_number = #{skuNumber}
+            </if>
+            <if test="poNumber != null">
+                AND di.reference_doc = #{poNumber}
+            </if>
+            <if test="companyCode != null">
+                AND di.company_code = #{companyCode}
+            </if>
+            <if test="poItemNum != null">
+                AND di.reference_doc_item = #{poItemNum}
+            </if>
+            AND di.is_deleted = 0
+        </where>
+    </select>
+
+    <select id="getShippedQTYIsDelivery" resultType="java.math.BigDecimal">
+        SELECT Sum(di.delivered_qty) AS shippedQTY
+        FROM delivery_item di
+        WHERE di.sku_number = #{skuNumbwe}
+          AND di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+          AND di.delivery_number != #{deliveryNumber}
+          AND di.is_deleted = 0
+    </select>
+
+    <insert id="insertBatch" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO delivery_item
+        (
+        company_code,
+        delivery_number,
+        delivery_item,
+        reference_doc,
+        reference_doc_item,
+        sku_number,
+        kitting_sku,
+        kitting_delivery_qty,
+        bp_sku_number,
+        warehouse_code,
+        complete_delivery,
+        delivery_qty,
+        delivered_qty,
+        basic_uom,
+        is_deleted
+        )
+        VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+            #{item.companyCode},
+            #{item.deliveryNumber},
+            #{item.deliveryItem},
+            #{item.referenceDoc},
+            #{item.referenceDocItem},
+            #{item.skuNumber},
+            #{item.kittingSku},
+            #{item.kittingDeliveryQty},
+            #{item.bpSkuNumber},
+            #{item.warehouseCode},
+            #{item.completeDelivery},
+            #{item.deliveryQty},
+            #{item.deliveredQty},
+            #{item.basicUom},
+            #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
+
+
+</mapper>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.common.mapper.ConfigUomMapper">
+    
+    <resultMap type="com.inossem.oms.base.common.domain.ConfigUom" id="ConfigUomResult">
+        <result property="id"    column="id"    />
+        <result property="uomCode"    column="uom_code"    />
+        <result property="uomType"    column="uom_type"    />
+        <result property="decimalPlace"    column="decimal_place"    />
+        <result property="description"    column="description"    />
+    </resultMap>
+
+    <sql id="selectConfigUomVo">
+        select id, uom_code, uom_type, decimal_place, description from config_uom
+    </sql>
+
+    <select id="selectConfigUomList" parameterType="com.inossem.oms.base.common.domain.ConfigUom" resultMap="ConfigUomResult">
+        <include refid="selectConfigUomVo"/>
+        <where>  
+            <if test="uomCode != null  and uomCode != ''"> and uom_code = #{uomCode}</if>
+            <if test="uomType != null  and uomType != ''"> and uom_type = #{uomType}</if>
+            <if test="decimalPlace != null "> and decimal_place = #{decimalPlace}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+        </where>
+    </select>
+    
+    <select id="selectConfigUomById" parameterType="Long" resultMap="ConfigUomResult">
+        <include refid="selectConfigUomVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertConfigUom" parameterType="com.inossem.oms.base.common.domain.ConfigUom" useGeneratedKeys="true" keyProperty="id">
+        insert into config_uom
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="uomCode != null and uomCode != ''">uom_code,</if>
+            <if test="uomType != null and uomType != ''">uom_type,</if>
+            <if test="decimalPlace != null">decimal_place,</if>
+            <if test="description != null">description,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="uomCode != null and uomCode != ''">#{uomCode},</if>
+            <if test="uomType != null and uomType != ''">#{uomType},</if>
+            <if test="decimalPlace != null">#{decimalPlace},</if>
+            <if test="description != null">#{description},</if>
+         </trim>
+    </insert>
+
+    <update id="updateConfigUom" parameterType="com.inossem.oms.base.common.domain.ConfigUom">
+        update config_uom
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="uomCode != null and uomCode != ''">uom_code = #{uomCode},</if>
+            <if test="uomType != null and uomType != ''">uom_type = #{uomType},</if>
+            <if test="decimalPlace != null">decimal_place = #{decimalPlace},</if>
+            <if test="description != null">description = #{description},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteConfigUomById" parameterType="Long">
+        delete from config_uom where id = #{id}
+    </delete>
+
+    <delete id="deleteConfigUomByIds" parameterType="String">
+        delete from config_uom where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

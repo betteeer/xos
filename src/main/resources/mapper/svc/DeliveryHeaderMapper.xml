@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.DeliveryHeaderMapper">
+
+    <resultMap type="com.inossem.oms.base.svc.domain.DeliveryHeader" id="DeliveryHeaderResult">
+        <result property="id" column="id"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="deliveryType" column="delivery_type"/>
+        <result property="completeDelivery" column="complete_delivery"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="postingDate" column="posting_date"/>
+        <result property="bpCustomer" column="bp_customer"/>
+        <result property="bpVendor" column="bp_vendor"/>
+        <result property="completeBilling" column="complete_billing"/>
+        <result property="billingNumber" column="billing_number"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="carrierCode" column="carrier_code"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="createBy" column="create_by"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="deliveryNotes" column="delivery_notes"/>
+    </resultMap>
+
+    <resultMap id="DeliveryListResult" type="com.inossem.oms.base.svc.domain.VO.DeliveryedListResp">
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="salesOrderNumber" column="sales_order_number"/>
+        <result property="salesOrderType" column="sales_order_type"/>
+        <result property="shippingStatus" column="shipping_status"/>
+        <result property="carrier" column="carrier_code"/>
+        <result property="shippedDate" column="posting_date"/>
+    </resultMap>
+
+
+    <resultMap id="PoDeliveryListResult" type="com.inossem.oms.base.svc.domain.VO.PoDeliveryedListResp">
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="purchasesOrderNumber" column="purchases_order_number"/>
+        <result property="purchasesOrderType" column="purchases_order_type"/>
+        <result property="shippingStatus" column="shipping_status"/>
+        <result property="carrier" column="carrier_code"/>
+        <result property="shippedDate" column="posting_date"/>
+    </resultMap>
+
+    <sql id="selectDeliveryHeaderVo">
+        select id,
+               company_code,
+               delivery_number,
+               delivery_type,
+               complete_delivery,
+               delivery_date,
+               posting_date,
+               bp_customer,
+               bp_vendor,
+               complete_billing,
+               billing_number,
+               warehouse_code,
+               carrier_code,
+               tracking_number,
+               gmt_create,
+               create_by,
+               gmt_modified,
+               modified_by,
+               is_deleted,
+               delivery_notes
+        from delivery_header
+    </sql>
+
+
+    <select id="selectDeliveryList" resultMap="DeliveryListResult">
+        SELECT
+        DISTINCT
+        dh.delivery_number,
+        dh.tracking_number,
+        di.reference_doc AS sales_order_number,
+        so.order_type AS sales_order_type,
+        CASE
+        dh.complete_delivery
+        WHEN 0 THEN
+        'Unfulfiled' ELSE 'Fulfiled'
+        END AS shipping_status,
+        dh.carrier_code,
+        dh.posting_date,
+        dh.gmt_create
+        FROM
+        delivery_header dh
+        LEFT JOIN delivery_item di ON dh.delivery_number = di.delivery_number
+        LEFT JOIN so_header so ON di.reference_doc = so.so_number
+        <where>
+            <if test="seachText !='' and seachText !=null">
+                and CONCAT(so.so_number,dh.delivery_number,dh.tracking_number is not null) like CONCAT('%',#{seachText},'%')
+            </if>
+            <if test="companyCode !='' and companyCode !=null">
+                and dh.company_code = #{companyCode}
+            </if>
+            <if test="salesOrderType !='' and salesOrderType !=null">
+                and so.order_type = #{salesOrderType}
+            </if>
+            <if test="carrier!='' and carrier !=null">
+                and dh.carrier_code = #{carrier}
+            </if>
+            <if test="shippingStaus!='' and shippingStaus !=null">
+                and dh.complete_delivery = #{completeDelivery}
+            </if>
+            <if test="shippedStartTime!='' and shippedStartTime !=null">
+                and dh.posting_date between #{shippedStartTime} and #{shippedEndTime}
+            </if>
+            and dh.is_deleted = 0
+            and di.is_deleted = 0
+            and so.is_deleted = 0
+        </where>
+        order by dh.gmt_create desc
+</select>
+    <select id="selectDeliveryListByDeliveryNumber"
+            resultMap="DeliveryListResult">
+        SELECT
+        dh.delivery_number,
+        dh.tracking_number,
+        di.reference_doc AS sales_order_number,
+        po.order_type AS sales_order_type,
+        CASE
+        dh.complete_delivery
+        WHEN 0 THEN
+        'Unfulfiled' ELSE 'Fulfiled'
+        END AS shipping_status,
+        dh.carrier_code,
+        dh.posting_date
+        FROM
+        delivery_header dh
+        LEFT JOIN delivery_item di ON dh.delivery_number = di.delivery_number
+        LEFT JOIN so_header so ON di.reference_doc = so.so_number
+        <where>
+            dh.delivery_number IN
+            <foreach collection="list" item="item" open="(" separator="," close=")">
+                #{item.deliveryNumber}
+            </foreach>
+        </where>
+        and dh.is_deleted = 0
+        and di.is_deleted = 0
+        and so.is_deleted = 0
+    </select>
+
+
+    <select id="selectPoDeliveryList" resultMap="PoDeliveryListResult">
+        SELECT
+        DISTINCT
+        dh.delivery_number,
+        dh.tracking_number,
+        di.reference_doc AS purchases_order_number,
+        po.order_type AS purchases_order_type,
+        CASE
+        dh.complete_delivery
+        WHEN 0 THEN
+        'Unfulfiled' ELSE 'Fulfiled'
+        END AS shipping_status,
+        dh.carrier_code,
+        dh.posting_date,
+        dh.gmt_create
+        FROM
+        delivery_header dh
+        LEFT JOIN delivery_item di ON dh.delivery_number = di.delivery_number
+        LEFT JOIN po_header po ON di.reference_doc = po.po_number
+        <where>
+            <if test="seachText !='' and seachText !=null">
+                and CONCAT(po.po_number,dh.delivery_number,dh.tracking_number is not null) like CONCAT('%',#{seachText},'%')
+            </if>
+            <if test="companyCode !='' and companyCode !=null">
+                and dh.company_code = #{companyCode}
+            </if>
+            <if test="purchasesOrderType !='' and purchasesOrderType !=null">
+                and po.order_type = #{purchasesOrderType}
+            </if>
+            <if test="carrier!='' and carrier !=null">
+                and dh.carrier_code = #{carrier}
+            </if>
+            <if test="shippingStaus!='' and shippingStaus !=null">
+                and dh.complete_delivery = #{completeDelivery}
+            </if>
+            <if test="shippedStartTime!='' and shippedStartTime !=null">
+                and dh.posting_date between #{shippedStartTime} and #{shippedEndTime}
+            </if>
+            and dh.is_deleted = 0
+            and di.is_deleted = 0
+            and po.is_deleted = 0
+        </where>
+        order by dh.gmt_create desc
+    </select>
+
+    <select id="selectPoDeliveryListByDeliveryNumber"
+            resultMap="PoDeliveryListResult">
+        SELECT
+        dh.delivery_number,
+        dh.tracking_number,
+        di.reference_doc AS purchases_order_number,
+        po.order_type AS purchases_order_type,
+        CASE
+        dh.complete_delivery
+        WHEN 0 THEN
+        'Unfulfiled' ELSE 'Fulfiled'
+        END AS shipping_status,
+        dh.carrier_code,
+        dh.posting_date
+        FROM
+        delivery_header dh
+        LEFT JOIN delivery_item di ON dh.delivery_number = di.delivery_number
+        LEFT JOIN po_header po ON di.reference_doc = po.po_number
+        <where>
+            dh.delivery_number IN
+            <foreach collection="list" item="item" open="(" separator="," close=")">
+                #{item.deliveryNumber}
+            </foreach>
+        </where>
+        and dh.is_deleted = 0
+        and di.is_deleted = 0
+        and po.is_deleted = 0
+    </select>
+
+    <select id="checkDeliveryComplateBill" resultMap="DeliveryHeaderResult">
+        <include refid="selectDeliveryHeaderVo"/>
+        WHERE
+        ( complete_billing IS NULL OR complete_billing = 0 )
+        AND company_code = #{companyCode}
+        AND delivery_number = #{deliveryNumber}
+    </select>
+
+
+    <select id="selectUninvoicedList" resultType="String" resultMap="DeliveryHeaderResult">
+        SELECT DISTINCT
+            t.id,
+            t.company_code,
+            t.delivery_number,
+            t.delivery_type,
+            t.complete_delivery,
+            t.delivery_date,
+            t.posting_date,
+            t.bp_customer,
+            t.bp_vendor,
+            t.complete_billing,
+            t.billing_number,
+            t.warehouse_code,
+            t.carrier_code,
+            t.tracking_number,
+            t.gmt_create,
+            t.create_by,
+            t.gmt_modified,
+            t.modified_by,
+            t.is_deleted,
+            t.delivery_notes
+        FROM
+            delivery_header t
+                LEFT JOIN delivery_item i ON t.delivery_number = i.delivery_number
+        WHERE
+            i.reference_doc = #{soNumber}
+          AND i.company_code = #{companyCode}
+          AND i.is_deleted = 0
+          AND t.company_code = #{companyCode}
+          AND t.is_deleted = 0
+    </select>
+
+    <select id="getUnComplateBill" parameterType="String" resultMap="DeliveryHeaderResult">
+        SELECT DISTINCT
+            t.id,
+            t.company_code,
+            t.delivery_number,
+            t.delivery_type,
+            t.complete_delivery,
+            t.delivery_date,
+            t.posting_date,
+            t.bp_customer,
+            t.bp_vendor,
+            t.complete_billing,
+            t.billing_number,
+            t.warehouse_code,
+            t.carrier_code,
+            t.tracking_number,
+            t.gmt_create,
+            t.create_by,
+            t.gmt_modified,
+            t.modified_by,
+            t.is_deleted,
+            t.delivery_notes
+        FROM
+            delivery_item di
+                LEFT JOIN delivery_header t ON di.delivery_number = t.delivery_number
+        WHERE
+            di.reference_doc = #{soNumber}
+          AND  di.company_code = #{companyCode}
+          AND (
+                t.complete_billing IS NULL
+                OR complete_billing = 0)
+    </select>
+
+
+    <select id="getDeliveryNumber" parameterType="String" resultMap="DeliveryHeaderResult">
+        SELECT DISTINCT
+            t.id,
+            t.company_code,
+            t.delivery_number,
+            t.delivery_type,
+            t.complete_delivery,
+            t.delivery_date,
+            t.posting_date,
+            t.bp_customer,
+            t.bp_vendor,
+            t.complete_billing,
+            t.billing_number,
+            t.warehouse_code,
+            t.carrier_code,
+            t.tracking_number,
+            t.gmt_create,
+            t.create_by,
+            t.gmt_modified,
+            t.modified_by,
+            t.is_deleted,
+            t.delivery_notes
+        FROM
+            delivery_item di
+                LEFT JOIN delivery_header t ON di.delivery_number = t.delivery_number
+        WHERE
+            di.reference_doc = #{soNumber}
+          AND di.company_code = #{companyCode}
+          AND complete_billing = 1
+    </select>
+</mapper>

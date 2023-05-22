@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.TaxTableMapper">
+
+    <resultMap type="com.inossem.oms.base.svc.domain.TaxTable" id="TaxTableResult">
+        <result property="id" column="id"/>
+        <result property="provinceCode" column="province_code"/>
+        <result property="provinceName" column="province_name"/>
+        <result property="gstRate" column="gst_rate"/>
+        <result property="hstRate" column="hst_rate"/>
+        <result property="qstRate" column="qst_rate"/>
+        <result property="pstRate" column="pst_rate"/>
+        <result property="totalRate" column="total_rate"/>
+    </resultMap>
+
+    <sql id="selectTaxTableVo">
+        select id,
+               province_code,
+               province_name,
+               gst_rate,
+               hst_rate,
+               qst_rate,
+               pst_rate,
+               total_rate
+        from tax_table
+    </sql>
+
+</mapper>

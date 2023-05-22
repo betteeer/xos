@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.common.mapper.RegionTableMapper">
+    
+    <resultMap type="com.inossem.oms.base.common.domain.RegionTable" id="RegionTableResult">
+        <result property="id"    column="id"    />
+        <result property="regionCode"    column="region_code"    />
+        <result property="countryCode"    column="country_code"    />
+        <result property="name"    column="name"    />
+    </resultMap>
+
+    <sql id="selectRegionTableVo">
+        select id, region_code, country_code, name from region_table
+    </sql>
+
+    <select id="selectRegionTableList" parameterType="com.inossem.oms.base.common.domain.RegionTable" resultMap="RegionTableResult">
+        <include refid="selectRegionTableVo"/>
+        <where>  
+            <if test="regionCode != null  and regionCode != ''"> and region_code = #{regionCode}</if>
+            <if test="countryCode != null  and countryCode != ''"> and country_code = #{countryCode}</if>
+            <if test="name != null  and name != ''"> and name like concat('%', #{name}, '%')</if>
+        </where>
+    </select>
+    
+    <select id="selectRegionTableById" parameterType="Long" resultMap="RegionTableResult">
+        <include refid="selectRegionTableVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertRegionTable" parameterType="com.inossem.oms.base.common.domain.RegionTable" useGeneratedKeys="true" keyProperty="id">
+        insert into region_table
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="regionCode != null and regionCode != ''">region_code,</if>
+            <if test="countryCode != null and countryCode != ''">country_code,</if>
+            <if test="name != null and name != ''">name,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="regionCode != null and regionCode != ''">#{regionCode},</if>
+            <if test="countryCode != null and countryCode != ''">#{countryCode},</if>
+            <if test="name != null and name != ''">#{name},</if>
+         </trim>
+    </insert>
+
+    <update id="updateRegionTable" parameterType="com.inossem.oms.base.common.domain.RegionTable">
+        update region_table
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="regionCode != null and regionCode != ''">region_code = #{regionCode},</if>
+            <if test="countryCode != null and countryCode != ''">country_code = #{countryCode},</if>
+            <if test="name != null and name != ''">name = #{name},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deleteRegionTableById" parameterType="Long">
+        delete from region_table where id = #{id}
+    </delete>
+
+    <delete id="deleteRegionTableByIds" parameterType="String">
+        delete from region_table where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.common.mapper.PaymentTermMapper">
+    
+    <resultMap type="com.inossem.oms.base.common.domain.PaymentTerm" id="PaymentTermResult">
+        <result property="id"    column="id"    />
+        <result property="paymentTerm"    column="payment_term"    />
+        <result property="description"    column="description"    />
+        <result property="paymentDays"    column="payment_days"    />
+        <result property="paymentDiscount"    column="payment_discount"    />
+        <result property="gmtCreate"    column="gmt_create"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="gmtModified"    column="gmt_modified"    />
+        <result property="modifiedBy"    column="modified_by"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectPaymentTermVo">
+        select id, payment_term, description, payment_days, payment_discount, gmt_create, create_by, gmt_modified, modified_by, is_deleted from payment_term
+    </sql>
+
+    <select id="selectPaymentTermList" parameterType="com.inossem.oms.base.common.domain.PaymentTerm" resultMap="PaymentTermResult">
+        <include refid="selectPaymentTermVo"/>
+        <where>  
+            <if test="paymentTerm != null  and paymentTerm != ''"> and payment_term = #{paymentTerm}</if>
+            <if test="description != null  and description != ''"> and description = #{description}</if>
+            <if test="paymentDays != null  and paymentDays != ''"> and payment_days = #{paymentDays}</if>
+            <if test="paymentDiscount != null "> and payment_discount = #{paymentDiscount}</if>
+            <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
+            <if test="gmtModified != null "> and gmt_modified = #{gmtModified}</if>
+            <if test="modifiedBy != null  and modifiedBy != ''"> and modified_by = #{modifiedBy}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+    
+    <select id="selectPaymentTermById" parameterType="Long" resultMap="PaymentTermResult">
+        <include refid="selectPaymentTermVo"/>
+        where id = #{id}
+    </select>
+        
+    <insert id="insertPaymentTerm" parameterType="com.inossem.oms.base.common.domain.PaymentTerm" useGeneratedKeys="true" keyProperty="id">
+        insert into payment_term
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="paymentTerm != null and paymentTerm != ''">payment_term,</if>
+            <if test="description != null">description,</if>
+            <if test="paymentDays != null">payment_days,</if>
+            <if test="paymentDiscount != null">payment_discount,</if>
+            <if test="gmtCreate != null">gmt_create,</if>
+            <if test="createBy != null">create_by,</if>
+            <if test="gmtModified != null">gmt_modified,</if>
+            <if test="modifiedBy != null">modified_by,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="paymentTerm != null and paymentTerm != ''">#{paymentTerm},</if>
+            <if test="description != null">#{description},</if>
+            <if test="paymentDays != null">#{paymentDays},</if>
+            <if test="paymentDiscount != null">#{paymentDiscount},</if>
+            <if test="gmtCreate != null">#{gmtCreate},</if>
+            <if test="createBy != null">#{createBy},</if>
+            <if test="gmtModified != null">#{gmtModified},</if>
+            <if test="modifiedBy != null">#{modifiedBy},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePaymentTerm" parameterType="com.inossem.oms.base.common.domain.PaymentTerm">
+        update payment_term
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="paymentTerm != null and paymentTerm != ''">payment_term = #{paymentTerm},</if>
+            <if test="description != null">description = #{description},</if>
+            <if test="paymentDays != null">payment_days = #{paymentDays},</if>
+            <if test="paymentDiscount != null">payment_discount = #{paymentDiscount},</if>
+            <if test="gmtCreate != null">gmt_create = #{gmtCreate},</if>
+            <if test="createBy != null">create_by = #{createBy},</if>
+            <if test="gmtModified != null">gmt_modified = #{gmtModified},</if>
+            <if test="modifiedBy != null">modified_by = #{modifiedBy},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePaymentTermById" parameterType="Long">
+        delete from payment_term where id = #{id}
+    </delete>
+
+    <delete id="deletePaymentTermByIds" parameterType="String">
+        delete from payment_term where id in 
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+</mapper>

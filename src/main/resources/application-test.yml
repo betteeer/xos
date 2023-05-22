@@ -1,0 +1,25 @@
+server:
+  port: 9011
+  servlet:
+    context-path: /projectName
+
+spring:
+  datasource:
+    url: jdbc:mysql://127.0.0.1:3306/projectName?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true
+    username: root
+    password: root
+  redis:
+    database: 0
+    host: 127.0.0.1
+    port: 6379
+    password:
+
+logging:
+  level:
+    #打印执行的SQL语句
+    com.inossem.nt.collaboration: debug
+  file:
+    name: ./logs/spring.log
+
+
+

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.PoItemMapper">
+
+    <resultMap type="com.inossem.oms.base.svc.domain.PoItem" id="PoItemResult">
+        <result property="id"    column="id"    />
+        <result property="companyCode"    column="company_code"    />
+        <result property="poNumber"    column="po_number"    />
+        <result property="poItem"    column="po_item"    />
+        <result property="skuNumber"    column="sku_number"    />
+        <result property="itemType"    column="item_type"    />
+        <result property="warehouseCode"    column="warehouse_code"    />
+        <result property="purchaseQty"    column="purchase_qty"    />
+        <result property="purchaseUom"    column="purchase_uom"    />
+        <result property="basicQty"    column="basic_qty"    />
+        <result property="basicUom"    column="basic_uom"    />
+        <result property="unitPrice"    column="unit_price"    />
+        <result property="netValue"    column="net_value"    />
+        <result property="taxExmpt"    column="tax_exmpt"    />
+        <result property="currencyCode"    column="currency_code"    />
+        <result property="gmtCreate"    column="gmt_create"    />
+        <result property="gmtModified"    column="gmt_modified"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="modifiedBy"    column="modified_by"    />
+        <result property="isDeleted"    column="is_deleted"    />
+    </resultMap>
+
+    <sql id="selectPoItemVo">
+        select id, company_code, po_number, po_item, sku_number, item_type, warehouse_code, purchase_qty, purchase_uom, basic_qty, basic_uom, unit_price, net_value, tax_exmpt, currency_code, gmt_create, gmt_modified, create_by, modified_by, is_deleted from po_item
+    </sql>
+
+    <select id="selectPoItemList" parameterType="com.inossem.oms.base.svc.domain.PoItem" resultMap="PoItemResult">
+        <include refid="selectPoItemVo"/>
+        <where>
+            <if test="companyCode != null  and companyCode != ''"> and company_code = #{companyCode}</if>
+            <if test="poNumber != null  and poNumber != ''"> and po_number = #{poNumber}</if>
+            <if test="poItem != null  and poItem != ''"> and po_item = #{poItem}</if>
+            <if test="skuNumber != null  and skuNumber != ''"> and sku_number = #{skuNumber}</if>
+            <if test="itemType != null  and itemType != ''"> and item_type = #{itemType}</if>
+            <if test="warehouseCode != null  and warehouseCode != ''"> and warehouse_code = #{warehouseCode}</if>
+            <if test="purchaseQty != null "> and purchase_qty = #{purchaseQty}</if>
+            <if test="purchaseUom != null  and purchaseUom != ''"> and purchase_uom = #{purchaseUom}</if>
+            <if test="basicQty != null "> and basic_qty = #{basicQty}</if>
+            <if test="basicUom != null  and basicUom != ''"> and basic_uom = #{basicUom}</if>
+            <if test="unitPrice != null "> and unit_price = #{unitPrice}</if>
+            <if test="netValue != null "> and net_value = #{netValue}</if>
+            <if test="taxExmpt != null "> and tax_exmpt = #{taxExmpt}</if>
+            <if test="currencyCode != null  and currencyCode != ''"> and currency_code = #{currencyCode}</if>
+            <if test="gmtCreate != null "> and gmt_create = #{gmtCreate}</if>
+            <if test="gmtModified != null "> and gmt_modified = #{gmtModified}</if>
+            <if test="modifiedBy != null  and modifiedBy != ''"> and modified_by = #{modifiedBy}</if>
+            <if test="isDeleted != null "> and is_deleted = #{isDeleted}</if>
+        </where>
+    </select>
+
+    <select id="selectPoItemById" parameterType="Long" resultMap="PoItemResult">
+        <include refid="selectPoItemVo"/>
+        where id = #{id}
+    </select>
+
+    <select id="selectPoItemByPoNumber" parameterType="map" resultMap="PoItemResult">
+        <include refid="selectPoItemVo"/>
+        where company_code = #{companyCode} and po_number = #{poNumber}
+        and is_deleted = 0 order by po_item asc
+    </select>
+
+    <insert id="insertPoItem" parameterType="com.inossem.oms.base.svc.domain.PoItem" useGeneratedKeys="true" keyProperty="id">
+        insert into po_item
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">company_code,</if>
+            <if test="poNumber != null and poNumber != ''">po_number,</if>
+            <if test="poItem != null and poItem != ''">po_item,</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number,</if>
+            <if test="itemType != null and itemType != ''">item_type,</if>
+            <if test="warehouseCode != null and warehouseCode != ''">warehouse_code,</if>
+            <if test="purchaseQty != null">purchase_qty,</if>
+            <if test="purchaseUom != null and purchaseUom != ''">purchase_uom,</if>
+            <if test="basicQty != null">basic_qty,</if>
+            <if test="basicUom != null and basicUom != ''">basic_uom,</if>
+            <if test="unitPrice != null">unit_price,</if>
+            <if test="netValue != null">net_value,</if>
+            <if test="taxExmpt != null">tax_exmpt,</if>
+            <if test="currencyCode != null and currencyCode != ''">currency_code,</if>
+            <if test="gmtCreate != null">gmt_create,</if>
+            <if test="gmtModified != null">gmt_modified,</if>
+            <if test="createBy != null and createBy != ''">create_by,</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by,</if>
+            <if test="isDeleted != null">is_deleted,</if>
+         </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">#{companyCode},</if>
+            <if test="poNumber != null and poNumber != ''">#{poNumber},</if>
+            <if test="poItem != null and poItem != ''">#{poItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">#{skuNumber},</if>
+            <if test="itemType != null and itemType != ''">#{itemType},</if>
+            <if test="warehouseCode != null and warehouseCode != ''">#{warehouseCode},</if>
+            <if test="purchaseQty != null">#{purchaseQty},</if>
+            <if test="purchaseUom != null and purchaseUom != ''">#{purchaseUom},</if>
+            <if test="basicQty != null">#{basicQty},</if>
+            <if test="basicUom != null and basicUom != ''">#{basicUom},</if>
+            <if test="unitPrice != null">#{unitPrice},</if>
+            <if test="netValue != null">#{netValue},</if>
+            <if test="taxExmpt != null">#{taxExmpt},</if>
+            <if test="currencyCode != null and currencyCode != ''">#{currencyCode},</if>
+            <if test="gmtCreate != null">#{gmtCreate},</if>
+            <if test="gmtModified != null">#{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">#{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">#{modifiedBy},</if>
+            <if test="isDeleted != null">#{isDeleted},</if>
+         </trim>
+    </insert>
+
+    <update id="updatePoItem" parameterType="com.inossem.oms.base.svc.domain.PoItem">
+        update po_item
+        <trim prefix="SET" suffixOverrides=",">
+            <if test="companyCode != null and companyCode != ''">company_code = #{companyCode},</if>
+            <if test="poNumber != null and poNumber != ''">po_number = #{poNumber},</if>
+            <if test="poItem != null and poItem != ''">po_item = #{poItem},</if>
+            <if test="skuNumber != null and skuNumber != ''">sku_number = #{skuNumber},</if>
+            <if test="itemType != null and itemType != ''">item_type = #{itemType},</if>
+            <if test="warehouseCode != null and warehouseCode != ''">warehouse_code = #{warehouseCode},</if>
+            <if test="purchaseQty != null">purchase_qty = #{purchaseQty},</if>
+            <if test="purchaseUom != null and purchaseUom != ''">purchase_uom = #{purchaseUom},</if>
+            <if test="basicQty != null">basic_qty = #{basicQty},</if>
+            <if test="basicUom != null and basicUom != ''">basic_uom = #{basicUom},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="netValue != null">net_value = #{netValue},</if>
+            <if test="taxExmpt != null">tax_exmpt = #{taxExmpt},</if>
+            <if test="currencyCode != null and currencyCode != ''">currency_code = #{currencyCode},</if>
+            <if test="gmtCreate != null">gmt_create = #{gmtCreate},</if>
+            <if test="gmtModified != null">gmt_modified = #{gmtModified},</if>
+            <if test="createBy != null and createBy != ''">create_by = #{createBy},</if>
+            <if test="modifiedBy != null and modifiedBy != ''">modified_by = #{modifiedBy},</if>
+            <if test="isDeleted != null">is_deleted = #{isDeleted},</if>
+        </trim>
+        where id = #{id}
+    </update>
+
+    <delete id="deletePoItemById" parameterType="Long">
+        delete from po_item where id = #{id}
+    </delete>
+
+    <delete id="deletePoItemByIds" parameterType="String">
+        delete from po_item where id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+
+
+
+    <insert id="insertBatch" parameterType="list" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO po_item
+        (
+        company_code,
+        po_number,
+        po_item,
+        sku_number,
+        item_type,
+        warehouse_code,
+        purchase_qty,
+        purchase_uom,
+        basic_qty,
+        basic_uom,
+        unit_price,
+        net_value,
+        tax_exmpt,
+        currency_code,
+        gmt_create,
+        create_by,
+        gmt_modified,
+        modified_by,
+        is_deleted
+        )
+        VALUES
+        <foreach collection="list" item="item"  separator=",">
+            (
+            #{item.companyCode},
+            #{item.poNumber},
+            #{item.poItem},
+            #{item.skuNumber},
+            #{item.itemType},
+            #{item.warehouseCode},
+            #{item.purchaseQty},
+            #{item.purchaseUom},
+            #{item.basicQty},
+            #{item.basicUom},
+            #{item.unitPrice},
+            #{item.netValue},
+            #{item.taxExmpt},
+            #{item.currencyCode},
+            #{item.gmtCreate},
+            #{item.createBy},
+            #{item.gmtModified},
+            #{item.modifiedBy},
+            #{item.isDeleted}
+            )
+        </foreach>
+    </insert>
+</mapper>

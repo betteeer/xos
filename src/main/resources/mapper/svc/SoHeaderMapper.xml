@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.SoHeaderMapper">
+    <resultMap type="com.inossem.oms.base.svc.domain.SoHeader" id="SoHeaderResult">
+        <result property="id" column="id"/>
+        <result property="companyCode" column="company_code"/>
+        <result property="soNumber" column="so_number"/>
+        <result property="orderType" column="order_type"/>
+        <result property="orderStatus" column="order_status"/>
+        <result property="deliveryStatus" column="delivery_status"/>
+        <result property="billingStatus" column="billing_status"/>
+        <result property="dropshipComplete" column="dropship_complete"/>
+        <result property="bpCustomer" column="bp_customer"/>
+        <result property="orderDate" column="order_date"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="paymentTerm" column="payment_term"/>
+        <result property="referenceNumber" column="reference_number"/>
+        <result property="channelId" column="channel_id"/>
+        <result property="isDeliveryBlock" column="is_delivery_block"/>
+        <result property="isBillingBlock" column="is_billing_block"/>
+        <result property="currencyCode" column="currency_code"/>
+        <result property="grossAmount" column="gross_amount"/>
+        <result property="gstAmount" column="gst_amount"/>
+        <result property="hstAmount" column="hst_amount"/>
+        <result property="qstAmount" column="qst_amount"/>
+        <result property="pstAmount" column="pst_amount"/>
+        <result property="netAmount" column="net_amount"/>
+        <result property="gmtCreate" column="gmt_create"/>
+        <result property="createBy" column="create_by"/>
+        <result property="gmtModified" column="gmt_modified"/>
+        <result property="modifiedBy" column="modified_by"/>
+        <result property="isDeleted" column="is_deleted"/>
+        <result property="soNotes" column="so_notes"/>
+    </resultMap>
+
+
+    <resultMap type="com.inossem.oms.base.svc.domain.VO.OrderHeaderResp" id="orderHeaderResult">
+        <result property="deliveryId" column="delivery_id"></result>
+        <result property="soNumber" column="so_number"/>
+        <result property="businessPartner" column="bp_customer"/>
+        <result property="shippingAddress" column="shipping_address"/>
+        <result property="deliveryDate" column="delivery_date"/>
+        <result property="deliveryNumber" column="delivery_number"/>
+        <result property="carrier" column="carrier_code"/>
+        <result property="trackingNumber" column="tracking_number"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="shippedDate" column="posting_date"/>
+    </resultMap>
+
+    <sql id="selectSoHeaderVo">
+        select id,
+               company_code,
+               so_number,
+               order_type,
+               order_status,
+               delivery_status,
+               billing_status,
+               dropship_complete,
+               bp_customer,
+               bp_name,
+               order_date,
+               delivery_date,
+               payment_term,
+               reference_number,
+               channel_id,
+               is_delivery_block,
+               is_billing_block,
+               currency_code,
+               gross_amount,
+               gst_amount,
+               hst_amount,
+               qst_amount,
+               pst_amount,
+               net_amount,
+               gmt_create,
+               create_by,
+               gmt_modified,
+               modified_by,
+               is_deleted,
+               so_notes
+        from so_header
+    </sql>
+
+
+    <sql id="selectSoHeaderVos">
+        select DISTINCT t.id,
+                        t.company_code,
+                        t.so_number,
+                        t.order_type,
+                        t.order_status,
+                        t.delivery_status,
+                        t.billing_status,
+                        t.dropship_complete,
+                        t.bp_customer,
+                        t.bp_name,
+                        t.order_date,
+                        t.delivery_date,
+                        t.payment_term,
+                        t.reference_number,
+                        t.channel_id,
+                        t.is_delivery_block,
+                        t.is_billing_block,
+                        t.currency_code,
+                        t.gross_amount,
+                        t.gst_amount,
+                        t.hst_amount,
+                        t.qst_amount,
+                        t.pst_amount,
+                        t.net_amount,
+                        t.gmt_create,
+                        t.create_by,
+                        t.gmt_modified,
+                        t.modified_by,
+                        t.is_deleted,
+                        t.so_notes
+    </sql>
+
+    <select id="selectListBySoHeaderVo" parameterType="com.inossem.oms.base.svc.domain.VO.SalesOrderListQyery"
+            resultMap="SoHeaderResult">
+        <include refid="selectSoHeaderVos"/>
+        FROM so_header t
+        LEFT JOIN so_item i ON t.so_number = i.so_number
+        <where>
+            <if test="seachText !='' and seachText !=null">
+                and CONCAT(
+                t.so_number,
+                t.reference_number is not null,
+                i.sku_number,
+                t.bp_customer,
+                t.bp_name)
+                like
+                CONCAT('%',#{seachText},'%')
+            </if>
+            <if test="orderType!='' and orderType !=null">
+                and t.order_type = #{orderType}
+            </if>
+            <if test="orderStatus!='' and orderStatus !=null">
+                and t.order_status = #{orderStatus}
+            </if>
+            <if test="deliveryStatus!='' and deliveryStatus !=null">
+                and t.delivery_status = #{deliveryStatus}
+            </if>
+            <if test="billingStatus!='' and billingStatus !=null">
+                and t.billing_status = #{billingStatus}
+            </if>
+            <if test="companyCode!='' and companyCode !=null">
+                and t.company_code = #{companyCode}
+            </if>
+            and t.is_deleted = 0
+            and i.is_deleted = 0
+        </where>
+        order by t.gmt_create desc, t.order_date desc
+    </select>
+
+
+    <select id="getOrderHeader" parameterType="String" resultMap="orderHeaderResult">
+        SELECT DISTINCT
+            sh.so_number,
+            sh.bp_customer,
+            sh.delivery_date,
+            si.warehouse_code
+        FROM
+            so_header sh
+                LEFT JOIN so_item si ON sh.so_number = si.so_number AND si.company_code = #{companyCode}
+        WHERE
+         sh.so_number = #{soNumber}
+          AND sh.company_code = #{companyCode}
+          AND sh.is_deleted = 0
+    </select>
+
+    <select id="getOrderHeaders" parameterType="String" resultMap="orderHeaderResult">
+        SELECT DISTINCT
+               sh.so_number,
+               sh.bp_customer,
+               sh.delivery_date,
+               dh.id as `delivery_id`,
+               dh.delivery_number,
+               dh.carrier_code,
+               dh.tracking_number,
+               dh.posting_date,
+               dh.warehouse_code
+        FROM delivery_header dh
+                 LEFT JOIN delivery_item di ON dh.delivery_number = di.delivery_number
+                 LEFT JOIN so_header sh ON di.reference_doc = sh.so_number
+        WHERE sh.so_number = #{soNumber}
+          AND sh.company_code = #{companyCode}
+          AND dh.posting_date IS NULL
+          AND sh.is_deleted = 0
+    </select>
+
+
+    <select id="checkWareHoseCode" parameterType="String" resultMap="SoHeaderResult">
+        SELECT
+            DISTINCT
+            sh.id,
+            sh.company_code,
+            sh.so_number,
+            sh.delivery_status,
+            sh.is_deleted
+        FROM
+            so_item si
+        LEFT JOIN so_header sh on si.so_number = sh.so_number
+        WHERE
+            si.warehouse_code = #{wareHouseCode}
+            AND
+            si.company_code = #{companyCode}
+            AND
+            sh.delivery_status != 'FUFL'
+            AND
+            si.is_deleted = 0
+    </select>
+
+
+
+    <select id="checkSku" parameterType="String" resultMap="SoHeaderResult">
+        SELECT DISTINCT
+            sh.id,
+            sh.company_code,
+            sh.so_number,
+            sh.delivery_status,
+            sh.billing_status,
+            sh.is_deleted
+        FROM
+            so_header sh
+                LEFT JOIN so_item si ON sh.so_number = si.so_number
+        WHERE
+            si.company_code = #{companyCode}
+          AND sh.company_code = #{companyCode}
+          AND sh.billing_status != 'FUIN'
+          AND si.sku_number =#{skuCode}
+          AND si.is_deleted = 0
+          AND sh.is_deleted = 0
+    </select>
+
+</mapper>

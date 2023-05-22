@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.inossem.oms.base.svc.mapper.MaterialDocMapper">
+    
+    <resultMap type="com.inossem.oms.base.svc.vo.QueryMaterialDocResVo" id="MaterialDocResult">
+        <result property="companyCode"    column="company_code"    />
+        <result property="docNumber"    column="doc_number"    />
+        <result property="docItem"    column="doc_item"    />
+        <result property="postingDate"    column="posting_date"    />
+        <result property="movementType"    column="movement_type"    />
+        <result property="transactionType"    column="movement_description"    />
+        <result property="warehouseCode"    column="warehouse_code"    />
+        <result property="inOut"    column="in_out"    />
+        <result property="stockStatus"    column="stock_status"    />
+        <result property="skuNumber"    column="sku_number"    />
+        <result property="skuQty"    column="sku_qty"    />
+        <result property="basicUom"    column="basic_uom"    />
+        <result property="totalAmount"    column="total_amount"    />
+        <result property="currencyCode"    column="currency_code"    />
+        <result property="referenceType"    column="reference_type"    />
+        <result property="referenceNumber"    column="reference_number"    />
+        <result property="referenceItem"    column="reference_item"    />
+        <result property="isReversed"    column="is_reversed"    />
+        <result property="gmtCreate"    column="gmt_create"    />
+        <result property="createBy"    column="create_by"    />
+        <result property="modifiedBy"    column="modifiedBy"    />
+        <result property="gmtModified"    column="gmt_modified"    />
+        <result property="isDeleted"    column="is_deleted"    />
+        <result property="note"    column="note"    />
+        <result property="accountingDoc"    column="accounting_doc"    />
+    </resultMap>
+
+    <select id="selectListByQueryParam" parameterType="com.inossem.oms.base.svc.vo.QueryMaterialDocListVo" resultMap="MaterialDocResult">
+        SELECT
+            md.id,
+            md.company_code,
+            md.doc_number,
+            md.doc_item,
+            md.posting_date,
+            md.movement_type,
+            md.warehouse_code,
+            md.in_out,
+            md.stock_status,
+            md.sku_number,
+            md.sku_qty,
+            md.basic_uom,
+            md.total_amount,
+            md.currency_code,
+            md.reference_type,
+            md.reference_number,
+            md.reference_item,
+            md.is_reversed,
+            md.gmt_create,
+            md.create_by,
+            md.gmt_modified,
+            md.modified_by,
+            md.is_deleted,
+            md.note,
+            mt.movement_description
+            FROM
+        material_doc md
+        left join movement_type mt ON md.movement_type = mt.movement_type
+        <where>
+            <if test="searchText != null and searchText != ''">and (md.sku_number like concat('%',#{searchText},'%') or md.reference_number like concat('%',#{searchText},'%')
+                <if test="skuMasters != null and skuMasters.size() > 0"> or md.sku_number in
+                    <foreach collection="skuMasters" item="skuMaster" index="index" open="(" close=")" separator=",">
+                        #{skuMaster.skuNumber}
+                    </foreach>
+                </if>
+            )</if>
+            <if test="warehouseCode != null and warehouseCode != ''"> and md.warehouse_code = #{warehouseCode}</if>
+            <if test="companyCode != null and companyCode != ''"> and md.company_code = #{companyCode}</if>
+            <if test="referenceOrderType != null and referenceOrderType != ''"> and md.reference_type = #{referenceOrderType}</if>
+            <if test="startPostingDate != null  and startPostingDate != ''">and md.posting_date <![CDATA[ >= ]]> #{startPostingDate}</if>
+            <if test="endPostingDate != null  and endPostingDate != ''">and md.posting_date <![CDATA[ <= ]]> #{endPostingDate}</if>
+            and md.is_deleted = '0'
+        </where>
+            order by md.gmt_create desc
+    </select>
+
+    <select id="getMaxNumber" resultType="java.lang.Long">
+        SELECT
+            doc_number
+        FROM
+            material_doc
+        WHERE company_code = #{companyCode}
+        ORDER BY
+            CAST( doc_number AS SIGNED ) DESC
+            LIMIT 1
+    </select>
+</mapper>
