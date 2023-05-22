@@ -71,10 +71,20 @@
             <artifactId>spring-retry</artifactId>
         </dependency>
         <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-openfeign</artifactId>
+            <version>3.1.3</version>
+        </dependency>
+        <dependency>
             <groupId>org.aspectj</groupId>
             <artifactId>aspectjweaver</artifactId>
         </dependency>
         <!--常用工具类 -->
+        <dependency>
+            <groupId>commons-io</groupId>
+            <artifactId>commons-io</artifactId>
+            <version>2.11.0</version>
+        </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
             <artifactId>commons-lang3</artifactId>
@@ -111,6 +121,11 @@
         </dependency>
 
         <!--阿里fastjson依赖-->
+        <dependency>
+            <groupId>com.alibaba.fastjson2</groupId>
+            <artifactId>fastjson2</artifactId>
+            <version>2.0.11</version>
+        </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>fastjson</artifactId>
@@ -194,16 +209,16 @@
             <version>${shiro.version}</version>
         </dependency>
         <!--shiro end-->
-        <dependency>
-            <groupId>com.inossem.sco-msa</groupId>
-            <artifactId>sco-common-core</artifactId>
-            <version>${sco-msa.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.inossem.sco-msa</groupId>
-            <artifactId>sco-api-system</artifactId>
-            <version>1.8.2-SNAPSHOT</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.inossem.sco-msa</groupId>-->
+<!--            <artifactId>sco-common-core</artifactId>-->
+<!--            <version>${sco-msa.version}</version>-->
+<!--        </dependency>-->
+<!--        <dependency>-->
+<!--            <groupId>com.inossem.sco-msa</groupId>-->
+<!--            <artifactId>sco-api-system</artifactId>-->
+<!--            <version>1.8.2-SNAPSHOT</version>-->
+<!--        </dependency>-->
         <!-- excel工具 -->
         <dependency>
             <groupId>org.apache.poi</groupId>

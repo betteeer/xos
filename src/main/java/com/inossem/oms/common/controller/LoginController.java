@@ -2,10 +2,7 @@ package com.inossem.oms.common.controller;
 
 
 import com.inossem.oms.base.svc.domain.LoginParams;
-import com.inossem.sco.common.core.domain.R;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
-import com.inossem.sco.form.LoginBody;
-import com.inossem.sco.system.api.RemoteInnerLoginService;
 import io.swagger.annotations.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -13,9 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 【请填写功能名称】Controller
@@ -29,17 +24,14 @@ import java.util.Map;
 @Slf4j
 public class LoginController {
 
-    @Resource
-    private RemoteInnerLoginService remoteInnerLoginService;
-
     @PostMapping("/common/login")
     public AjaxResult<?> innerLogin(@RequestBody LoginParams param) {
         log.info(">>>>>oms登录接口,无验证码获取token,入参为:{}", param.toString());
-        LoginBody form = new LoginBody();
-        form.setUsername(param.getName());
-        form.setPassword(param.getPassword());
-        form.setFrom("oms");
-        log.info(">>>>>oms登录接口,参数封装完,form:{}", form);
+//        LoginBody form = new LoginBody();
+//        form.setUsername(param.getName());
+//        form.setPassword(param.getPassword());
+//        form.setFrom("oms");
+//        log.info(">>>>>oms登录接口,参数封装完,form:{}", form);
 //        R<?> r = remoteInnerLoginService.innerLogin(form);
 //        log.info(">>>>oms登录接口,返回结果,code={},msg={},data={}", r.getCode(), r.getMsg(), r.getData());
 //        if (r.getCode() != 200) {

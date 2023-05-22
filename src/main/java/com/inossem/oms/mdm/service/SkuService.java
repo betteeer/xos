@@ -1,6 +1,5 @@
 package com.inossem.oms.mdm.service;
 
-import cn.hutool.http.HttpStatus;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -14,10 +13,7 @@ import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.base.utils.poi.ExcelUtil;
 import com.inossem.oms.mdm.common.Util;
 import com.inossem.oms.svc.service.SvcFeignService;
-import com.inossem.sco.common.core.domain.R;
 import com.inossem.sco.common.core.utils.StringUtils;
-import com.inossem.sco.system.api.RemoteFileService;
-import com.inossem.sco.system.api.domain.SysFile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.io.FileUtils;
@@ -67,8 +63,8 @@ public class SkuService {
     @Value("${file.uri}")
     private String fileUri;
 
-    @Resource
-    RemoteFileService fileService2;
+//    @Resource
+//    RemoteFileService fileService2;
 
     @Resource
     private SvcFeignService svcFeignService;
@@ -972,29 +968,30 @@ public class SkuService {
         if (files.length > 8) {
             throw new RuntimeException("The number of pictures cannot be more than 8");
         }
-        for (MultipartFile file : files) {
-            log.info(">>>>sku 图片上传开始:file", file);
-            Map<String, Object> data = new HashMap<>();
-            R<SysFile> rt = fileService2.upload(file);
-            log.info(">>>>sku 图片上传结束结果:rt", rt);
-            if (null == rt) {
-                data.put("status", 0);
-                data.put("err", "图片服务器返回null");
-                data.put("url", "");
-                continue;
-            }
-            //检查结果
-            if (rt.getCode() == HttpStatus.HTTP_OK) {
-                data.put("status", 1);
-                data.put("err", "");
-                data.put("url", rt.getData().getUrl());
-            } else {
-                data.put("status", 0);
-                data.put("err", rt.getMsg());
-                data.put("url", "");
-            }
-            result.add(data);
-        }
+        // todo file
+//        for (MultipartFile file : files) {
+//            log.info(">>>>sku 图片上传开始:file", file);
+//            Map<String, Object> data = new HashMap<>();
+//            R<SysFile> rt = fileService2.upload(file);
+//            log.info(">>>>sku 图片上传结束结果:rt", rt);
+//            if (null == rt) {
+//                data.put("status", 0);
+//                data.put("err", "图片服务器返回null");
+//                data.put("url", "");
+//                continue;
+//            }
+//            //检查结果
+//            if (rt.getCode() == HttpStatus.HTTP_OK) {
+//                data.put("status", 1);
+//                data.put("err", "");
+//                data.put("url", rt.getData().getUrl());
+//            } else {
+//                data.put("status", 0);
+//                data.put("err", rt.getMsg());
+//                data.put("url", "");
+//            }
+//            result.add(data);
+//        }
         return result;
     }
 
