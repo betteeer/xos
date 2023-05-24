@@ -3,7 +3,7 @@
 set -e
 
 # 进入项目根目录
-cd /var/jenkins_home/workspace/nt-oms
+cd /var/lib/jenkins/workspace/nt-oms
 
 # 停止并删除已经存在的 oms 容器
 docker stop oms || true
