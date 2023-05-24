@@ -1,6 +1,5 @@
 package com.inossem.sco.common.core.exception.base;
 
-
 public class BaseException extends RuntimeException {
     private static final long serialVersionUID = 1L;
     private String module;
