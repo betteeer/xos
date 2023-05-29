@@ -75,6 +75,6 @@ file:
   staticAccessPath: /picture/**
   uri: /picture/
 
-logging:
-  level:
-    org.springframework.aop: TRACE
+#logging:
+#  level:　
+#    org.springframework.aop: TRACE

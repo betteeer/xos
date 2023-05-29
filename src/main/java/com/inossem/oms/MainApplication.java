@@ -19,7 +19,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @MapperScan("com.inossem.oms.base.**.mapper")
 @EnableSwagger2
 @EnableRetry
-@EnableFeignClients(basePackages = {"com.inossem.oms.api", "com.inossem.sco.system"})
+@EnableFeignClients(basePackages = {"com.inossem.oms.api"})
 public class MainApplication {
 
     public static void main(String[] args) {
