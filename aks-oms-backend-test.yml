@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: oms-backend
+  name: oms-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: oms-backend
+  template:
+    metadata:
+      labels:
+        app: oms-backend
+    spec:
+      containers:
+        - image: eorepo.azurecr.io/oms-backend:test-latest
+          name: oms-backend
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 9011
