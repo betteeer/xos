@@ -66,15 +66,15 @@
     </sql>
 
     <select id="selectShippedHeader" resultMap="DeliveryShippedResult">
-        SELECT dh.id             as `delivery_id`,
-               dh.warehouse_code as warehouse_code,
-               so.bp_customer,
-               so.bp_name,
-               so.delivery_date,
+        SELECT ANY_VALUE(dh.id)              as `delivery_id`,
+               ANY_VALUE(dh.warehouse_code) as warehouse_code,
+               ANY_VALUE(so.bp_customer),
+               ANY_VALUE(so.bp_name),
+               ANY_VALUE(so.delivery_date),
                dh.delivery_number,
-               dh.carrier_code,
-               dh.tracking_number,
-               dh.posting_date
+               ANY_VALUE(dh.carrier_code),
+               ANY_VALUE(dh.tracking_number),
+               ANY_VALUE(dh.posting_date)
         FROM delivery_item di
                  LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
                  LEFT JOIN so_header so ON di.reference_doc = so.so_number
@@ -89,14 +89,14 @@
 
 
     <select id="selectUnBillShippedHeader" resultMap="DeliveryShippedResult">
-        SELECT dh.id as `delivery_id`,
-               so.bp_customer,
-               so.bp_name,
-               so.delivery_date,
+        SELECT ANY_VALUE(dh.id) as `delivery_id`,
+               ANY_VALUE(so.bp_customer),
+               ANY_VALUE(so.bp_name),
+               ANY_VALUE(so.delivery_date),
                dh.delivery_number,
-               dh.carrier_code,
-               dh.tracking_number,
-               dh.posting_date
+               ANY_VALUE(dh.carrier_code),
+               ANY_VALUE(dh.tracking_number),
+               ANY_VALUE(dh.posting_date)
         FROM delivery_item di
                  LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
                  LEFT JOIN so_header so ON di.reference_doc = so.so_number
@@ -112,14 +112,14 @@
 
 
     <select id="selectFullyBillList" resultMap="DeliveryShippedResult">
-        SELECT dh.id as `delivery_id`,
-               so.bp_customer,
-               so.bp_name,
-               so.delivery_date,
+        SELECT ANY_VALUE(dh.id) as `delivery_id`,
+               ANY_VALUE(so.bp_customer),
+               ANY_VALUE(so.bp_name),
+               ANY_VALUE(so.delivery_date),
                dh.delivery_number,
-               dh.carrier_code,
-               dh.tracking_number,
-               dh.posting_date
+               ANY_VALUE(dh.carrier_code),
+               ANY_VALUE(dh.tracking_number),
+               ANY_VALUE(dh.posting_date)
         FROM delivery_item di
                  LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
                  LEFT JOIN so_header so ON di.reference_doc = so.so_number
@@ -134,13 +134,13 @@
     </select>
 
     <select id="selectPoShippedHeader" resultMap="PoDeliveryShippedResult">
-        SELECT po.bp_vendor,
-               po.bp_name,
-               po.delivery_date,
+        SELECT ANY_VALUE(po.bp_vendor),
+               ANY_VALUE(po.bp_name),
+               ANY_VALUE(po.delivery_date),
                dh.delivery_number,
-               dh.carrier_code,
-               dh.tracking_number,
-               dh.posting_date
+               ANY_VALUE(dh.carrier_code),
+               ANY_VALUE(dh.tracking_number),
+               ANY_VALUE(dh.posting_date)
         FROM delivery_item di
                  LEFT JOIN delivery_header dh ON di.delivery_number = dh.delivery_number
                  LEFT JOIN po_header po ON di.reference_doc = po.po_number
