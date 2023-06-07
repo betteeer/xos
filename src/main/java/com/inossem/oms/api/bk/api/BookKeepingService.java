@@ -137,7 +137,7 @@ public class BookKeepingService {
 
         //RequestBody body = RequestBody.create(mediaType, reqBody);
         logger.info("调用bk v2 coa mapping");
-        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1"
+        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1";
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
@@ -156,16 +156,18 @@ public class BookKeepingService {
     }
 
     public JSONArray glList(String companyCodeEx) throws IOException {
-        SystemConnect connect = getConnect(companyCodeEx);
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnect(companyCodeEx);
         logger.info("调用bk v2 coa list");
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
+        String url = (inner ? "http://bkp-engine-service:3038" : (connect.getApiUrl() + "/bkp-engine")) + "/bk/coa" + "?company=" + companyCodeEx;
         Request request = new Request.Builder()
-                .url(connect.getApiUrl() + "/bkp-engine/bk/coa" + "?company=" + companyCodeEx)
+                .url(url)
                 .get()
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .build();
         Response response = client.newCall(request).execute();
 
@@ -216,7 +218,8 @@ public class BookKeepingService {
     }
 
     public JSONObject bpCustomerList(String companyId, String companyCode, String bpName) throws IOException {
-        SystemConnect connect = getConnectCom(companyCode);
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnectCom(companyCode);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -227,7 +230,7 @@ public class BookKeepingService {
         paramsMap.put("company_code", companyCode);
         paramsMap.put("contact_name", bpName);
 
-        String url = connect.getApiUrl() + "/system-preferences/api/v1/contact";
+        String url = (inner ? "http://system-preferences-service:3030" :(connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
 
         url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
@@ -235,7 +238,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -264,7 +267,8 @@ public class BookKeepingService {
     }
 
     public JSONArray bpCustomerListLike(String companyId, String companyCode) throws IOException {
-        SystemConnect connect = getConnectCom(companyCode);
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnectCom(companyCode);
 
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("company_id", companyId);
@@ -276,7 +280,7 @@ public class BookKeepingService {
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
 
-        String url = connect.getApiUrl() + "/system-preferences/api/v1/contact";
+        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
 
         url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
@@ -284,7 +288,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -396,14 +400,15 @@ public class BookKeepingService {
     }
 
     public String soBill(SoInvoiceModel model) throws IOException {
-        SystemConnect connect = getConnect(model.getCompany_code());
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
         model.setCreator(Integer.valueOf(connect.getBkCreator()));
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
-
-        String url = connect.getApiUrl() + "/invoice-statement/api/v1/ar";
+        String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
+        String url = prefix + "/api/v1/ar";
         logger.info("请求的地址为：" + url);
 
         String param = JSONObject.toJSONString(model,
@@ -414,7 +419,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
@@ -430,14 +435,15 @@ public class BookKeepingService {
     }
 
     public String poBill(PoInvoiceModel model) throws IOException {
-        SystemConnect connect = getConnect(model.getCompany_code());
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
         model.setCreator(connect.getBkCreator());
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
-
-        String url = connect.getApiUrl() + "/invoice-statement/api/v1/ap";
+        String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
+        String url = prefix + "/api/v1/ap";
         logger.info("请求的地址为：" + url);
 
         String param = JSONObject.toJSONString(model,
@@ -474,19 +480,21 @@ public class BookKeepingService {
 
     public String postBkGL(JSONObject requestBody) throws IOException {
         logger.info(">>>>>postBkGL,requestBody:{}", requestBody);
-        SystemConnect connect = getConnect(requestBody.getString("company_code"));
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnect(requestBody.getString("company_code"));
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
         MediaType mediaType = MediaType.parse("application/json");
         String param = handleBkGlParam(requestBody.toString());
         logger.info("远程调用BkGL请求参数:[{}]", param);
+        String url = (inner ? "http://bkp-engine-service:3038" : (connect.getApiUrl() + "/bkp-engine")) + "/bk/post-journal-entry";
         RequestBody body = RequestBody.create(mediaType, requestBody.toString());
         Request request = new Request.Builder()
 //                .url(connect.getApiUrl() + "/web/bk/gl/post")
-                .url(connect.getApiUrl() + "/bkp-engine/bk/post-journal-entry")
+                .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response;
@@ -512,7 +520,8 @@ public class BookKeepingService {
      * @throws IOException
      */
     public JSONObject saveBp(BusinessPartner bp, JSONObject op) throws IOException {
-        SystemConnect connect = getConnectCom(bp.getCompanyCode());
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect =  inner ? null : getConnectCom(bp.getCompanyCode());
         JSONObject requestData = getBpData(bp, op);
         String param = requestData.toJSONString(JSONWriter.Feature.WriteNullStringAsEmpty);
         param = param.replaceAll("\"_NULL_\"", "null");
@@ -524,11 +533,11 @@ public class BookKeepingService {
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType,
                 param);
-
+        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
         Request request = new Request.Builder()
-                .url(connect.getApiUrl() + "/system-preferences/api/v1/contact")
+                .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
