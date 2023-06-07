@@ -10,6 +10,7 @@ import com.inossem.sco.common.core.utils.StringUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -151,5 +152,9 @@ public class SpeedCompareController {
         map.put("time", (etime - stime) / Math.pow(10, 9));
         return JSON.toJSONString(res);
     }
-
+    @RequestMapping("/error")
+    public String handleError(Model model) {
+        model.addAttribute("errorMessage", "Oops! Something went wrong.");
+        return "error";
+    }
 }
