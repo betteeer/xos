@@ -1,5 +1,6 @@
 package com.inossem.oms.selftest;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.inossem.oms.base.svc.domain.SystemConnect;
@@ -113,7 +114,7 @@ public class SpeedCompareController {
     }
 
     @GetMapping("/inner")
-    public HashMap<String, Object> inner() throws IOException {
+    public String inner() throws IOException {
         long stime = System.nanoTime();
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -130,8 +131,15 @@ public class SpeedCompareController {
                 .method("GET", null)
                 .addHeader("Content-Type", "application/json")
                 .build();
+        Response response = null;
+        try {
+            response = client.newCall(request).execute();
+        } catch (Error e) {
+            return e.getMessage();
+        }
 
-        Response response = client.newCall(request).execute();
+
+
         String bo = response.body().string();
         logger.info("接收到的数据为：{}", bo);
 
@@ -141,7 +149,7 @@ public class SpeedCompareController {
         long etime = System.nanoTime();
         map.put("data", res);
         map.put("time", (etime - stime) / Math.pow(10, 9));
-        return map;
+        return JSON.toJSONString(res);
     }
 
 }
