@@ -2,14 +2,14 @@ package com.inossem.oms;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.inossem.oms.api.file.api.FileService;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestPart;
-import org.springframework.web.bind.annotation.RestController;
+import com.inossem.oms.selftest.AppVersion;
+import com.inossem.oms.selftest.AppVersionMapper;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/test")
@@ -18,6 +18,8 @@ public class TestController {
     @Resource
     FileService fileService;
 
+    @Resource
+    AppVersionMapper appVersionMapper;
     @PostMapping(value="file")
     public JSONObject test(@RequestPart("file") MultipartFile file) throws IOException {
 
@@ -28,4 +30,9 @@ public class TestController {
 
     }
 
+    @GetMapping(value="appVersions")
+    public List<AppVersion> getAppVersions() {
+        List<AppVersion> appVersions = appVersionMapper.selectList(null);
+        return appVersions;
+    }
 }

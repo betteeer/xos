@@ -16,7 +16,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 @SpringBootApplication
 @EnableAspectJAutoProxy
-@MapperScan("com.inossem.oms.base.**.mapper")
+@MapperScan("com.inossem.oms.base.**.mapper, com.inossem.oms.selftest.**")
 @EnableSwagger2
 @EnableRetry
 @EnableFeignClients(basePackages = {"com.inossem.oms.api"})

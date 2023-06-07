@@ -124,7 +124,7 @@ public class CompanyService {
     public Company getCompanyById(Long id) {
         try {
             Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>()
-                    .eq(Company::getId, id));
+                    .eq(Company::getOrgidEx, id));
             Address address = addressMapper.selectOne(new LambdaQueryWrapper<Address>()
                     .eq(Address::getCompanyCode, company.getCompanyCode())
                     .eq(Address::getType, Util.TYPE_ADDRESS_COMPANY)

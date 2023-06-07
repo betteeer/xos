@@ -5,9 +5,17 @@ server:
 
 spring:
   datasource:
-    url: jdbc:mysql://eo-test.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
-    username: ntdbuser
-    password: Init6666
+    dynamic:
+      primary: oms
+      datasource:
+        oms:
+          url: jdbc:mysql://eo-test.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+          username: ntdbuser
+          password: Init6666
+        tms:
+          url: jdbc:mysql://eo-test.inossemcanada.com:3306/timesheet-service?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+          username: ntdbuser
+          password: Init6666
   redis:
     database: 0
     host: 127.0.0.1
@@ -17,7 +25,7 @@ spring:
 logging:
   level:
     #打印执行的SQL语句
-    com.inossem.oms.base: debug
+    com.inossem: debug
   file:
     name: ./logs/spring.log
 
