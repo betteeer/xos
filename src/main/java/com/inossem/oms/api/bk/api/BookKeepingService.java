@@ -12,6 +12,7 @@ import com.inossem.oms.base.svc.domain.VO.AddressVO;
 import com.inossem.oms.base.utils.HttpParamsUtils;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.svc.service.SystemConnectService;
+import com.inossem.oms.utils.InnerInterfaceCall;
 import com.inossem.sco.common.core.utils.StringUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
@@ -117,8 +118,8 @@ public class BookKeepingService {
     }
 
     public JSONArray coaList(String companyCodeEx, Integer companyIdEx) throws IOException {
-
-        SystemConnect connect = getConnect(companyCodeEx);
+        boolean inner = InnerInterfaceCall.isInner();
+        SystemConnect connect = inner ? null : getConnect(companyCodeEx);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -136,10 +137,11 @@ public class BookKeepingService {
 
         //RequestBody body = RequestBody.create(mediaType, reqBody);
         logger.info("调用bk v2 coa mapping");
+        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1"
         Request request = new Request.Builder()
-                .url(connect.getApiUrl() + "/system-preferences/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1")
+                .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", getToken(connect))
+                .addHeader("Authorization", inner ? null : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
