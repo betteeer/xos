@@ -93,7 +93,7 @@ public class FileService {
                         RequestBody.create(MediaType.parse("multipart/form-data"), multipartFile.getBytes()))
                 .build();
         logger.info("调用bk v2 coa mapping");
-        String url =(isInner ? "http://filestorage-service" : connect.getApiUrl()) + "/filestorage/upload";
+        String url =isInner ? "http://filestorage-service/upload" : (connect.getApiUrl() + "/filestorage/upload");
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization", isInner ? null: getToken(connect))

@@ -117,6 +117,7 @@ public class BookKeepingService {
     }
 
     public JSONArray coaList(String companyCodeEx, Integer companyIdEx) throws IOException {
+
         SystemConnect connect = getConnect(companyCodeEx);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
