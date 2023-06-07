@@ -123,7 +123,7 @@ public class SpeedCompareController {
         paramsMap.put("company_code", 3002);
         paramsMap.put("contact_name", "");
 //        String url = "http://system-preferences-service:3030/api/v1/contact";
-        String url = "http://system-preferences-service:3030" + "/api/v1/coa-rel?company_id=" + 71 + "&company_code=" + 3002 + "&type=2&$limit=-1";
+        String url = "http://system-preferences-service" + "/api/v1/coa-rel?company_id=" + 71 + "&company_code=" + 3002 + "&type=2&$limit=-1";
 
 //        url += HttpParamsUtils.getBodyParams(paramsMap);
         Request request = new Request.Builder()
