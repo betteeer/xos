@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.inossem.oms.base.svc.domain.SystemConnect;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.svc.service.SystemConnectService;
+import com.inossem.oms.utils.InnerInterfaceCall;
 import com.inossem.sco.common.core.utils.StringUtils;
 import okhttp3.*;
 import org.slf4j.Logger;
@@ -77,7 +78,8 @@ public class FileService {
         }
     }
     public JSONObject upload(String companyCodeEx, MultipartFile multipartFile) throws IOException {
-        SystemConnect connect = getConnect(companyCodeEx);
+        boolean isInner = InnerInterfaceCall.isInner();
+        SystemConnect connect = isInner ? null : getConnect(companyCodeEx);
 
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(100, TimeUnit.SECONDS)
@@ -91,9 +93,10 @@ public class FileService {
                         RequestBody.create(MediaType.parse("multipart/form-data"), multipartFile.getBytes()))
                 .build();
         logger.info("调用bk v2 coa mapping");
+        String url =(isInner ? "http://filestorage-service" : connect.getApiUrl()) + "/filestorage/upload";
         Request request = new Request.Builder()
-                .url(connect.getApiUrl() + "/filestorage/upload")
-                .addHeader("Authorization", getToken(connect))
+                .url(url)
+                .addHeader("Authorization", isInner ? null: getToken(connect))
                 .addHeader("Content-Type", "application/json; charset=utf-8")
                 .post(requestBody)
                 .build();

@@ -20,7 +20,7 @@ public class TestController {
 
     @Resource
     AppVersionMapper appVersionMapper;
-    @PostMapping(value="file")
+    @PostMapping(value="/file")
     public JSONObject test(@RequestPart("file") MultipartFile file) throws IOException {
 
 //        System.out.println(file.getOriginalFilename());
