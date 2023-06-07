@@ -118,15 +118,17 @@ public class SpeedCompareController {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
-        Map<String, Object> paramsMap = new HashMap<>();
-        paramsMap.put("company_id", 71);
-        paramsMap.put("company_code", 3002);
-        paramsMap.put("contact_name", "");
-        String url = "http://system-preferences-service:3030/api/v1/contact";
-        url += HttpParamsUtils.getBodyParams(paramsMap);
+//        Map<String, Object> paramsMap = new HashMap<>();
+//        paramsMap.put("company_id", 71);
+//        paramsMap.put("company_code", 3002);
+//        paramsMap.put("contact_name", "");
+        String url = "http://system-preferences-service:3030" + "/api/v1/coa-rel?company_id=71&company_code=3002&type=2&$limit=-1";
+//      String url = "http://system-preferences-service:3030/api/v1/contact";
+//        url += HttpParamsUtils.getBodyParams(paramsMap);
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
+                .addHeader("Content-Type", "application/json")
                 .build();
 
         Response response = client.newCall(request).execute();
