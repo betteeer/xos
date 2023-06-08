@@ -170,7 +170,7 @@ public class BookKeepingService {
                 .addHeader("Authorization", inner ? "" : getToken(connect))
                 .build();
         Response response = client.newCall(request).execute();
-
+        logger.info(response.toString());
         if (response.code() != 200) {
             throw new RuntimeException("调用BK接口失败");
         }
