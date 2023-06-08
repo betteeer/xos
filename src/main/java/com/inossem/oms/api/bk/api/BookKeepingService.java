@@ -141,7 +141,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
@@ -167,7 +167,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .get()
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .build();
         Response response = client.newCall(request).execute();
 
@@ -238,7 +238,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -288,7 +288,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .build();
 
         Response response = client.newCall(request).execute();
@@ -419,7 +419,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
@@ -494,7 +494,7 @@ public class BookKeepingService {
 //                .url(connect.getApiUrl() + "/web/bk/gl/post")
                 .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response;
@@ -537,7 +537,7 @@ public class BookKeepingService {
         Request request = new Request.Builder()
                 .url(url)
                 .method("POST", body)
-                .addHeader("Authorization", inner ? null : getToken(connect))
+                .addHeader("Authorization", inner ? "" : getToken(connect))
                 .addHeader("Content-Type", "application/json")
                 .build();
         Response response = client.newCall(request).execute();
