@@ -3,7 +3,6 @@ package com.inossem.oms.selftest;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.inossem.oms.base.svc.domain.SystemConnect;
-import com.inossem.oms.base.utils.HttpParamsUtils;
 import com.inossem.oms.svc.service.SystemConnectService;
 import com.inossem.sco.common.core.utils.StringUtils;
 import okhttp3.*;
@@ -91,7 +90,7 @@ public class SpeedCompareController {
 
         String url = connect.getApiUrl() + "/system-preferences/api/v1/coa-rel?company_id=71&company_code=3002&type=2&$limit=-1";
 
-        url += HttpParamsUtils.getBodyParams(paramsMap);
+//        url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
 
         Request request = new Request.Builder()
