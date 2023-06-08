@@ -1,6 +1,5 @@
 package com.inossem.oms.selftest;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.inossem.oms.base.svc.domain.SystemConnect;
@@ -77,7 +76,7 @@ public class SpeedCompareController {
         }
     }
     @GetMapping("/outer")
-    public HashMap<String, Object> outer() throws IOException {
+    public String outer() throws IOException {
         long stime = System.nanoTime();
         SystemConnect connect = getConnect("3002");
 
@@ -90,7 +89,7 @@ public class SpeedCompareController {
         paramsMap.put("company_code", 3002);
         paramsMap.put("contact_name", "");
 
-        String url = connect.getApiUrl() + "/system-preferences/api/v1/contact";
+        String url = connect.getApiUrl() + "/system-preferences/api/v1/coa-rel?company_id=71&company_code=3002&type=2&$limit=-1";
 
         url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
@@ -104,14 +103,14 @@ public class SpeedCompareController {
         Response response = client.newCall(request).execute();
         String bo = response.body().string();
         logger.info("接收到的数据为：{}", bo);
+        return bo;
+//        JSONObject res = JSONObject.parseObject(bo);
 
-        JSONObject res = JSONObject.parseObject(bo);
-
-        HashMap<String, Object> map = new HashMap<>();
-        long etime = System.nanoTime();
-        map.put("data", res);
-        map.put("time", (etime - stime) / Math.pow(10, 9));
-        return map;
+//        HashMap<String, Object> map = new HashMap<>();
+//        long etime = System.nanoTime();
+//        map.put("data", res);
+//        map.put("time", (etime - stime) / Math.pow(10, 9));
+//        return map;
     }
 
     @GetMapping("/inner")
@@ -149,14 +148,14 @@ public class SpeedCompareController {
 
         String bo = response.body().string();
         logger.info("接收到的数据为：{}", bo);
-
-        JSONObject res = JSONObject.parseObject(bo);
-
-        HashMap<String, Object> map = new HashMap<>();
-        long etime = System.nanoTime();
-        map.put("data", res);
-        map.put("time", (etime - stime) / Math.pow(10, 9));
-        return JSON.toJSONString(res);
+        return bo;
+//        JSONObject res = JSONObject.parseObject(bo);
+//
+//        HashMap<String, Object> map = new HashMap<>();
+//        long etime = System.nanoTime();
+//        map.put("data", res);
+//        map.put("time", (etime - stime) / Math.pow(10, 9));
+//        return JSON.toJSONString(res);
     }
     @RequestMapping("/error")
     public String handleError(Model model) {
