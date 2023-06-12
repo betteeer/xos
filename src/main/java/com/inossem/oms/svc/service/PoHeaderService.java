@@ -90,7 +90,7 @@ public class PoHeaderService {
             if (pos != null && !pos.isEmpty()) {
 
                 res.put("invoiceAmount", pos.get(0).getGrossAmount());
-                res.put("invoicedPercentage", pos.get(0).getGstAmount().divide(poHeader.getGstAmount(),2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+                res.put("invoicedPercentage", pos.get(0).getGrossAmount().divide(poHeader.getGrossAmount(),2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
 
                 invoiceTicketUrl = pos.get(0).getInvoiceTicketUrl();
                 header.setInvoiceNumber(pos.get(0).getInvoiceNumber());
