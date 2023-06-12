@@ -15,11 +15,11 @@ spec:
         app: oms-backend
     spec:
       containers:
-        - image: eorepo.azurecr.io/eo-oms-backend:test-latest
+        - image: eorepo.azurecr.io/eo-oms-backend:latest
           name: oms-backend
           imagePullPolicy: Always
           env:
           - name: spring.profiles.active
-            value: dev
+            value: prod
           ports:
             - containerPort: 9011
