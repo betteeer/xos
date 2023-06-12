@@ -5,6 +5,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.SoInvoiceModel;
+import com.inossem.oms.base.svc.domain.BkCoaRel;
 import com.inossem.oms.base.svc.domain.BusinessPartner;
 import com.inossem.oms.base.svc.domain.Company;
 import com.inossem.oms.base.svc.domain.SystemConnect;
@@ -21,9 +22,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -115,6 +114,38 @@ public class BookKeepingService {
         } else {
             throw new RuntimeException("获取Token失败，" + response);
         }
+    }
+
+    public ArrayList<BkCoaRel> getBkCoaRels(Company company) throws IOException {
+        JSONArray jsonArray = this.coaList(company.getCompanyCodeEx(), Integer.valueOf(company.getOrgidEx()));
+        if (jsonArray == null || jsonArray.isEmpty()) {
+            logger.info("调用bk没有拿到CoaRel");
+            return new ArrayList<>();
+        }
+        ArrayList<BkCoaRel> bkCoaRels = new ArrayList<>();
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject obj = jsonArray.getJSONObject(i);
+            BkCoaRel bk = new BkCoaRel();
+            bk.setCompanyId(obj.getInteger("company_id"));
+            bk.setCompanyCode(company.getCompanyCode());
+            bk.setCoaCode(obj.getString("coa_code"));
+            bk.setCoaId(obj.getInteger("coa_id"));
+            bk.setCode(obj.getString("code"));
+            bk.setCoaName(obj.getString("coa_name"));
+            bk.setCodeCategory(obj.getInteger("code_category"));
+            bk.setCompanyCodeEx(obj.getString("company_code"));
+            bk.setCreateTime(new Date());
+//                bk.setCreator(UserInfoUtils.getSysUserName());
+            bk.setCreator("admin");
+            // ###todo###
+            bk.setDebitCoaCode(obj.getString("debit_coa_code"));
+            bk.setDebitCoaId(obj.getInteger("debit_coa_id"));
+            bk.setDebitCoaName(obj.getString("debit_coa_name"));
+            bk.setDelFlag(0);
+            bk.setType(obj.getString("type"));
+            bkCoaRels.add(bk);
+        }
+        return bkCoaRels;
     }
 
     public JSONArray coaList(String companyCodeEx, Integer companyIdEx) throws IOException {

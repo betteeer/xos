@@ -28,10 +28,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -832,13 +829,17 @@ public class MaterialDocService {
     public String remoteBkGL(CreateMaterialDocVo createMaterialDocVo, String docNumber) throws IOException {
 //        RemoteBkGl remoteBkGl = new RemoteBkGl();
         RemoteBkGlV2 remoteBkGl = new RemoteBkGlV2();
-        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, createMaterialDocVo.getMovementType())
-                .eq(BkCoaRel::getCompanyCode, createMaterialDocVo.getCompanyCode())
-                .last("limit 1");
-        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
-        if (!StringUtils.isNull(bkCoaRel)) {
-            Company company = companyService.getCompany(createMaterialDocVo.getCompanyCode());
+//        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, createMaterialDocVo.getMovementType())
+//                .eq(BkCoaRel::getCompanyCode, createMaterialDocVo.getCompanyCode())
+//                .last("limit 1");
+//        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
+        Company company = companyService.getCompany(createMaterialDocVo.getCompanyCode());
+        ArrayList<BkCoaRel> bkCoaRels = bookKeepingService.getBkCoaRels(company);
+        Optional<BkCoaRel> bkCoaRelOptional = bkCoaRels.stream().filter(b -> b.getCode().equals(createMaterialDocVo.getMovementType()) && b.getCompanyCode().equals(createMaterialDocVo.getCompanyCode())).findFirst();
+
+        if (bkCoaRelOptional.isPresent()) {
+            BkCoaRel bkCoaRel = bkCoaRelOptional.get();
             remoteBkGl.setCompanyId(company.getOrgidEx());
             remoteBkGl.setCompanyCode(company.getCompanyCodeEx());
             remoteBkGl.setHeaderText(docNumber);
