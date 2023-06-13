@@ -828,92 +828,92 @@ public class MaterialDocService {
      */
     public String remoteBkGL(CreateMaterialDocVo createMaterialDocVo, String docNumber) throws IOException {
 //        RemoteBkGl remoteBkGl = new RemoteBkGl();
-        RemoteBkGlV2 remoteBkGl = new RemoteBkGlV2();
+                RemoteBkGlV2 remoteBkGl = new RemoteBkGlV2();
 //        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
 //        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, createMaterialDocVo.getMovementType())
 //                .eq(BkCoaRel::getCompanyCode, createMaterialDocVo.getCompanyCode())
 //                .last("limit 1");
 //        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
-        Company company = companyService.getCompany(createMaterialDocVo.getCompanyCode());
-        ArrayList<BkCoaRel> bkCoaRels = bookKeepingService.getBkCoaRels(company);
-        Optional<BkCoaRel> bkCoaRelOptional = bkCoaRels.stream().filter(b -> b.getCode().equals(createMaterialDocVo.getMovementType()) && b.getCompanyCode().equals(createMaterialDocVo.getCompanyCode())).findFirst();
+                Company company = companyService.getCompany(createMaterialDocVo.getCompanyCode());
+                ArrayList<BkCoaRel> bkCoaRels = bookKeepingService.getBkCoaRels(company);
+                Optional<BkCoaRel> bkCoaRelOptional = bkCoaRels.stream().filter(b -> b.getCode().equals(createMaterialDocVo.getMovementType()) && b.getCompanyCode().equals(createMaterialDocVo.getCompanyCode())).findFirst();
 
-        if (bkCoaRelOptional.isPresent()) {
-            BkCoaRel bkCoaRel = bkCoaRelOptional.get();
-            remoteBkGl.setCompanyId(company.getOrgidEx());
-            remoteBkGl.setCompanyCode(company.getCompanyCodeEx());
-            remoteBkGl.setHeaderText(docNumber);
+                if (bkCoaRelOptional.isPresent()) {
+                    BkCoaRel bkCoaRel = bkCoaRelOptional.get();
+                    remoteBkGl.setCompanyId(company.getOrgidEx());
+                    remoteBkGl.setCompanyCode(company.getCompanyCodeEx());
+                    remoteBkGl.setHeaderText(docNumber);
 //            remoteBkGl.setCurrency(convertCurrency(createMaterialDocVo.getCreateMaterialDocSkuVoList().get(0).getCurrencyCode()));
-            remoteBkGl.setCurrency(createMaterialDocVo.getCreateMaterialDocSkuVoList().get(0).getCurrencyCode());
-            remoteBkGl.setCreateDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date()));
-            remoteBkGl.setPostingDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, createMaterialDocVo.getPostingDate()));
-            remoteBkGl.setExchangeRate(1);
-            BigDecimal totalDebit = BigDecimal.ZERO;
-            BigDecimal totalCredit = BigDecimal.ZERO;
-            //初始化Item
+                    remoteBkGl.setCurrency(createMaterialDocVo.getCreateMaterialDocSkuVoList().get(0).getCurrencyCode());
+                    remoteBkGl.setCreateDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, new Date()));
+                    remoteBkGl.setPostingDate(DateUtils.parseDateToStr(DateUtils.YYYY_MM_DD, createMaterialDocVo.getPostingDate()));
+                    remoteBkGl.setExchangeRate(1);
+                    BigDecimal totalDebit = BigDecimal.ZERO;
+                    BigDecimal totalCredit = BigDecimal.ZERO;
+                    //初始化Item
 //            List<RemoteBkGlSubList> remoteBkGlSubLists = new ArrayList<>();
-            List<RemoteBkGlSubListV2> remoteBkGlSubLists = new ArrayList<>();
-            if (!CollectionUtils.isEmpty(createMaterialDocVo.getCreateMaterialDocSkuVoList())) {
-                int i = 0;
-                for (CreateMaterialDocSkuVo createMaterialDocSkuVo : createMaterialDocVo.getCreateMaterialDocSkuVoList()) {
-                    String skuName = createMaterialDocSkuVo.getSkuNumber();
-                    SkuMaster res = skuService.getSku(createMaterialDocSkuVo.getSkuNumber(), null, createMaterialDocVo.getCompanyCode());
+                    List<RemoteBkGlSubListV2> remoteBkGlSubLists = new ArrayList<>();
+                    if (!CollectionUtils.isEmpty(createMaterialDocVo.getCreateMaterialDocSkuVoList())) {
+                        int i = 0;
+                        for (CreateMaterialDocSkuVo createMaterialDocSkuVo : createMaterialDocVo.getCreateMaterialDocSkuVoList()) {
+                            String skuName = createMaterialDocSkuVo.getSkuNumber();
+                            SkuMaster res = skuService.getSku(createMaterialDocSkuVo.getSkuNumber(), null, createMaterialDocVo.getCompanyCode());
 
-                    if (res != null) {
-                        log.info("查询skuMaster成功结果:[{}]", res);
-                        skuName = res.getSkuName();
-                    } else {
-                        log.error("查询skuMaster失败，失败原因:[{}]");
+                            if (res != null) {
+                                log.info("查询skuMaster成功结果:[{}]", res);
+                                skuName = res.getSkuName();
+                            } else {
+                                log.error("查询skuMaster失败，失败原因:[{}]");
+                            }
+
+                            //增量总价
+                            BigDecimal increTotalAmount = createMaterialDocSkuVo.getTotalAmount();
+
+                            if (increTotalAmount == null && createMaterialDocSkuVo.getItemAmount() != null) {
+                                increTotalAmount = createMaterialDocSkuVo.getItemAmount().multiply(createMaterialDocSkuVo.getSkuQty()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                            }
+
+                            i++;
+                            RemoteBkGlSubListV2 debitBkGlSubList = new RemoteBkGlSubListV2();
+                            debitBkGlSubList.setItemNo(String.valueOf(i));
+                            debitBkGlSubList.setDescription(skuName);
+                            debitBkGlSubList.setGlAccount(bkCoaRel.getDebitCoaCode());
+                            debitBkGlSubList.setNegPosting(false);
+                            debitBkGlSubList.setAmountTc(increTotalAmount);
+                            debitBkGlSubList.setAmountLc(BigDecimal.ZERO);
+                            debitBkGlSubList.setDrCr("dr");
+
+                            totalDebit = totalDebit.add(increTotalAmount);
+
+                            remoteBkGlSubLists.add(debitBkGlSubList);
+
+                            i++;
+                            RemoteBkGlSubListV2 creditBkGlSubList = new RemoteBkGlSubListV2();
+                            creditBkGlSubList.setItemNo(String.valueOf(i));
+                            creditBkGlSubList.setDescription(skuName);
+                            creditBkGlSubList.setGlAccount(bkCoaRel.getCoaCode());
+                            creditBkGlSubList.setNegPosting(false);
+                            creditBkGlSubList.setAmountTc(increTotalAmount);
+                            creditBkGlSubList.setAmountLc(BigDecimal.ZERO);
+                            creditBkGlSubList.setDrCr("cr");
+
+                            totalCredit = totalCredit.add(increTotalAmount);
+
+                            remoteBkGlSubLists.add(creditBkGlSubList);
+
+                        }
+
                     }
-
-                    //增量总价
-                    BigDecimal increTotalAmount = createMaterialDocSkuVo.getTotalAmount();
-
-                    if (increTotalAmount == null && createMaterialDocSkuVo.getItemAmount() != null) {
-                        increTotalAmount = createMaterialDocSkuVo.getItemAmount().multiply(createMaterialDocSkuVo.getSkuQty()).setScale(2, BigDecimal.ROUND_HALF_UP);
-                    }
-
-                    i++;
-                    RemoteBkGlSubListV2 debitBkGlSubList = new RemoteBkGlSubListV2();
-                    debitBkGlSubList.setItemNo(String.valueOf(i));
-                    debitBkGlSubList.setDescription(skuName);
-                    debitBkGlSubList.setGlAccount(bkCoaRel.getDebitCoaCode());
-                    debitBkGlSubList.setNegPosting(false);
-                    debitBkGlSubList.setAmountTc(increTotalAmount);
-                    debitBkGlSubList.setAmountLc(BigDecimal.ZERO);
-                    debitBkGlSubList.setDrCr("dr");
-
-                    totalDebit = totalDebit.add(increTotalAmount);
-
-                    remoteBkGlSubLists.add(debitBkGlSubList);
-
-                    i++;
-                    RemoteBkGlSubListV2 creditBkGlSubList = new RemoteBkGlSubListV2();
-                    creditBkGlSubList.setItemNo(String.valueOf(i));
-                    creditBkGlSubList.setDescription(skuName);
-                    creditBkGlSubList.setGlAccount(bkCoaRel.getCoaCode());
-                    creditBkGlSubList.setNegPosting(false);
-                    creditBkGlSubList.setAmountTc(increTotalAmount);
-                    creditBkGlSubList.setAmountLc(BigDecimal.ZERO);
-                    creditBkGlSubList.setDrCr("cr");
-
-                    totalCredit = totalCredit.add(increTotalAmount);
-
-                    remoteBkGlSubLists.add(creditBkGlSubList);
-
+                    remoteBkGl.setTotalDebit(totalDebit);
+                    remoteBkGl.setTotalCredit(totalCredit);
+                    remoteBkGl.setLineItems(remoteBkGlSubLists);
+                } else {
+                    throw new RuntimeException("oms查询BookKeeping信息出错");
                 }
-
-            }
-            remoteBkGl.setTotalDebit(totalDebit);
-            remoteBkGl.setTotalCredit(totalCredit);
-            remoteBkGl.setLineItems(remoteBkGlSubLists);
-        } else {
-            throw new RuntimeException("oms查询BookKeeping信息出错");
-        }
-        try {
-            String besnString = JSONObject.toJSONString(remoteBkGl);
-            JSONObject requestBody = JSONObject.parseObject(besnString);
-            log.info(">>>>>bookKeepingService.postBkGL,requestBody:{}", requestBody);
+                try {
+                    String besnString = JSONObject.toJSONString(remoteBkGl);
+                    JSONObject requestBody = JSONObject.parseObject(besnString);
+                    log.info(">>>>>bookKeepingService.postBkGL,requestBody:{}", requestBody);
             return bookKeepingService.postBkGL(requestBody);
         } catch (Exception e) {
             log.info(e.getMessage());

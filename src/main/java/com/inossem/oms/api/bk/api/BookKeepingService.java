@@ -440,6 +440,7 @@ public class BookKeepingService {
         MediaType mediaType = MediaType.parse("application/json");
         String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
         String url = prefix + "/api/v1/ar";
+//        String url = "http://localhost:5001/api/v1/ar";
         logger.info("请求的地址为：" + url);
 
         String param = JSONObject.toJSONString(model,
@@ -475,6 +476,7 @@ public class BookKeepingService {
         MediaType mediaType = MediaType.parse("application/json");
         String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
         String url = prefix + "/api/v1/ap";
+//        String url = "http://localhost:5001/api/v1/ap";
         logger.info("请求的地址为：" + url);
 
         String param = JSONObject.toJSONString(model,
@@ -520,6 +522,7 @@ public class BookKeepingService {
         String param = handleBkGlParam(requestBody.toString());
         logger.info("远程调用BkGL请求参数:[{}]", param);
         String url = (inner ? "http://bkp-engine-service:3038" : (connect.getApiUrl() + "/bkp-engine")) + "/bk/post-journal-entry";
+//        String url = "http://localhost:3038/post-journal-entry";
         RequestBody body = RequestBody.create(mediaType, requestBody.toString());
         Request request = new Request.Builder()
 //                .url(connect.getApiUrl() + "/web/bk/gl/post")

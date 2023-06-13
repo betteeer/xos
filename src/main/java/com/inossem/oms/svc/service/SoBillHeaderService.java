@@ -343,7 +343,8 @@ public class SoBillHeaderService {
 
                 // 开票业务编码
                 .setReference_no(bill.getBillingNumber())
-                .setInvoice_currency(CURRENCY_MAPPING.get(bill.getCurrencyCode()))
+                .setInvoice_currency(bill.getCurrencyCode())
+//                .setInvoice_currency(CURRENCY_MAPPING.get(bill.getCurrencyCode()))
                 // 支付方式
                 .setPay_method("1")
 
@@ -405,7 +406,8 @@ public class SoBillHeaderService {
                 .setBank_id(null)
                 .setBank_account("")
                 .setBank_name("")
-                .setBr_type("0");
+                .setBr_type("0")
+                .setTax_content(new ArrayList());
 
 
         // 根据公司信息去查，暂时固定
