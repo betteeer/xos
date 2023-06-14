@@ -167,7 +167,8 @@ public class PoInvoiceHeaderService {
                 .setInvoice_due_date(DateUtil.formatDate(poInvoiceHeader.getGmtCreate()))
                 .setPosting_date(DateUtil.formatDate(poInvoiceHeader.getPostingDate()))
                 .setPay_method("1")
-                .setInvoice_currency(SoBillHeaderService.CURRENCY_MAPPING.get(poInvoiceHeader.getCurrencyCode()))
+                .setInvoice_currency(poInvoiceHeader.getCurrencyCode())
+//                .setInvoice_currency(SoBillHeaderService.CURRENCY_MAPPING.get(poInvoiceHeader.getCurrencyCode()))
                 .setReference_no(poInvoiceHeader.getInvoiceNumber())
                 .setIssuer_tel(bp.getBpTel())
                 .setIssuer_email(bp.getBpEmail())
@@ -179,8 +180,8 @@ public class PoInvoiceHeaderService {
 
                 .setIssuer_address(null)
 
-                .setIssuer_name(bp.getBpName());
-
+                .setIssuer_name(bp.getBpName())
+                .setTax_content(new ArrayList());
 
 
                /* //.setSupplierId(bp.getBkBpNumberVendor())

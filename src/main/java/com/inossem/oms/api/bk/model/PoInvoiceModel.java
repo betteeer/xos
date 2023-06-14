@@ -192,7 +192,7 @@ public class PoInvoiceModel {
     private String creator;
     private String file_url;
     private List<PoInvoiceItem> items;
-
+    private List tax_content;
     public void setItems(List<PoInvoiceItem> items) {
         this.items = items;
     }
@@ -330,6 +330,13 @@ public class PoInvoiceModel {
         return this;
     }
 
+    public PoInvoiceModel setTax_content(List tax) {
+        this.tax_content = tax;
+        return this;
+    }
+    public List getTax_content() {
+        return tax_content;
+    }
     public String getCompany_id() {
         return company_id;
     }
