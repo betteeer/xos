@@ -1,3 +1,4 @@
+useInnerInterfaceCall: false
 server:
   port: 9011
   servlet:
