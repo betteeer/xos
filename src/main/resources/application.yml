@@ -2,12 +2,12 @@ useInnerInterfaceCall: true
 server:
   port: 9011
   servlet:
-    context-path: /collaboration
+    context-path: /oms
 
 spring:
   profiles:
-#    active: "@spring.profiles.active@"
-    active: dev
+    active: "@spring.profiles.active@"
+#    active: dev
   datasource:
     name: mysqlDataSource
     type: com.alibaba.druid.pool.DruidDataSource
