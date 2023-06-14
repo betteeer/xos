@@ -32,7 +32,7 @@ public class FileService {
 
     public SystemConnect getConnect(String companyCode) {
         SystemConnect connect = new SystemConnect();
-        connect.setCompanyCodeEx(Long.parseLong(companyCode));
+//        connect.setCompanyCodeEx(Long.parseLong(companyCode));
         connect.setExSystem("bk");
         List<SystemConnect> connects = systemConnectService.selectSyctemConectList(connect);
         if (connects == null || connects.isEmpty()) {

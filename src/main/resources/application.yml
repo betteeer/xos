@@ -1,9 +1,8 @@
-useInnerInterfaceCall: true
+useInnerInterfaceCall: false
 server:
   port: 9011
   servlet:
-    context-path: /collaboration
-
+    context-path: /oms
 spring:
   profiles:
 #    active: "@spring.profiles.active@"
