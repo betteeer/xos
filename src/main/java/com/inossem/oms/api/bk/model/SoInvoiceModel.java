@@ -229,6 +229,8 @@ public class SoInvoiceModel {
 
     private List<SoInvoiceItem> items;
 
+    private List tax_content;
+
     public String getCompany_id() {
         return company_id;
     }
@@ -659,6 +661,13 @@ public class SoInvoiceModel {
 
     public SoInvoiceModel setItems(List<SoInvoiceItem> soInvoiceItems) {
         this.items = soInvoiceItems;
+        return this;
+    }
+
+    public List getTax_content() { return tax_content; }
+
+    public SoInvoiceModel setTax_content(List tax) {
+        this.tax_content = tax;
         return this;
     }
 }

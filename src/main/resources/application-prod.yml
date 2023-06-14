@@ -1,3 +1,4 @@
+useInnerInterfaceCall: false
 server:
   port: 9011
   servlet:
@@ -28,5 +29,3 @@ logging:
     com.inossem: debug
   file:
     name: ./logs/spring.log
-
-
