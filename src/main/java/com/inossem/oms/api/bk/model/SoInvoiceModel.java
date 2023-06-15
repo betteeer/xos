@@ -163,12 +163,12 @@ public class SoInvoiceModel {
     //private String companyLogo;
     private String company_gst_no;
     private String company_pst_no;
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal gst;
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal pst;
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal qst;
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal gst;
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal pst;
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal qst;
     private String reference_no;
     private String invoice_currency;
     private String pay_method;
@@ -213,7 +213,7 @@ public class SoInvoiceModel {
     private BigDecimal total_tax;
     @JsonSerialize(using = BigDecimalSerialize.class)
     private BigDecimal total_fee;
-    private BigDecimal total_fee_cad;
+    private BigDecimal total_fee_local;
     private BigDecimal exchange_rate;
     //private String deposit;
     private String invoice_comments;
@@ -303,32 +303,32 @@ public class SoInvoiceModel {
         return this;
     }
 
-    public BigDecimal getGst() {
-        return gst;
-    }
-
-    public SoInvoiceModel setGst(BigDecimal gst) {
-        this.gst = gst;
-        return this;
-    }
-
-    public BigDecimal getPst() {
-        return pst;
-    }
-
-    public SoInvoiceModel setPst(BigDecimal pst) {
-        this.pst = pst;
-        return this;
-    }
-
-    public BigDecimal getQst() {
-        return qst;
-    }
-
-    public SoInvoiceModel setQst(BigDecimal qst) {
-        this.qst = qst;
-        return this;
-    }
+//    public BigDecimal getGst() {
+//        return gst;
+//    }
+//
+//    public SoInvoiceModel setGst(BigDecimal gst) {
+//        this.gst = gst;
+//        return this;
+//    }
+//
+//    public BigDecimal getPst() {
+//        return pst;
+//    }
+//
+//    public SoInvoiceModel setPst(BigDecimal pst) {
+//        this.pst = pst;
+//        return this;
+//    }
+//
+//    public BigDecimal getQst() {
+//        return qst;
+//    }
+//
+//    public SoInvoiceModel setQst(BigDecimal qst) {
+//        this.qst = qst;
+//        return this;
+//    }
 
     public String getReference_no() {
         return reference_no;
@@ -583,12 +583,12 @@ public class SoInvoiceModel {
         return  this;
     }
 
-    public BigDecimal getTotal_fee_cad() {
-        return total_fee_cad;
+    public BigDecimal getTotal_fee_local() {
+        return total_fee_local;
     }
 
-    public SoInvoiceModel setTotal_fee_cad(BigDecimal total_fee_cad) {
-        this.total_fee_cad = total_fee_cad;
+    public SoInvoiceModel setTotal_fee_local(BigDecimal total_fee_local) {
+        this.total_fee_local = total_fee_local;
         return  this;
     }
 
@@ -664,9 +664,9 @@ public class SoInvoiceModel {
         return this;
     }
 
-    public List getTax_content() { return tax_content; }
+    public List<TaxContent> getTax_content() { return tax_content; }
 
-    public SoInvoiceModel setTax_content(List tax) {
+    public SoInvoiceModel setTax_content(List<TaxContent> tax) {
         this.tax_content = tax;
         return this;
     }
