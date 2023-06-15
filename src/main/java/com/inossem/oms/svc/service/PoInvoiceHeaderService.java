@@ -4,6 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
+import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
@@ -156,12 +157,12 @@ public class PoInvoiceHeaderService {
                 .setBr_type("1")
                 .setInvoice_comments("")
                 .setExchange_rate(poInvoiceHeader.getExchangeRate())
-                .setTotal_fee_cad(poInvoiceHeader.getNetAmount())
+                .setTotal_fee_local(poInvoiceHeader.getNetAmount())
                 .setTotal_fee(poInvoiceHeader.getNetAmount())
                 .setTotal_tax(poInvoiceHeader.getNetAmount().subtract(poInvoiceHeader.getGrossAmount()))
-                .setGst(poInvoiceHeader.getGstAmount())
-                .setQst(poInvoiceHeader.getQstAmount())
-                .setPst(poInvoiceHeader.getPstAmount())
+//                .setGst(poInvoiceHeader.getGstAmount())
+//                .setQst(poInvoiceHeader.getQstAmount())
+//                .setPst(poInvoiceHeader.getPstAmount())
                 .setNet_amount(poInvoiceHeader.getGrossAmount())
                 .setInvoice_create_date(DateUtil.formatDate(poInvoiceHeader.getGmtCreate()))
                 .setInvoice_due_date(DateUtil.formatDate(poInvoiceHeader.getGmtCreate()))
@@ -181,7 +182,8 @@ public class PoInvoiceHeaderService {
                 .setIssuer_address(null)
 
                 .setIssuer_name(bp.getBpName())
-                .setTax_content(new ArrayList());
+                .setTax_content(TaxContentBuilder.build(poInvoiceHeader.getGstAmount(), BigDecimal.valueOf(0), poInvoiceHeader.getPstAmount(), poInvoiceHeader.getQstAmount()));
+
 
 
                /* //.setSupplierId(bp.getBkBpNumberVendor())

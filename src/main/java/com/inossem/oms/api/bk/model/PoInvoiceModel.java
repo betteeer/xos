@@ -174,18 +174,18 @@ public class PoInvoiceModel {
     private String posting_date;
     @JsonSerialize(using = BigDecimalSerialize.class)
     private BigDecimal net_amount;
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal gst; //null,
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal pst; //null,
-    @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal qst; //null,
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal gst; //null,
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal pst; //null,
+//    @JsonSerialize(using = BigDecimalSerialize.class)
+//    private BigDecimal qst; //null,
     @JsonSerialize(using = BigDecimalSerialize.class)
     private BigDecimal total_tax; //0.00,
     @JsonSerialize(using = BigDecimalSerialize.class)
     private BigDecimal total_fee; //16.00,
     @JsonSerialize(using = BigDecimalSerialize.class)
-    private BigDecimal total_fee_cad;
+    private BigDecimal total_fee_local;
     private BigDecimal exchange_rate;
     private String invoice_comments;
     private String br_type;
@@ -275,20 +275,20 @@ public class PoInvoiceModel {
         return this;
     }
 
-    public PoInvoiceModel setGst(BigDecimal gst) {
-        this.gst = gst;
-        return this;
-    }
-
-    public PoInvoiceModel setPst(BigDecimal pst) {
-        this.pst = pst;
-        return this;
-    }
-
-    public PoInvoiceModel setQst(BigDecimal qst) {
-        this.qst = qst;
-        return this;
-    }
+//    public PoInvoiceModel setGst(BigDecimal gst) {
+//        this.gst = gst;
+//        return this;
+//    }
+//
+//    public PoInvoiceModel setPst(BigDecimal pst) {
+//        this.pst = pst;
+//        return this;
+//    }
+//
+//    public PoInvoiceModel setQst(BigDecimal qst) {
+//        this.qst = qst;
+//        return this;
+//    }
 
     public PoInvoiceModel setTotal_tax(BigDecimal total_tax) {
         this.total_tax = total_tax;
@@ -300,8 +300,8 @@ public class PoInvoiceModel {
         return this;
     }
 
-    public PoInvoiceModel setTotal_fee_cad(BigDecimal total_fee_cad) {
-        this.total_fee_cad = total_fee_cad;
+    public PoInvoiceModel setTotal_fee_local(BigDecimal total_fee_local) {
+        this.total_fee_local = total_fee_local;
         return this;
     }
 
@@ -389,17 +389,17 @@ public class PoInvoiceModel {
         return net_amount;
     }
 
-    public BigDecimal getGst() {
-        return gst;
-    }
-
-    public BigDecimal getPst() {
-        return pst;
-    }
-
-    public BigDecimal getQst() {
-        return qst;
-    }
+//    public BigDecimal getGst() {
+//        return gst;
+//    }
+//
+//    public BigDecimal getPst() {
+//        return pst;
+//    }
+//
+//    public BigDecimal getQst() {
+//        return qst;
+//    }
 
     public BigDecimal getTotal_tax() {
         return total_tax;
@@ -409,8 +409,8 @@ public class PoInvoiceModel {
         return total_fee;
     }
 
-    public BigDecimal getTotal_fee_cad() {
-        return total_fee_cad;
+    public BigDecimal getTotal_fee_local() {
+        return total_fee_local;
     }
 
     public BigDecimal getExchange_rate() {
