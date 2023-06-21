@@ -21,5 +21,5 @@ public class MovementAndOrderTypeVo {
     private String description;
 
     @ApiModelProperty(value = "公司code", name = "companyCode")
-    private String companyCode;
+    private String company_code;
 }
