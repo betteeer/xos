@@ -2,7 +2,9 @@ package com.inossem.oms.svc.service;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.BookKeepingService;
+import com.inossem.oms.api.bk.model.BkCoaMappingModel;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
@@ -17,11 +19,13 @@ import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.BpService;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.mdm.service.SkuService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -62,6 +66,8 @@ public class PoInvoiceHeaderService {
     @Resource
     private ConditionTableService conditionTableService;
 
+    @Resource
+    private BkCoaMappingService bkCoaMappingService;
 
     /**
      * 新增【请填写功能名称】
@@ -143,7 +149,7 @@ public class PoInvoiceHeaderService {
         }
     }
 
-    private PoInvoiceModel getModel(PoInvoiceHeader poInvoiceHeader, List<PoInvoiceItem> poInvoiceItemList) {
+    private PoInvoiceModel getModel(PoInvoiceHeader poInvoiceHeader, List<PoInvoiceItem> poInvoiceItemList) throws IOException {
 
 
         // 查开票的公司信息
@@ -250,24 +256,27 @@ public class PoInvoiceHeaderService {
                 .setPaymentTermsDiscount3("paymentTermsDiscount3");*/
 
         // 根据公司信息去查，暂时固定
-        ConditionTable conditionTable = new ConditionTable();
-        conditionTable.setCompanyCode(company.getCompanyCode());
-        conditionTable.setConditionType("P001");
-        List<ConditionTable> tables = conditionTableService.selectConditionTableList(conditionTable);
-        ConditionTable table = null;
-        if (tables == null || tables.isEmpty()) {
-            table = new ConditionTable();
-        } else {
-            table = tables.get(0);
+//        ConditionTable conditionTable = new ConditionTable();
+//        conditionTable.setCompanyCode(company.getCompanyCode());
+//        conditionTable.setConditionType("P001");
+//        List<ConditionTable> tables = conditionTableService.selectConditionTableList(conditionTable);
+//        ConditionTable table = null;
+//        if (tables == null || tables.isEmpty()) {
+//            table = new ConditionTable();
+//        } else {
+//            table = tables.get(0);
+//        }
+        BkCoaMappingModel mappingModel = bkCoaMappingService.getOrderTypeMapping(company.getCompanyCode(), "P001");
+        if (null == mappingModel) {
+            mappingModel = new BkCoaMappingModel();
         }
-
         List<PoInvoiceModel.PoInvoiceItem> items = new ArrayList<>();
         int index = 0;
         for (PoInvoiceItem item : poInvoiceItemList) {
             PoInvoiceModel.PoInvoiceItem it = new PoInvoiceModel.PoInvoiceItem();
 
             SkuMaster sku = getSku(poInvoiceHeader.getCompanyCode(), item.getSkuNumber());
-
+            BkCoaMappingModel.CoaItem matchedCoa = getMatchedCoa(sku.getSkuGroupCode(), mappingModel.getCoaJson());
             it.setItem_no(String.valueOf(++index))
                     .setModel(item.getSkuNumber())
                     .setDescription(sku.getSkuName())
@@ -279,9 +288,9 @@ public class PoInvoiceHeaderService {
                     .setUnit_price(item.getUnitPrice())
                     .setTotal(item.getInvoiceQty().multiply(item.getUnitPrice()))
 
-                    .setCredit_coa_name(table.getAccountName())
-                    .setCredit_coa_id(table.getAccountId())
-                    .setCredit_coa_code(table.getAccountCode())
+                    .setCredit_coa_name(null != matchedCoa ? matchedCoa.getDebitCoaName() : mappingModel.getDebitCoaName())
+                    .setCredit_coa_id(null != matchedCoa ? matchedCoa.getDebitCoaId() : mappingModel.getDebitCoaId())
+                    .setCredit_coa_code(null != matchedCoa ? matchedCoa.getDebitCoaCode() : mappingModel.getDebitCoaCode())
             // 根据公司信息去查，暂时固定
             //.setExpenseAccount(table.getAccountName())
             //.setExpenseAccountId(table.getAccountId())
@@ -292,6 +301,16 @@ public class PoInvoiceHeaderService {
         model.setItems(items);
 
         return model;
+    }
+
+    private BkCoaMappingModel.CoaItem getMatchedCoa(String skuGroupCode, List<BkCoaMappingModel.CoaItem> coaJson) {
+        if (StringUtils.isNull(coaJson)) return null;
+        for (BkCoaMappingModel.CoaItem coaItem : coaJson) {
+            if (coaItem.getSkuGroup().equals(skuGroupCode)) {
+                return coaItem;
+            }
+        }
+        return null;
     }
 
     private SkuMaster getSku(String companyCode, String skuNumber) {

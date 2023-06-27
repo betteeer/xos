@@ -72,6 +72,9 @@ public class SkuService {
     @Resource
     private SvcFeignService svcFeignService;
 
+    @Resource
+    private SkuGroupMapper skuGroupMapper;
+
     @Transactional(rollbackFor = Exception.class)
     public synchronized SkuMaster create(SkuVO skuVO) {
         try {
@@ -142,7 +145,9 @@ public class SkuService {
             skuMaster.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
             skuMaster.setGmtModified(nowTime);
             skuMaster.setIsDeleted(0);
+            skuMaster.setSkuGroupId(skuVO.getSkuGroupId());
             skuMaster.setSkuGroupCode(skuVO.getSkuGroupCode());
+            skuMaster.setSkuGroupName(skuVO.getSkuGroupName());
             skuMaster.setSkuOwnerCode(skuVO.getSkuOwnerCode());
             skuMaster.setFsnIndicator(skuVO.getFsnIndicator());
             skuMaster.setStorageIndicator(skuVO.getStorageIndicator());
@@ -383,9 +388,14 @@ public class SkuService {
             if (StringUtils.isNotBlank(skuVO.getSkuNumberEx())) {
                 skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuNumberEx, skuVO.getSkuNumberEx());
             }
-            if (StringUtils.isNotBlank(skuVO.getSkuGroupCode())) {
+            if (StringUtils.isNotNull(skuVO.getSkuGroupId())) {
+                skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuGroupId, skuVO.getSkuGroupId());
                 skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuGroupCode, skuVO.getSkuGroupCode());
+                skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuGroupName, skuVO.getSkuGroupName());
             }
+//            if (StringUtils.isNotBlank(skuVO.getSkuGroupCode())) {
+//                skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuGroupCode, skuVO.getSkuGroupCode());
+//            }
             if (StringUtils.isNotBlank(skuVO.getSkuOwnerCode())) {
                 skuMasterLambdaUpdateWrapper.set(SkuMaster::getSkuOwnerCode, skuVO.getSkuOwnerCode());
             }
@@ -1009,6 +1019,8 @@ public class SkuService {
         try {
             List<SkuMaster> skuMasterList = skuMasterMapper.selectList(new LambdaQueryWrapper<SkuMaster>()
                     .eq(SkuMaster::getCompanyCode, companyCode));
+            List<SkuGroup> skuGroups = skuGroupMapper.selectList(new LambdaQueryWrapper<SkuGroup>()
+                    .eq(SkuGroup::getCompanyCode, companyCode));
             ExcelUtil<ImportSKUVo> util = new ExcelUtil<>(ImportSKUVo.class);
             List<ImportSKUVo> importSKUVoList = util.importExcel(file.getInputStream(), 1);
             List<SkuMaster> saveSkuMasterList = new ArrayList<>();
@@ -1026,6 +1038,9 @@ public class SkuService {
                 if (StringUtils.isBlank(skuVo.getSkuType())) {
                     throw new RuntimeException("Line " + (i + 2) + " sku_type is a required field");
                 }
+                if (StringUtils.isBlank(skuVo.getSkuGroup())) {
+                    throw new RuntimeException("Line " + (i + 2) + " sku_group is a required field");
+                }
                 if (StringUtils.isBlank(skuVo.getBasicUom())) {
                     throw new RuntimeException("Line " + (i + 2) + " basic_uom is a required field");
                 }
@@ -1039,6 +1054,12 @@ public class SkuService {
                 if (skuMasterOptional2.isPresent()) {
                     throw new RuntimeException("Line " + (i + 2) + " sku name: [" + skuVo.getSkuName() + "] Already exists");
                 }
+                Optional<SkuGroup> skuGroupOptional = skuGroups.stream().filter(s ->
+                        s.getSkuGroupCode().equals(skuVo.getSkuGroup())).findAny();
+                if (!skuGroupOptional.isPresent()) {
+                    throw new RuntimeException("Line " + (i + 2) + " sku group: [" + skuVo.getSkuGroup() + "] does not exist");
+                }
+                SkuGroup skuGroup = skuGroupOptional.get();
                 if (!skuMasterOptional.isPresent()) {
                     SkuMaster skuMaster = new SkuMaster();
                     skuMaster.setCompanyCode(companyCode);
@@ -1046,6 +1067,9 @@ public class SkuService {
                     skuMaster.setUpcNumber(skuVo.getUpcNumber());
                     skuMaster.setSkuName(skuVo.getSkuName());
                     skuMaster.setSkuType(skuVo.getSkuType());
+                    skuMaster.setSkuGroupId(Math.toIntExact(skuGroup.getId()));
+                    skuMaster.setSkuGroupCode(skuGroup.getSkuGroupCode());
+                    skuMaster.setSkuGroupName(skuGroup.getSkuGroupName());
                     skuMaster.setBasicUom(skuVo.getBasicUom());
                     skuMaster.setIsKitting("Y".equals(skuVo.getIsKitting()) ? 1 : 0);
                     skuMaster.setSkuDescription(skuVo.getSkuDescription());
