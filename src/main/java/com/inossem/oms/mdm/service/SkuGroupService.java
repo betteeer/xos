@@ -24,25 +24,20 @@ interface ISkuGroupsService extends IService<SkuGroup> {
 }
 
 @Service
-class SkuGroupServiceImpl extends ServiceImpl<SkuGroupMapper, SkuGroup> implements ISkuGroupsService {
-
-}
-
-@Service
 @Slf4j
-public class SkuGroupService {
+public class SkuGroupService extends ServiceImpl<SkuGroupMapper, SkuGroup> implements ISkuGroupsService {
 
     @Resource
     private SkuGroupMapper skuGroupMapper;
 
     @Resource
-    private SkuGroupServiceImpl skuGroupServiceImpl;
-
-    @Resource
     private SkuMasterMapper skuMasterMapper;
 
-    public List<SkuGroup> getList() {
-        return skuGroupMapper.selectList(null);
+    public List<SkuGroup> getList(String companyCode, Boolean onlyEnabled) {
+        LambdaQueryWrapper<SkuGroup> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(SkuGroup::getCompanyCode, companyCode);
+        wrapper.eq(onlyEnabled==true, SkuGroup::getIsDeleted, 0);
+        return skuGroupMapper.selectList(wrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -75,10 +70,10 @@ public class SkuGroupService {
                     throw new ServiceException("sku group is in use");
                 }
             }
-            skuGroupServiceImpl.updateBatchById(modifyItems);
+            updateBatchById(modifyItems);
         }
         if (addItems.size() != 0) {
-            skuGroupServiceImpl.saveBatch(addItems);
+            saveBatch(addItems);
         }
         return true;
     }

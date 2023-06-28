@@ -22,8 +22,11 @@ public class SkuGroupController extends BaseController {
 
     @ApiOperation(value = "sku group list", notes = "sku group list")
     @GetMapping("/list")
-    public AjaxResult getList() {
-        return AjaxResult.success().withData(skuGroupService.getList());
+    public AjaxResult getList(
+            @RequestParam("companyCode") String companyCode,
+            @RequestParam(name = "onlyEnabled", defaultValue = "false") Boolean onlyEnabled
+            ) {
+        return AjaxResult.success().withData(skuGroupService.getList(companyCode, onlyEnabled));
     }
 
     /**
