@@ -27,6 +27,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 【开票】Service业务层处理
@@ -197,8 +198,8 @@ public class SoBillHeaderService {
                             throw new RuntimeException("po invoice get exchange rate error");
                         }
                     }
-
-                    String s = syncToBk(billInsert, billItems);
+                    List<SoBillItem> cleanSoBillItems = billItems.stream().filter(v -> v.getBillQty().compareTo(BigDecimal.ZERO) == 1).collect(Collectors.toList());
+                    String s = syncToBk(billInsert, cleanSoBillItems);
                     LambdaQueryWrapper<SoBillHeader> soBillHeaderLambdaQueryWrapper = new LambdaQueryWrapper<SoBillHeader>()
                             .eq(SoBillHeader::getBillingNumber, billNumber)
                             .eq(SoBillHeader::getCompanyCode, billInsert.getCompanyCode());
@@ -546,7 +547,7 @@ public class SoBillHeaderService {
 
         SoBillResp soBillResp = new SoBillResp();
         soBillResp.setBillingStatus(soHeader.getBillingStatus());
-        soBillResp.setTotalAmount(soHeader.getGrossAmount());
+        soBillResp.setTotalAmount(soHeader.getNetAmount());
 
         BigDecimal billeds = BigDecimal.ZERO;
 //        if (ModuleConstant.SOHEADER_ORDER_TYPE.SERVICE_SO.equals(soHeader.getOrderType())) {
@@ -565,11 +566,11 @@ public class SoBillHeaderService {
             for (int i = 0; i < deliveryInfo.size(); i++) {
                 DeliveryHeader deliveryHeader = deliveryInfo.get(i);
                 QueryWrapper<SoBillHeader> soBillHeaderQueryWrapper = new QueryWrapper<>();
-                soBillHeaderQueryWrapper.select("gross_amount");
+                soBillHeaderQueryWrapper.select("net_amount");
                 soBillHeaderQueryWrapper.eq("reference_doc", deliveryHeader.getDeliveryNumber());
                 soBillHeaderQueryWrapper.eq("company_code", deliveryHeader.getCompanyCode());
                 SoBillHeader soBillHeader = soBillHeaderMapper.selectOne(soBillHeaderQueryWrapper);
-                billeds = billeds.add(soBillHeader.getGrossAmount());
+                billeds = billeds.add(soBillHeader.getNetAmount());
             }
         }
 //        }
@@ -577,7 +578,7 @@ public class SoBillHeaderService {
         if (billeds.compareTo(BigDecimal.ZERO) == 0) {
             soBillResp.setBilledPercentage(billeds);
         } else {
-            soBillResp.setBilledPercentage(soBillResp.getBilled().divide(soHeader.getGrossAmount(), 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+            soBillResp.setBilledPercentage(soBillResp.getBilled().divide(soHeader.getNetAmount(), 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
         }
         return soBillResp;
     }
