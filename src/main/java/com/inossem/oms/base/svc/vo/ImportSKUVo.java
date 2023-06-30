@@ -26,6 +26,9 @@ public class ImportSKUVo {
     @Excel(name = "sku_type")
     private String skuType;
 
+    @Excel(name = "sku_group")
+    private String skuGroup;
+
     @Excel(name = "basic_uom")
     private String basicUom;
 

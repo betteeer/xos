@@ -104,6 +104,8 @@ public class SkuVO {
     @ApiModelProperty(value = "pictureList",name = "pictureList")
     private List<String> pictureList;
 
+    @ApiModelProperty(value = "the sku group primary key", name = "skuGroupId")
+    private Integer skuGroupId;
     @ApiModelProperty(value = "the sku group id which the sku belongs to", name = "skuGroupCode")
     private String skuGroupCode;
 

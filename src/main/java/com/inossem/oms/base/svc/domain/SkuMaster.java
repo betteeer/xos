@@ -153,7 +153,9 @@ public class SkuMaster {
 //      `is_hu_traceable` tinyint DEFAULT NULL,
 //      `preserve_description` varchar(255) DEFAULT NULL COMMENT 'the perserve description of the product',
 //      `dispose_description` varchar(255) DEFAULT NULL COMMENT 'the dispose description of the product',
-    @ApiModelProperty(value = "the sku group id which the sku belongs to", name = "skuGroupCode")
+    @ApiModelProperty(value = "the sku group primary key", name = "skuGroupId")
+    private Integer skuGroupId;
+    @ApiModelProperty(value = "the sku group code which the sku belongs to", name = "skuGroupCode")
     private String skuGroupCode;
 
     @ApiModelProperty(value = "the sku group name which the sku belongs to", name = "skuGroupName")

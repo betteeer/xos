@@ -3,7 +3,9 @@ package com.inossem.oms.svc.service;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.BookKeepingService;
+import com.inossem.oms.api.bk.model.BkCoaMappingModel;
 import com.inossem.oms.api.bk.model.SoInvoiceModel;
 import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
@@ -16,6 +18,7 @@ import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.BpService;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.mdm.service.SkuService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +27,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 【开票】Service业务层处理
@@ -64,6 +68,8 @@ public class SoBillHeaderService {
     @Resource
     private SkuService skuService;
 
+    @Resource
+    private BkCoaMappingService bkCoaMappingService;
     /**
      * 新增【请填写功能名称】
      *
@@ -192,8 +198,8 @@ public class SoBillHeaderService {
                             throw new RuntimeException("po invoice get exchange rate error");
                         }
                     }
-
-                    String s = syncToBk(billInsert, billItems);
+                    List<SoBillItem> cleanSoBillItems = billItems.stream().filter(v -> v.getBillQty().compareTo(BigDecimal.ZERO) == 1).collect(Collectors.toList());
+                    String s = syncToBk(billInsert, cleanSoBillItems);
                     LambdaQueryWrapper<SoBillHeader> soBillHeaderLambdaQueryWrapper = new LambdaQueryWrapper<SoBillHeader>()
                             .eq(SoBillHeader::getBillingNumber, billNumber)
                             .eq(SoBillHeader::getCompanyCode, billInsert.getCompanyCode());
@@ -306,7 +312,7 @@ public class SoBillHeaderService {
      * @param billItems
      * @return
      */
-    private SoInvoiceModel getModel(SoBillHeader bill, List<SoBillItem> billItems) {
+    private SoInvoiceModel getModel(SoBillHeader bill, List<SoBillItem> billItems) throws IOException {
         log.info("SO billItems：" + billItems);
         // 查开票的公司信息
         Company company = getCompany(bill.getCompanyCode());
@@ -410,26 +416,29 @@ public class SoBillHeaderService {
                 .setTax_content(TaxContentBuilder.build(bill.getGstAmount(), bill.getHstAmount(), bill.getPstAmount(), bill.getQstAmount()));
 
 
-        // 根据公司信息去查，暂时固定
-        ConditionTable conditionTable = new ConditionTable();
-        conditionTable.setCompanyCode(company.getCompanyCode());
-        conditionTable.setConditionType("S001");
-        List<ConditionTable> tables = conditionTableService.selectConditionTableList(conditionTable);
-        ConditionTable table = null;
-        if (tables == null || tables.isEmpty()) {
-            table = new ConditionTable();
-        } else {
-            table = tables.get(0);
+//        // 根据公司信息去查，暂时固定
+//        ConditionTable conditionTable = new ConditionTable();
+//        conditionTable.setCompanyCode(company.getCompanyCode());
+//        conditionTable.setConditionType("S001");
+//        List<ConditionTable> tables = conditionTableService.selectConditionTableList(conditionTable);
+//        ConditionTable table = null;
+//        if (tables == null || tables.isEmpty()) {
+//            table = new ConditionTable();
+//        } else {
+//            table = tables.get(0);
+//        }
+        BkCoaMappingModel mappingModel = bkCoaMappingService.getOrderTypeMapping(company.getCompanyCode(), "S001");
+        if (null == mappingModel) {
+            mappingModel = new BkCoaMappingModel();
         }
-
-
+        
         List<SoInvoiceModel.SoInvoiceItem> items = new ArrayList<>();
         int index = 0;
         for (SoBillItem item : billItems) {
             SoInvoiceModel.SoInvoiceItem it = new SoInvoiceModel.SoInvoiceItem();
 
             SkuMaster sku = getSku(bill.getCompanyCode(), item.getSkuNumber());
-
+            BkCoaMappingModel.CoaItem matchedCoa = getMatchedCoa(sku.getSkuGroupCode(), mappingModel.getCoaJson());
             it.setItem_no(String.valueOf(++index))
                     .setModel(item.getSkuNumber())
                     // 02 传name 01 传描述
@@ -439,9 +448,9 @@ public class SoBillHeaderService {
                     .setTotal(item.getBillQty().multiply(item.getUnitPrice()))
 
                     .setDr_cr("cr")
-                    .setDebit_coa_id(Integer.valueOf(table.getAccountId()))
-                    .setDebit_coa_code(table.getAccountCode())
-                    .setDebit_coa_name(table.getAccountName())
+                    .setDebit_coa_id(Integer.valueOf(null != matchedCoa ? matchedCoa.getCoaId() : mappingModel.getCoaId()))
+                    .setDebit_coa_code(null != matchedCoa ? matchedCoa.getCoaCode() : mappingModel.getCoaCode())
+                    .setDebit_coa_name(null != matchedCoa ? matchedCoa.getCoaName() : mappingModel.getCoaName())
                     .setCredit_coa_id(null)
                     .setCredit_coa_code("")
                     .setCredit_coa_name("");
@@ -454,6 +463,16 @@ public class SoBillHeaderService {
         model.setItems(items);
 
         return model;
+    }
+
+    private BkCoaMappingModel.CoaItem getMatchedCoa(String skuGroupCode, List<BkCoaMappingModel.CoaItem> coaJson) {
+        if (StringUtils.isNull(coaJson)) return null;
+        for (BkCoaMappingModel.CoaItem coaItem : coaJson) {
+            if (coaItem.getSkuGroup().equals(skuGroupCode)) {
+                return coaItem;
+            }
+        }
+        return null;
     }
 
     private SkuMaster getSku(String companyCode, String skuNumber) {
@@ -528,7 +547,7 @@ public class SoBillHeaderService {
 
         SoBillResp soBillResp = new SoBillResp();
         soBillResp.setBillingStatus(soHeader.getBillingStatus());
-        soBillResp.setTotalAmount(soHeader.getGrossAmount());
+        soBillResp.setTotalAmount(soHeader.getNetAmount());
 
         BigDecimal billeds = BigDecimal.ZERO;
 //        if (ModuleConstant.SOHEADER_ORDER_TYPE.SERVICE_SO.equals(soHeader.getOrderType())) {
@@ -547,11 +566,11 @@ public class SoBillHeaderService {
             for (int i = 0; i < deliveryInfo.size(); i++) {
                 DeliveryHeader deliveryHeader = deliveryInfo.get(i);
                 QueryWrapper<SoBillHeader> soBillHeaderQueryWrapper = new QueryWrapper<>();
-                soBillHeaderQueryWrapper.select("gross_amount");
+                soBillHeaderQueryWrapper.select("net_amount");
                 soBillHeaderQueryWrapper.eq("reference_doc", deliveryHeader.getDeliveryNumber());
                 soBillHeaderQueryWrapper.eq("company_code", deliveryHeader.getCompanyCode());
                 SoBillHeader soBillHeader = soBillHeaderMapper.selectOne(soBillHeaderQueryWrapper);
-                billeds = billeds.add(soBillHeader.getGrossAmount());
+                billeds = billeds.add(soBillHeader.getNetAmount());
             }
         }
 //        }
@@ -559,7 +578,7 @@ public class SoBillHeaderService {
         if (billeds.compareTo(BigDecimal.ZERO) == 0) {
             soBillResp.setBilledPercentage(billeds);
         } else {
-            soBillResp.setBilledPercentage(soBillResp.getBilled().divide(soHeader.getGrossAmount(), 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
+            soBillResp.setBilledPercentage(soBillResp.getBilled().divide(soHeader.getNetAmount(), 2, BigDecimal.ROUND_HALF_UP).multiply(new BigDecimal(100)));
         }
         return soBillResp;
     }
