@@ -2030,12 +2030,18 @@ public class IDeliveryHeaderService {
 //                }
 //            }
 //        } else {
+        // 需要查一个business partner
+        LambdaQueryWrapper<SoHeader> soQueryWrapper = new LambdaQueryWrapper<SoHeader>()
+                .and(soHeader -> soHeader.eq(SoHeader::getCompanyCode, companyCode))
+                .and(soHeader -> soHeader.eq(SoHeader::getSoNumber, soNumber));
+        SoHeader soInfo = soHeaderMapper.selectOne(soQueryWrapper);
         deliveryShippedResps = deliveryItemMapper.selectUnBillShippedHeader(soNumber, companyCode);
         if (deliveryShippedResps == null || deliveryShippedResps.isEmpty()) {
             return deliveryShippedResps;
         }
 
         for (DeliveryShippedResp deliveryShippedResp : deliveryShippedResps) {
+            deliveryShippedResp.setBusinessPartner(soInfo.getBpCustomer());
             List<SoItem> soItems = getSoItems(companyCode, soNumber);
             //根据deliveryNumber查询shippingAddress
             SoShippingAddressVO soShippingAddressVO = new SoShippingAddressVO();

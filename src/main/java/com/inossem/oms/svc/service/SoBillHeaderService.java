@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.bk.model.SoInvoiceModel;
+import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
@@ -310,7 +311,6 @@ public class SoBillHeaderService {
         // 查开票的公司信息
         Company company = getCompany(bill.getCompanyCode());
         SystemConnect connect = getConnect(company.getCompanyCodeEx());
-
         // 客户
         BusinessPartner bp = getBusinessPartner(bill.getCompanyCode(), bill.getPartnerId());
         Address bpBillAddress = getAddress(bill.getCompanyCode(), "bp", "billto"
@@ -337,13 +337,14 @@ public class SoBillHeaderService {
                 .setCompany_pst_no("")
 
                 // 固定传空
-                .setGst(bill.getGstAmount().add(bill.getHstAmount()))
-                .setPst(bill.getPstAmount())
-                .setQst(bill.getQstAmount())
+//                .setGst(bill.getGstAmount().add(bill.getHstAmount()))
+//                .setPst(bill.getPstAmount())
+//                .setQst(bill.getQstAmount())
 
                 // 开票业务编码
                 .setReference_no(bill.getBillingNumber())
-                .setInvoice_currency(CURRENCY_MAPPING.get(bill.getCurrencyCode()))
+                .setInvoice_currency(bill.getCurrencyCode())
+//                .setInvoice_currency(CURRENCY_MAPPING.get(bill.getCurrencyCode()))
                 // 支付方式
                 .setPay_method("1")
 
@@ -392,7 +393,7 @@ public class SoBillHeaderService {
                 .setTotal_fee(bill.getNetAmount())
 
                 //.setTotalFeeExchangeCAD(bill.getNetAmount().multiply(BigDecimal.ONE))
-                .setTotal_fee_cad(bill.getNetAmount().multiply(BigDecimal.ONE))
+                .setTotal_fee_local(bill.getNetAmount().multiply(BigDecimal.ONE))
 
 //       如果是 usd 会调用 bk的税率接口 ，拿到税率 做换算
                 .setExchange_rate(bill.getExchangeRate())
@@ -405,7 +406,8 @@ public class SoBillHeaderService {
                 .setBank_id(null)
                 .setBank_account("")
                 .setBank_name("")
-                .setBr_type("0");
+                .setBr_type("0")
+                .setTax_content(TaxContentBuilder.build(bill.getGstAmount(), bill.getHstAmount(), bill.getPstAmount(), bill.getQstAmount()));
 
 
         // 根据公司信息去查，暂时固定

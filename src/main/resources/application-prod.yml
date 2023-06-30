@@ -29,5 +29,3 @@ logging:
     com.inossem: debug
   file:
     name: ./logs/spring.log
-
-
