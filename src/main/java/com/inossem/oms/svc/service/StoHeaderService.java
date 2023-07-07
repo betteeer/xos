@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.svc.domain.DTO.StoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.StoSearchFormDTO;
+import com.inossem.oms.base.svc.domain.SkuMaster;
 import com.inossem.oms.base.svc.domain.StoHeader;
 import com.inossem.oms.base.svc.domain.StoItem;
 import com.inossem.oms.base.svc.domain.Warehouse;
@@ -36,12 +37,12 @@ public class StoHeaderService {
         MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<>();
         wrapper.selectAll(StoHeader.class)
                 // 关联warehouse表，查询fromWarehouseName和toWarehouseName
-                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getFromWarehouseCode, ext -> ext.selectAs(Warehouse::getName,StoHeader::getFromWarehouseName))
-                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getToWarehouseCode, ext -> ext.selectAs(Warehouse::getName,StoHeader::getToWarehouseName));
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getFromWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getFromWarehouseName))
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getToWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getToWarehouseName));
         // 指定 company code数据范围
         wrapper.eq(StoHeader::getCompanyCode, form.getCompanyCode());
         // 拼接 status
-        wrapper.in(StringUtils.isNotEmpty(form.getStatus()),StoHeader::getOrderStatus, form.getStatus());
+        wrapper.in(StringUtils.isNotEmpty(form.getStatus()), StoHeader::getOrderStatus, form.getStatus());
         // 拼接 warehouse
         wrapper.in(StringUtils.isNotEmpty(form.getFromWarehouse()), StoHeader::getFromWarehouseCode, form.getFromWarehouse());
         wrapper.in(StringUtils.isNotEmpty(form.getToWarehouse()), StoHeader::getToWarehouseCode, form.getToWarehouse());
@@ -228,10 +229,17 @@ public class StoHeaderService {
 
     public StoHeader getDetail(String stoNumber, String companyCode) {
         MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<StoHeader>()
+                .selectAll(StoHeader.class)
                 .eq(StoHeader::getStoNumber, stoNumber)
                 .eq(StoHeader::getCompanyCode, companyCode)
-                .selectCollection(StoItem.class, StoHeader::getItems)
-                .leftJoin(StoItem.class, StoItem::getStoNumber, StoHeader::getStoNumber);
+                .selectCollection(StoItem.class, StoHeader::getItems, ext ->
+                        ext.association(SkuMaster.class, StoItem::getSkuName, c -> c.result(SkuMaster::getSkuName))
+//                                .association(SkuMaster.class, StoItem::getIsKitting, c -> c.result(SkuMaster::getIsKitting))
+                )
+                .leftJoin(StoItem.class, StoItem::getStoNumber, StoHeader::getStoNumber)
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getFromWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getFromWarehouseName))
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getToWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getToWarehouseName))
+                .leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, StoItem::getSkuNumber);
         StoHeader stoHeader = stoHeaderMapper.selectJoinOne(StoHeader.class, wrapper);
         return stoHeader;
     }
