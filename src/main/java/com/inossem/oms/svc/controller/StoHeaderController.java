@@ -1,14 +1,15 @@
 package com.inossem.oms.svc.controller;
 
 import com.inossem.oms.base.svc.domain.DTO.StoFormDTO;
+import com.inossem.oms.base.svc.domain.DTO.StoSearchFormDTO;
 import com.inossem.oms.svc.service.StoHeaderService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
+import com.inossem.sco.common.core.web.page.TableDataInfo;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -21,8 +22,20 @@ public class StoHeaderController extends BaseController {
     private StoHeaderService stoHeaderService;
 
     @PostMapping("/list")
-    public void getList() {
-        stoHeaderService.getList();
+    public TableDataInfo getList(@RequestBody @Validated StoSearchFormDTO searchFormDTO) {
+        startPage();
+        return getDataTable(stoHeaderService.getList(searchFormDTO));
+    }
+
+    @GetMapping("/detail")
+    public AjaxResult detail(@RequestParam(required = false) String stoNumber, @RequestParam(required = false) String companyCode) {
+        if (StringUtils.isEmpty(stoNumber)) {
+            return AjaxResult.error("stoNumber cannot be empty");
+        }
+        if (StringUtils.isEmpty(companyCode)) {
+            return AjaxResult.error("companyCode cannot be empty");
+        }
+        return AjaxResult.success().withData(stoHeaderService.getDetail(stoNumber, companyCode));
     }
 
     @PostMapping("/save")

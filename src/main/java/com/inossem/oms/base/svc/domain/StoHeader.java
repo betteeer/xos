@@ -106,4 +106,8 @@ public class StoHeader {
 
     @TableField(exist = false)
     private List<StoItem> items;
+    @TableField(exist = false)
+    private String fromWarehouseName;
+    @TableField(exist = false)
+    private String toWarehouseName;
 }
