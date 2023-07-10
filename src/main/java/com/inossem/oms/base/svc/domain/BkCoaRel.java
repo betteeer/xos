@@ -32,7 +32,7 @@ public class BkCoaRel {
     private String companyCode;
 
     @ApiModelProperty(value = "公司Id",name = "companyId")
-    private int companyId;
+    private Integer companyId;
 
     @ApiModelProperty(value = "公司code关联",name = "companyCodeEx")
     private String companyCodeEx;
@@ -44,10 +44,10 @@ public class BkCoaRel {
     private String code;
 
     @ApiModelProperty(value = "code类目",name = "codeCategory")
-    private int codeCategory;
+    private Integer codeCategory;
 
     @ApiModelProperty(value = "coa对应ID",name = "coaId")
-    private int coaId;
+    private Integer coaId;
 
     @ApiModelProperty(value = "coa对应code",name = "coaCode")
     private String coaCode;
@@ -56,7 +56,7 @@ public class BkCoaRel {
     private String coaName;
 
     @ApiModelProperty(value = "debitCoaId",name = "debitCoaId")
-    private int debitCoaId;
+    private Integer debitCoaId;
 
     @ApiModelProperty(value = "debitCoaCode",name = "debitCoaCode")
     private String debitCoaCode;
