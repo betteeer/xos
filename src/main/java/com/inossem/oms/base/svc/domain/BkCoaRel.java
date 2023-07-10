@@ -1,5 +1,6 @@
 package com.inossem.oms.base.svc.domain;
 
+import com.alibaba.fastjson2.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -10,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 /**
  * @author shigf
@@ -75,5 +77,19 @@ public class BkCoaRel {
 
     @ApiModelProperty(value = "删除标志位",name = "delFlag")
     private int delFlag;
+    @Data
+    public static class CoaItem {
+
+        @JSONField(name = "skugroup")
+        private String skuGroup;
+        private String coaId;
+        private String coaCode;
+        private String coaName;
+        private String debitCoaId;
+        private String debitCoaCode;
+        private String debitCoaName;
+
+    }
+    private List<CoaItem> coaJson;
 
 }
