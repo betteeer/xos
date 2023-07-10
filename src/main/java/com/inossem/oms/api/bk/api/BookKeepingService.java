@@ -1,5 +1,6 @@
 package com.inossem.oms.api.bk.api;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
@@ -143,6 +144,7 @@ public class BookKeepingService {
             bk.setDebitCoaName(obj.getString("debit_coa_name"));
             bk.setDelFlag(0);
             bk.setType(obj.getString("type"));
+            bk.setCoaJson(JSON.parseArray(obj.getString("coa_json"), BkCoaRel.CoaItem.class));
             bkCoaRels.add(bk);
         }
         return bkCoaRels;

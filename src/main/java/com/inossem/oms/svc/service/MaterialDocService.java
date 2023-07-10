@@ -872,12 +872,12 @@ public class MaterialDocService {
                             if (increTotalAmount == null && createMaterialDocSkuVo.getItemAmount() != null) {
                                 increTotalAmount = createMaterialDocSkuVo.getItemAmount().multiply(createMaterialDocSkuVo.getSkuQty()).setScale(2, BigDecimal.ROUND_HALF_UP);
                             }
-
                             i++;
                             RemoteBkGlSubListV2 debitBkGlSubList = new RemoteBkGlSubListV2();
                             debitBkGlSubList.setItemNo(String.valueOf(i));
                             debitBkGlSubList.setDescription(skuName);
-                            debitBkGlSubList.setGlAccount(bkCoaRel.getDebitCoaCode());
+                            debitBkGlSubList.setGlAccount(getCode(bkCoaRel, res, "dr"));
+//                            debitBkGlSubList.setGlAccount(bkCoaRel.getDebitCoaCode());
                             debitBkGlSubList.setNegPosting(false);
                             debitBkGlSubList.setAmountTc(increTotalAmount);
                             debitBkGlSubList.setAmountLc(BigDecimal.ZERO);
@@ -891,7 +891,8 @@ public class MaterialDocService {
                             RemoteBkGlSubListV2 creditBkGlSubList = new RemoteBkGlSubListV2();
                             creditBkGlSubList.setItemNo(String.valueOf(i));
                             creditBkGlSubList.setDescription(skuName);
-                            creditBkGlSubList.setGlAccount(bkCoaRel.getCoaCode());
+                            creditBkGlSubList.setGlAccount(getCode(bkCoaRel, res, "cr"));
+//                            creditBkGlSubList.setGlAccount(bkCoaRel.getCoaCode());
                             creditBkGlSubList.setNegPosting(false);
                             creditBkGlSubList.setAmountTc(increTotalAmount);
                             creditBkGlSubList.setAmountLc(BigDecimal.ZERO);
@@ -921,7 +922,19 @@ public class MaterialDocService {
         }
 
     }
-
+    public String getCode(BkCoaRel bkCoaRel, SkuMaster skuMaster, String drCr) {
+        if (bkCoaRel.getCoaJson().size() == 0) {
+            return drCr == "dr" ? bkCoaRel.getDebitCoaCode() : bkCoaRel.getCoaCode();
+        } else {
+            String skuGroupCode = skuMaster.getSkuGroupCode();
+            for (BkCoaRel.CoaItem coaItem : bkCoaRel.getCoaJson()) {
+                if (coaItem.getSkuGroup().equals(skuGroupCode)) {
+                    return drCr == "dr" ? coaItem.getDebitCoaCode() : coaItem.getCoaCode();
+                }
+            }
+            return drCr == "dr" ? bkCoaRel.getDebitCoaCode() : bkCoaRel.getCoaCode();
+        }
+    }
     /**
      * 库存变动给Bk发送gl
      *
