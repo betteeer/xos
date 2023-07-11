@@ -2,12 +2,12 @@ package com.inossem.oms.svc.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.inossem.oms.base.common.constant.ModuleConstant;
+import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.DTO.StoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.StoSearchFormDTO;
-import com.inossem.oms.base.svc.domain.SkuMaster;
-import com.inossem.oms.base.svc.domain.StoHeader;
-import com.inossem.oms.base.svc.domain.StoItem;
-import com.inossem.oms.base.svc.domain.Warehouse;
+import com.inossem.oms.base.svc.domain.VO.PreMaterialDocVo;
+import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
 import com.inossem.oms.base.svc.enums.StoStatus;
 import com.inossem.oms.base.svc.mapper.StoHeaderMapper;
 import com.inossem.oms.base.svc.mapper.StoItemMapper;
@@ -19,9 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -32,6 +31,18 @@ public class StoHeaderService {
     @Resource
     private StoItemService stoItemService;
 
+    @Resource
+    private StockBalanceNewService stockBalanceNewService;
+
+    @Resource
+    private MaterialDocNewService materialDocNewService;
+
+    /**
+     * 获取列表
+     *
+     * @param form
+     * @return
+     */
     public List<StoHeader> getList(StoSearchFormDTO form) {
         log.info(">>>查询sto列表，入参：[{}]", form);
         MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<>();
@@ -62,6 +73,36 @@ public class StoHeaderService {
         return stoHeaders;
     }
 
+    /**
+     * 获取单个详情
+     *
+     * @param stoNumber
+     * @param companyCode
+     * @return
+     */
+    public StoHeader getDetail(String stoNumber, String companyCode) {
+        MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<StoHeader>()
+                .selectAll(StoHeader.class)
+                .eq(StoHeader::getStoNumber, stoNumber)
+                .eq(StoHeader::getCompanyCode, companyCode)
+                .selectCollection(StoItem.class, StoHeader::getItems, ext ->
+                                ext.association(SkuMaster.class, StoItem::getSkuName, c -> c.result(SkuMaster::getSkuName))
+//                                .association(SkuMaster.class, StoItem::getIsKitting, c -> c.result(SkuMaster::getIsKitting))
+                )
+                .leftJoin(StoItem.class, StoItem::getStoNumber, StoHeader::getStoNumber)
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getFromWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getFromWarehouseName))
+                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getToWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getToWarehouseName))
+                .leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, StoItem::getSkuNumber);
+        StoHeader stoHeader = stoHeaderMapper.selectJoinOne(StoHeader.class, wrapper);
+        return stoHeader;
+    }
+
+    /**
+     * 保存open状态
+     *
+     * @param stoFormDTO
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     public StoHeader saveOrder(StoFormDTO stoFormDTO) {
         Long id = stoFormDTO.getId();
@@ -109,6 +150,7 @@ public class StoHeaderService {
         stoHeader.setFromWarehouseCode(stoFormDTO.getFromWarehouseCode());
         stoHeader.setToWarehouseCode(stoFormDTO.getToWarehouseCode());
         stoHeader.setReferenceNumber(stoFormDTO.getReferenceNumber());
+        stoHeader.setTrackingNumber(stoFormDTO.getTrackingNumber());
         stoHeader.setOrderStatus(StoStatus.OPEN.getStatus());
         stoHeader.setCreateDate(new Date());
         stoHeader.setGmtCreate(new Date());
@@ -117,6 +159,12 @@ public class StoHeaderService {
         return stoHeader;
     }
 
+    /**
+     * 获取sto number编号
+     *
+     * @param companyCode
+     * @return
+     */
     @Transactional(rollbackFor = Exception.class)
     String getMaxNumber(String companyCode) {
         LambdaQueryWrapper<StoHeader> wrapper = new LambdaQueryWrapper<StoHeader>()
@@ -166,9 +214,11 @@ public class StoHeaderService {
      * @return
      */
     private StoHeader packingStoHeaderInfoWhenReSave(StoFormDTO stoFormDTO, StoHeader stoHeader) {
+        stoHeader.setToWarehouseCode(stoFormDTO.getToWarehouseCode());
+        stoHeader.setReferenceNumber(stoFormDTO.getReferenceNumber());
         stoHeader.setFromWarehouseCode(stoFormDTO.getFromWarehouseCode());
-        stoHeader.setToWarehouseCode(stoHeader.getToWarehouseCode());
-        stoHeader.setReferenceNumber(stoHeader.getReferenceNumber());
+        stoHeader.setTrackingNumber(stoFormDTO.getTrackingNumber());
+        stoHeader.setStoNotes(stoFormDTO.getStoNotes());
         stoHeader.setGmtModified(new Date());
         return stoHeader;
     }
@@ -177,7 +227,7 @@ public class StoHeaderService {
      * 二次保存，组装新的sto items
      *
      * @param stoFormDTO
-     * @param stoItems
+     * @param stoNumber
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
@@ -227,20 +277,136 @@ public class StoHeaderService {
         return result;
     }
 
-    public StoHeader getDetail(String stoNumber, String companyCode) {
-        MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<StoHeader>()
-                .selectAll(StoHeader.class)
-                .eq(StoHeader::getStoNumber, stoNumber)
-                .eq(StoHeader::getCompanyCode, companyCode)
-                .selectCollection(StoItem.class, StoHeader::getItems, ext ->
-                        ext.association(SkuMaster.class, StoItem::getSkuName, c -> c.result(SkuMaster::getSkuName))
-//                                .association(SkuMaster.class, StoItem::getIsKitting, c -> c.result(SkuMaster::getIsKitting))
-                )
-                .leftJoin(StoItem.class, StoItem::getStoNumber, StoHeader::getStoNumber)
-                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getFromWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getFromWarehouseName))
-                .leftJoin(Warehouse.class, Warehouse::getWarehouseCode, StoHeader::getToWarehouseCode, ext -> ext.selectAs(Warehouse::getName, StoHeader::getToWarehouseName))
-                .leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, StoItem::getSkuNumber);
-        StoHeader stoHeader = stoHeaderMapper.selectJoinOne(StoHeader.class, wrapper);
+    /**
+     * open状态下取消
+     *
+     * @param stoNumber
+     * @return
+     */
+    public StoHeader cancelOrder(String stoNumber) {
+        log.info(">>> 开始取消sto, {}", stoNumber);
+        StoHeader stoHeader = stoHeaderMapper.selectOne(new LambdaQueryWrapper<StoHeader>().eq(StoHeader::getStoNumber, stoNumber));
+        if (StringUtils.isNull(stoHeader)) {
+            throw new ServiceException("Sto Order does not exist");
+        }
+        if (!stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
+            throw new ServiceException("Only open order can be cancelled");
+        }
+        stoHeader.setOrderStatus(StoStatus.CANCELLED.getStatus());
+        stoHeader.setIsDeleted(1);
+        stoHeaderMapper.updateById(stoHeader);
+        log.info(">>> 取消sto成功, {}", stoNumber);
+        return stoHeader;
+    }
+
+    /**
+     * Open或者新建的order 状态转变为intransit
+     * transfer order
+     *
+     * @param stoFormDTO
+     * @return
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public StoHeader transferOrder(StoFormDTO stoFormDTO) {
+        log.info(">>>开始transfer sto，但是先要save");
+        StoHeader stoHeader = this.saveOrder(stoFormDTO);
+        // 只保留有用的sto item
+        List<StoItem> items = stoHeader.getItems().stream().filter(item -> item.getIsDeleted() == 0).collect(Collectors.toList());
+        String fromWarehouse = stoHeader.getFromWarehouseCode();
+        String toWarehouse = stoHeader.getToWarehouseCode();
+        String companyCode = stoHeader.getCompanyCode();
+        // 查询库存,并转为skuNumber-onHandQty的map
+        List<SimpleStockBalanceVo> stockBalances = stockBalanceNewService.getSkuStockInWarehouse(items.stream().map(StoItem::getSkuNumber).collect(Collectors.toList()), fromWarehouse, companyCode);
+        Map<String, BigDecimal> stockMap = stockBalances.stream().collect(Collectors.toMap(SimpleStockBalanceVo::getSkuNumber, SimpleStockBalanceVo::getTotalOnhandQty));
+        // 校验库存和要求转移的数量
+        Optional<StoItem> lackQuantityItem = items.stream().filter(v -> v.getBasicTransferQty().compareTo(stockMap.get(v.getSkuNumber())) == 1).findFirst();
+        if (lackQuantityItem.isPresent()) {
+            StoItem lackItem = lackQuantityItem.get();
+            throw new ServiceException("Sku Number: " + lackItem.getSkuNumber() + " does not have sufficient available quantity");
+        }
+        List<PreMaterialDocVo> preMaterialDocVos = new ArrayList<>();
+        items.forEach(item -> {
+            stockBalances.stream().filter(v -> v.getSkuNumber().equals(item.getSkuNumber())).findFirst().ifPresent(b -> {
+                PreMaterialDocVo preMaterialDocVo = new PreMaterialDocVo();
+                preMaterialDocVo.setMovementType(ModuleConstant.MOVEMENT_TYPE.Transfer_Shipout);
+                preMaterialDocVo.setStoNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setCompanyCode(companyCode);
+                preMaterialDocVo.setWarehouseCode(fromWarehouse);
+                preMaterialDocVo.setToWarehouseCode(toWarehouse);
+                preMaterialDocVo.setAveragePrice(b.getAveragePrice());
+                preMaterialDocVo.setCurrencyCode(b.getCurrencyCode());
+                preMaterialDocVo.setSkuNumber(item.getSkuNumber());
+                preMaterialDocVo.setSkuQty(item.getBasicTransferQty());
+                preMaterialDocVo.setBasicUom(item.getBasicUom());
+                preMaterialDocVo.setReferenceType("WSTO");
+                preMaterialDocVo.setReferenceNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setReferenceItem(item.getStoItem());
+                preMaterialDocVo.setStockStatus("T");
+                preMaterialDocVos.add(preMaterialDocVo);
+            });
+        });
+        log.info(">>> 预构建的doc对象为：{}", preMaterialDocVos);
+        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
+        stockBalanceNewService.updateBalanceByMaterialDocsWhenTransfer(materialDocs);
+        //更改header的状态
+        stoHeader.setOrderStatus(StoStatus.IN_TRANSIT.getStatus());
+        stoHeader.setShipoutDate(new Date());
+        stoHeader.setGmtModified(new Date());
+        stoHeader.setShipoutMaterialDoc(materialDocs.get(0).getDocNumber());
+        stoHeaderMapper.updateById(stoHeader);
+        log.info(">>> transfer sto transfer完成，stoNumber = {}", stoHeader.getStoNumber());
+        return stoHeader;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    public Object receiveOrder(StoFormDTO stoFormDTO) {
+        String stoNumber = stoFormDTO.getStoNumber();
+        StoHeader stoHeader = stoHeaderMapper.selectOne(new LambdaQueryWrapper<StoHeader>().eq(StoHeader::getStoNumber, stoNumber));
+        List<StoItem> stoItems = stoItemService.getBaseMapper().selectList(new LambdaQueryWrapper<StoItem>().eq(StoItem::getStoNumber, stoNumber));
+        List<StoItem> items = stoItems.stream().filter(item -> item.getIsDeleted() == 0).collect(Collectors.toList());
+        String fromWarehouse = stoHeader.getFromWarehouseCode();
+        String toWarehouse = stoHeader.getToWarehouseCode();
+        String companyCode = stoHeader.getCompanyCode();
+        // 查询库存,并转为skuNumber-onHandQty的map
+        List<SimpleStockBalanceVo> stockBalances = stockBalanceNewService.getSkuStockInWarehouse(items.stream().map(StoItem::getSkuNumber).collect(Collectors.toList()), toWarehouse, companyCode);
+        Map<String, BigDecimal> stockMap = stockBalances.stream().collect(Collectors.toMap(SimpleStockBalanceVo::getSkuNumber, SimpleStockBalanceVo::getTotalTransferQty));
+        // 校验库存和要求转移的数量
+        Optional<StoItem> lackQuantityItem = items.stream().filter(v -> v.getBasicTransferQty().compareTo(stockMap.get(v.getSkuNumber())) == 1).findFirst();
+        if (lackQuantityItem.isPresent()) {
+            StoItem lackItem = lackQuantityItem.get();
+            throw new ServiceException("Sku Number: " + lackItem.getSkuNumber() + " does not have sufficient transfer quantity");
+        }
+        List<PreMaterialDocVo> preMaterialDocVos = new ArrayList<>();
+        items.forEach(item -> {
+            stockBalances.stream().filter(v -> v.getSkuNumber().equals(item.getSkuNumber())).findFirst().ifPresent(b -> {
+                PreMaterialDocVo preMaterialDocVo = new PreMaterialDocVo();
+                preMaterialDocVo.setMovementType(ModuleConstant.MOVEMENT_TYPE.Transfer_Receive);
+                preMaterialDocVo.setStoNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setCompanyCode(companyCode);
+                preMaterialDocVo.setWarehouseCode(fromWarehouse);
+                preMaterialDocVo.setToWarehouseCode(toWarehouse);
+                preMaterialDocVo.setAveragePrice(b.getAveragePrice());
+                preMaterialDocVo.setCurrencyCode(b.getCurrencyCode());
+                preMaterialDocVo.setSkuNumber(item.getSkuNumber());
+                preMaterialDocVo.setSkuQty(item.getBasicTransferQty());
+                preMaterialDocVo.setBasicUom(item.getBasicUom());
+                preMaterialDocVo.setReferenceType("WSTO");
+                preMaterialDocVo.setReferenceNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setReferenceItem(item.getStoItem());
+                preMaterialDocVo.setStockStatus("A");
+                preMaterialDocVos.add(preMaterialDocVo);
+            });
+        });
+        log.info(">>> 预构建的doc对象为：{}", preMaterialDocVos);
+        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
+        stockBalanceNewService.updateBalanceByMaterialDocsWhenReceive(materialDocs);
+        stoHeader.setOrderStatus(StoStatus.RECEIVED.getStatus());
+        stoHeader.setReceiveDate(new Date());
+        stoHeader.setGmtModified(new Date());
+        stoHeader.setReceiveMaterialDoc(materialDocs.get(0).getDocNumber());
+        stoHeaderMapper.updateById(stoHeader);
+        stoHeader.setItems(stoItems);
+        log.info(">>> transfer sto receive完成，stoNumber = {}", stoHeader.getStoNumber());
         return stoHeader;
     }
 }

@@ -42,8 +42,22 @@ public class StoHeaderController extends BaseController {
     public AjaxResult saveOrder(@RequestBody StoFormDTO stoFormDTO) {
         return AjaxResult.success().withData(stoHeaderService.saveOrder(stoFormDTO));
     }
-//    @PostMapping("/cancel")
-//    @PostMapping("/confirm")
+    @PostMapping("/cancel")
+    public AjaxResult cancelOrder(@RequestBody StoFormDTO stoFormDTO) {
+        if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
+            return AjaxResult.error("stoNumber cannot be empty");
+        }
+        return AjaxResult.success().withData(stoHeaderService.cancelOrder(stoFormDTO.getStoNumber()));
+    }
+    @PostMapping("/transfer")
+    public AjaxResult transferOrder(@RequestBody StoFormDTO stoFormDTO) {
+        return AjaxResult.success().withData(stoHeaderService.transferOrder(stoFormDTO));
+    }
+
+    @PostMapping("/receive")
+    public AjaxResult receiveOrder(@RequestBody StoFormDTO stoFormDTO) {
+        return AjaxResult.success().withData(stoHeaderService.receiveOrder(stoFormDTO));
+    }
 //    @PostMapping("/receive")
 //    @PostMapping("/revertToOpen")
 //    @PostMapping("/revertToIntransit")
