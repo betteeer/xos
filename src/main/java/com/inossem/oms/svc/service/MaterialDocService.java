@@ -924,7 +924,7 @@ public class MaterialDocService {
 
     }
     public String getCode(BkCoaRel bkCoaRel, SkuMaster skuMaster, String drCr) {
-        if (bkCoaRel.getCoaJson().size() == 0) {
+        if (bkCoaRel.getCoaJson() == null || bkCoaRel.getCoaJson().size() == 0) {
             return drCr == "dr" ? bkCoaRel.getDebitCoaCode() : bkCoaRel.getCoaCode();
         } else {
             String skuGroupCode = skuMaster.getSkuGroupCode();
@@ -946,13 +946,15 @@ public class MaterialDocService {
     public String remoteBkGLs(String docNumber, List<MaterialDoc> materialDocList) throws IOException {
 //        RemoteBkGl remoteBkGl = new RemoteBkGl();
         RemoteBkGlV2 remoteBkGl = new RemoteBkGlV2();
-        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, materialDocList.get(0).getMovementType())
-                .eq(BkCoaRel::getCompanyCode, materialDocList.get(0).getCompanyCode())
-                .last("limit 1");
-        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
+//        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, materialDocList.get(0).getMovementType())
+//                .eq(BkCoaRel::getCompanyCode, materialDocList.get(0).getCompanyCode())
+//                .last("limit 1");
+//        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
+        Company company = companyService.getCompany(materialDocList.get(0).getCompanyCode());
+        ArrayList<BkCoaRel> bkCoaRels = bookKeepingService.getBkCoaRels(company);
+        BkCoaRel bkCoaRel = bkCoaRels.stream().filter(b -> b.getCode().equals(materialDocList.get(0).getMovementType()) && b.getCompanyCode().equals(materialDocList.get(0).getCompanyCode())).findFirst().orElse(null);
         if (!StringUtils.isNull(bkCoaRel)) {
-            Company company = companyService.getCompany(materialDocList.get(0).getCompanyCode());
             remoteBkGl.setCompanyId(company.getOrgidEx());
             remoteBkGl.setCompanyCode(company.getCompanyCodeEx());
             remoteBkGl.setHeaderText(docNumber);
@@ -986,7 +988,7 @@ public class MaterialDocService {
                     RemoteBkGlSubListV2 debitBkGlSubList = new RemoteBkGlSubListV2();
                     debitBkGlSubList.setItemNo(String.valueOf(i));
                     debitBkGlSubList.setDescription(skuName);
-                    debitBkGlSubList.setGlAccount(bkCoaRel.getDebitCoaCode());
+                    debitBkGlSubList.setGlAccount(getCode(bkCoaRel, res, "dr"));
                     debitBkGlSubList.setNegPosting(false);
                     debitBkGlSubList.setAmountTc(increTotalAmount);
                     debitBkGlSubList.setAmountLc(BigDecimal.ZERO);
@@ -999,7 +1001,7 @@ public class MaterialDocService {
                     RemoteBkGlSubListV2 creditBkGlSubList = new RemoteBkGlSubListV2();
                     creditBkGlSubList.setItemNo(String.valueOf(i));
                     creditBkGlSubList.setDescription(skuName);
-                    creditBkGlSubList.setGlAccount(bkCoaRel.getCoaCode());
+                    creditBkGlSubList.setGlAccount(getCode(bkCoaRel, res, "cr"));
                     creditBkGlSubList.setNegPosting(false);
                     creditBkGlSubList.setAmountTc(increTotalAmount);
                     creditBkGlSubList.setAmountLc(BigDecimal.ZERO);
