@@ -53,13 +53,13 @@ public class BpController extends BaseController {
     @ApiOperation(value = "get bp list", notes = "get bp page list")
     @GetMapping("/list")
     public TableDataInfo list(BPListVO bpListVO) {
-        return getDataTable(bpService.getList(bpListVO));
+        return bpService.getList(bpListVO);
     }
 
     @ApiOperation(value = "get bp list", notes = "get bp page list")
     @PostMapping("/wms/list")
     public TableDataInfo listWms(@RequestBody BPListVO bpListVO) {
-        return getDataTable(bpService.getList(bpListVO));
+        return bpService.getList(bpListVO);
     }
 
     @ApiOperation(value = "get bp list", notes = "get bp page list")
