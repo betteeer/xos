@@ -25,6 +25,14 @@ public class StoHeader {
     @TableField(value = "company_code")
     private String companyCode;
 
+    public String getCompanyCode() {
+        return companyCode;
+    }
+
+    public void setCompanyCode(String companyCode) {
+        this.companyCode = companyCode;
+    }
+
     @ApiModelProperty(value = "类型", name = "sto type")
     @TableField(value = "order_type")
     private String orderType;

@@ -1,16 +1,18 @@
 package com.inossem.oms.svc.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.common.constant.ModuleConstant;
-import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.DTO.StoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.StoSearchFormDTO;
+import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.PreMaterialDocVo;
 import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
 import com.inossem.oms.base.svc.enums.StoStatus;
 import com.inossem.oms.base.svc.mapper.StoHeaderMapper;
 import com.inossem.oms.base.svc.mapper.StoItemMapper;
+import com.inossem.oms.utils.ChainSetValue;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -19,6 +21,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -43,6 +48,15 @@ public class StoHeaderService {
      * @param form
      * @return
      */
+    @Transactional(rollbackFor = Exception.class)
+    public StoHeader getStoHeaderByNumber(String stoNumber) {
+        LambdaQueryWrapper<StoHeader> wrapper = Wrappers.lambdaQuery(StoHeader.class).eq(StoHeader::getStoNumber, stoNumber);
+        StoHeader stoHeader = stoHeaderMapper.selectOne(wrapper);
+        if (StringUtils.isNull(stoHeader)) {
+            throw new ServiceException("sto number: " + stoNumber + " does not exist");
+        }
+        return stoHeader;
+    }
     public List<StoHeader> getList(StoSearchFormDTO form) {
         log.info(">>>查询sto列表，入参：[{}]", form);
         MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<>();
@@ -118,9 +132,7 @@ public class StoHeaderService {
             stoHeader.setItems(items);
             return stoHeader;
         } else { // 之前已经save过了，重新save算做修改
-            LambdaQueryWrapper<StoHeader> wrapper = new LambdaQueryWrapper<StoHeader>()
-                    .eq(StoHeader::getId, id);
-            StoHeader stoHeader = stoHeaderMapper.selectOne(wrapper);
+            StoHeader stoHeader = stoHeaderMapper.selectOne(Wrappers.lambdaQuery(StoHeader.class).eq(StoHeader::getId, id));
             if (StringUtils.isEmpty(stoHeader.getOrderStatus())) {
                 throw new ServiceException("only open order can be saved");
             }
@@ -144,6 +156,13 @@ public class StoHeaderService {
      */
     private StoHeader packingStoHeaderInfoWhenSave(StoFormDTO stoFormDTO) {
         StoHeader stoHeader = new StoHeader();
+        if (StringUtils.isNull(stoFormDTO.getCreateDate())) {
+            LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+            Date date = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+            stoHeader.setCreateDate(date);
+        } else {
+            stoHeader.setCreateDate(stoFormDTO.getCreateDate());
+        }
         stoHeader.setCompanyCode(stoFormDTO.getCompanyCode());
         stoHeader.setOrderType("wsto");
         stoHeader.setStoNumber(this.getMaxNumber(stoFormDTO.getCompanyCode()));
@@ -152,7 +171,7 @@ public class StoHeaderService {
         stoHeader.setReferenceNumber(stoFormDTO.getReferenceNumber());
         stoHeader.setTrackingNumber(stoFormDTO.getTrackingNumber());
         stoHeader.setOrderStatus(StoStatus.OPEN.getStatus());
-        stoHeader.setCreateDate(new Date());
+        stoHeader.setShipoutDate(stoFormDTO.getShipoutDate());
         stoHeader.setGmtCreate(new Date());
         stoHeader.setGmtModified(new Date());
         stoHeader.setStoNotes(stoFormDTO.getStoNotes());
@@ -167,7 +186,7 @@ public class StoHeaderService {
      */
     @Transactional(rollbackFor = Exception.class)
     String getMaxNumber(String companyCode) {
-        LambdaQueryWrapper<StoHeader> wrapper = new LambdaQueryWrapper<StoHeader>()
+        LambdaQueryWrapper<StoHeader> wrapper = Wrappers.lambdaQuery(StoHeader.class)
                 .eq(StoHeader::getCompanyCode, companyCode)
                 .orderByDesc(StoHeader::getId)
                 .last("limit 1");
@@ -214,6 +233,7 @@ public class StoHeaderService {
      * @return
      */
     private StoHeader packingStoHeaderInfoWhenReSave(StoFormDTO stoFormDTO, StoHeader stoHeader) {
+        stoHeader.setCreateDate(stoFormDTO.getCreateDate());
         stoHeader.setToWarehouseCode(stoFormDTO.getToWarehouseCode());
         stoHeader.setReferenceNumber(stoFormDTO.getReferenceNumber());
         stoHeader.setFromWarehouseCode(stoFormDTO.getFromWarehouseCode());
@@ -285,10 +305,7 @@ public class StoHeaderService {
      */
     public StoHeader cancelOrder(String stoNumber) {
         log.info(">>> 开始取消sto, {}", stoNumber);
-        StoHeader stoHeader = stoHeaderMapper.selectOne(new LambdaQueryWrapper<StoHeader>().eq(StoHeader::getStoNumber, stoNumber));
-        if (StringUtils.isNull(stoHeader)) {
-            throw new ServiceException("Sto Order does not exist");
-        }
+        StoHeader stoHeader = this.getStoHeaderByNumber(stoNumber);
         if (!stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
             throw new ServiceException("Only open order can be cancelled");
         }
@@ -324,6 +341,12 @@ public class StoHeaderService {
             StoItem lackItem = lackQuantityItem.get();
             throw new ServiceException("Sku Number: " + lackItem.getSkuNumber() + " does not have sufficient available quantity");
         }
+        if (StringUtils.isNull(stoFormDTO.getShipoutDate())) {
+            LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+            Date date = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+            stoHeader.setShipoutDate(date);
+        }
+        Date shipoutDate = stoHeader.getShipoutDate();
         List<PreMaterialDocVo> preMaterialDocVos = new ArrayList<>();
         items.forEach(item -> {
             stockBalances.stream().filter(v -> v.getSkuNumber().equals(item.getSkuNumber())).findFirst().ifPresent(b -> {
@@ -342,6 +365,7 @@ public class StoHeaderService {
                 preMaterialDocVo.setReferenceNumber(stoHeader.getStoNumber());
                 preMaterialDocVo.setReferenceItem(item.getStoItem());
                 preMaterialDocVo.setStockStatus("T");
+                preMaterialDocVo.setPostingDate(shipoutDate);
                 preMaterialDocVos.add(preMaterialDocVo);
             });
         });
@@ -350,7 +374,6 @@ public class StoHeaderService {
         stockBalanceNewService.updateBalanceByMaterialDocsWhenTransfer(materialDocs);
         //更改header的状态
         stoHeader.setOrderStatus(StoStatus.IN_TRANSIT.getStatus());
-        stoHeader.setShipoutDate(new Date());
         stoHeader.setGmtModified(new Date());
         stoHeader.setShipoutMaterialDoc(materialDocs.get(0).getDocNumber());
         stoHeaderMapper.updateById(stoHeader);
@@ -361,12 +384,18 @@ public class StoHeaderService {
     @Transactional(rollbackFor = Exception.class)
     public Object receiveOrder(StoFormDTO stoFormDTO) {
         String stoNumber = stoFormDTO.getStoNumber();
-        StoHeader stoHeader = stoHeaderMapper.selectOne(new LambdaQueryWrapper<StoHeader>().eq(StoHeader::getStoNumber, stoNumber));
+        StoHeader stoHeader = this.getStoHeaderByNumber(stoNumber);
         List<StoItem> stoItems = stoItemService.getBaseMapper().selectList(new LambdaQueryWrapper<StoItem>().eq(StoItem::getStoNumber, stoNumber));
         List<StoItem> items = stoItems.stream().filter(item -> item.getIsDeleted() == 0).collect(Collectors.toList());
         String fromWarehouse = stoHeader.getFromWarehouseCode();
         String toWarehouse = stoHeader.getToWarehouseCode();
         String companyCode = stoHeader.getCompanyCode();
+        LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
+        Date date = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
+        if (StringUtils.isNull(stoFormDTO.getReceiveDate())) {
+            stoHeader.setReceiveDate(date);
+        }
+        Date receiveDate = stoHeader.getReceiveDate();
         // 查询库存,并转为skuNumber-onHandQty的map
         List<SimpleStockBalanceVo> stockBalances = stockBalanceNewService.getSkuStockInWarehouse(items.stream().map(StoItem::getSkuNumber).collect(Collectors.toList()), toWarehouse, companyCode);
         Map<String, BigDecimal> stockMap = stockBalances.stream().collect(Collectors.toMap(SimpleStockBalanceVo::getSkuNumber, SimpleStockBalanceVo::getTotalTransferQty));
@@ -383,8 +412,9 @@ public class StoHeaderService {
                 preMaterialDocVo.setMovementType(ModuleConstant.MOVEMENT_TYPE.Transfer_Receive);
                 preMaterialDocVo.setStoNumber(stoHeader.getStoNumber());
                 preMaterialDocVo.setCompanyCode(companyCode);
-                preMaterialDocVo.setWarehouseCode(fromWarehouse);
-                preMaterialDocVo.setToWarehouseCode(toWarehouse);
+                preMaterialDocVo.setWarehouseCode(toWarehouse);
+                // receive只是单个库内部从transfer转移到了available，不存在toWarehouse
+                preMaterialDocVo.setToWarehouseCode("");
                 preMaterialDocVo.setAveragePrice(b.getAveragePrice());
                 preMaterialDocVo.setCurrencyCode(b.getCurrencyCode());
                 preMaterialDocVo.setSkuNumber(item.getSkuNumber());
@@ -394,6 +424,7 @@ public class StoHeaderService {
                 preMaterialDocVo.setReferenceNumber(stoHeader.getStoNumber());
                 preMaterialDocVo.setReferenceItem(item.getStoItem());
                 preMaterialDocVo.setStockStatus("A");
+                preMaterialDocVo.setPostingDate(receiveDate);
                 preMaterialDocVos.add(preMaterialDocVo);
             });
         });
@@ -401,12 +432,74 @@ public class StoHeaderService {
         List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
         stockBalanceNewService.updateBalanceByMaterialDocsWhenReceive(materialDocs);
         stoHeader.setOrderStatus(StoStatus.RECEIVED.getStatus());
-        stoHeader.setReceiveDate(new Date());
+        stoHeader.setReceiveDate(receiveDate);
         stoHeader.setGmtModified(new Date());
         stoHeader.setReceiveMaterialDoc(materialDocs.get(0).getDocNumber());
         stoHeaderMapper.updateById(stoHeader);
         stoHeader.setItems(stoItems);
         log.info(">>> transfer sto receive完成，stoNumber = {}", stoHeader.getStoNumber());
         return stoHeader;
+    }
+
+    /**
+     * 将intransit的状态 revert 到open状态
+     * @param stoFormDTO
+     * @return
+     */
+    public StoHeader revertToOpen(StoFormDTO stoFormDTO) {
+        StoHeader stoHeader = this.getStoHeaderByNumber(stoFormDTO.getStoNumber());
+        List<StoItem> stoItems = stoItemService.getBaseMapper().selectList(new LambdaQueryWrapper<StoItem>().eq(StoItem::getStoNumber, stoFormDTO.getStoNumber()));
+        if (!stoHeader.getOrderStatus().equals(StoStatus.IN_TRANSIT.getStatus())) {
+            throw new ServiceException("only in transit sto can be revert to open");
+        }
+        String shipoutMaterialDoc = stoHeader.getShipoutMaterialDoc();
+        List<MaterialDoc> reverseDocs = materialDocNewService.reverseShipoutMaterialDoc(shipoutMaterialDoc);
+        stockBalanceNewService.updateBalanceByMaterialDocsWhenRevertTransfer(reverseDocs);
+
+        stoHeader.setOrderStatus(StoStatus.OPEN.getStatus());
+        stoHeader.setShipoutMaterialDoc("");
+        stoHeader.setShipoutDate(null);
+        stoHeader.setGmtModified(new Date());
+        stoHeader.setItems(stoItems);
+        stoHeaderMapper.updateById(stoHeader);
+        log.info(">>> transfer sto revert transfer完成，stoNumber = {}", stoHeader.getStoNumber());
+        return stoHeader;
+    }
+
+    /**
+     * 将received的状态 revert 到intransit状态
+     * @param stoFormDTO
+     * @return
+     */
+    public StoHeader revertToIntransit(StoFormDTO stoFormDTO) {
+        StoHeader stoHeader = this.getStoHeaderByNumber(stoFormDTO.getStoNumber());
+        List<StoItem> stoItems = stoItemService.getBaseMapper().selectList(new LambdaQueryWrapper<StoItem>().eq(StoItem::getStoNumber, stoFormDTO.getStoNumber()));
+        if (!stoHeader.getOrderStatus().equals(StoStatus.RECEIVED.getStatus())) {
+            throw new ServiceException("only received sto can be revert to in transit");
+        }
+        String receiveMaterialDoc = stoHeader.getReceiveMaterialDoc();
+        List<MaterialDoc> reverseDocs = materialDocNewService.reverseReceiveMaterialDoc(receiveMaterialDoc);
+        stockBalanceNewService.updateBalanceByMaterialDocsWhenRevertReceive(reverseDocs);
+
+        stoHeader.setOrderStatus(StoStatus.IN_TRANSIT.getStatus());
+        stoHeader.setReceiveMaterialDoc("");
+        stoHeader.setReceiveDate(null);
+        stoHeader.setGmtModified(new Date());
+        stoHeader.setItems(stoItems);
+        stoHeaderMapper.updateById(stoHeader);
+        log.info(">>> transfer sto revert received完成，stoNumber = {}", stoHeader.getStoNumber());
+        return stoHeader;
+    }
+
+    public Boolean saveFreeField(StoFormDTO stoFormDTO) {
+        StoHeader stoHeader = this.getStoHeaderByNumber(stoFormDTO.getStoNumber());
+        // 按非空修改三个字段值，仅仅处理referenceNumber,trackingNumber,stoNotes
+        stoHeader = ChainSetValue.of(stoHeader)
+                .updateIfNotNull(stoHeader::setReferenceNumber, stoFormDTO.getReferenceNumber())
+                .updateIfNotNull(stoHeader::setTrackingNumber, stoFormDTO.getTrackingNumber())
+                .updateIfNotNull(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
+                .val();
+        int i = stoHeaderMapper.updateById(stoHeader);
+        return i > 0;
     }
 }

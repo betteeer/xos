@@ -3,6 +3,7 @@ package com.inossem.oms.base.svc.domain.VO;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 @Data
 public class PreMaterialDocVo {
@@ -20,4 +21,5 @@ public class PreMaterialDocVo {
     private String referenceNumber;
     private String referenceItem;
     private String stockStatus;
+    private Date postingDate;
 }

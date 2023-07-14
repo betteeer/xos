@@ -1,6 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.MaterialDoc;
 import com.inossem.oms.base.svc.vo.QueryMaterialDocListVo;
 import com.inossem.oms.base.svc.vo.QueryMaterialDocResVo;
@@ -13,7 +13,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-10-11
  */
-public interface MaterialDocMapper extends BaseMapper<MaterialDoc> {
+public interface MaterialDocMapper extends MPJBaseMapper<MaterialDoc> {
 
     List<QueryMaterialDocResVo> selectListByQueryParam(QueryMaterialDocListVo queryMaterialDocListVo);
 

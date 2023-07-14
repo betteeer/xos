@@ -58,7 +58,19 @@ public class StoHeaderController extends BaseController {
     public AjaxResult receiveOrder(@RequestBody StoFormDTO stoFormDTO) {
         return AjaxResult.success().withData(stoHeaderService.receiveOrder(stoFormDTO));
     }
-//    @PostMapping("/receive")
-//    @PostMapping("/revertToOpen")
-//    @PostMapping("/revertToIntransit")
+    @PostMapping("/revertToOpen")
+    public AjaxResult revertToOpen(@RequestBody StoFormDTO stoFormDTO) {
+        return AjaxResult.success().withData(stoHeaderService.revertToOpen(stoFormDTO));
+    }
+
+    @PostMapping("/revertToIntransit")
+    public AjaxResult revertToIntransit(@RequestBody StoFormDTO stoFormDTO) {
+        return AjaxResult.success().withData(stoHeaderService.revertToIntransit(stoFormDTO));
+    }
+
+    @PostMapping("/freeField/save")
+    public AjaxResult saveFreeField(@RequestBody StoFormDTO stoFormDTO) {
+        return AjaxResult.success().withData(stoHeaderService.saveFreeField(stoFormDTO));
+    }
+
 }

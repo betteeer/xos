@@ -44,7 +44,9 @@ public class StockBalanceController extends BaseController {
             return getDataTable(new ArrayList<>());
         }
         startPage();
-        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getStockList(queryStockListVo);
+
         return getDataTable(list);
     }
 
@@ -61,7 +63,8 @@ public class StockBalanceController extends BaseController {
         if (StringUtils.isEmpty(queryStockListVo.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
-        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getSatetyList(queryStockListVo);
         return getDataTable(list);
     }
 
