@@ -502,12 +502,13 @@ public class BookKeepingService {
     }
 
     /**
-     * 调用bkp接口 获取Business Partner List/Detail
+     * 调用bkp接口 获取Business Partner List
      */
     public JSONObject getBPListFromBkp(String companyCode, String SearchText, Integer skip, Integer limit, String bpNumber) throws IOException {
         SystemConnect connect = getConnectCom(companyCode);
         Map<String, Object> paramsMap = new HashMap<>();
         paramsMap.put("company_code", companyCode);
+        paramsMap.put("$sort[contact_id]",-1);//列表页按照contact_id及bp_number倒序排列，最新创建的在最前面
         if (Objects.nonNull(limit)) paramsMap.put("$limit", limit);
         if (Objects.nonNull(skip)) paramsMap.put("$skip", skip);
         if (Objects.nonNull(bpNumber)) paramsMap.put("contact_id", bpNumber);
@@ -524,7 +525,7 @@ public class BookKeepingService {
 
         String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact";
         url += HttpParamsUtils.getBodyParams(paramsMap);
-        logger.info(">>> 查询bp列表详情,请求地址url:{}", url);
+        logger.info(">>> 查询bp列表,请求地址url:{}", url);
 
         Request request = new Request.Builder()
                 .url(url)
@@ -535,6 +536,30 @@ public class BookKeepingService {
         String bo = Objects.requireNonNull(response.body()).string();
         logger.info("接收到的数据为：{}", bo);
         return JSONObject.parseObject(bo);
+    }
+
+    /**
+     * 调用bkp接口 获取单条Business Partner Detail
+     */
+    public BkpBusinessPartnerDto getBPDetailFromBkp(String companyCode, String id) throws IOException {
+        SystemConnect connect = getConnectCom(companyCode);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact/"+id;
+        logger.info(">>> 查询bp详情,请求地址url:{}", url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("Authorization", getToken(connect))
+                .build();
+        Response response = client.newCall(request).execute();
+        String bo = Objects.requireNonNull(response.body()).string();
+        logger.info("接收到的数据为：{}", bo);
+        return JSONObject.parseObject(bo,BkpBusinessPartnerDto.class);
     }
 
     /**

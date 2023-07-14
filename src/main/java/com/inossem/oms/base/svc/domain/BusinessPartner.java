@@ -24,7 +24,7 @@ import java.util.List;
 
 @Data
 @ApiModel("业务合作伙伴表")
-//@TableName("business_partner")
+@TableName("business_partner")
 @AllArgsConstructor
 @NoArgsConstructor
 public class BusinessPartner {
