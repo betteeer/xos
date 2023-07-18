@@ -133,7 +133,7 @@ public class StoHeaderService {
             return stoHeader;
         } else { // 之前已经save过了，重新save算做修改
             StoHeader stoHeader = stoHeaderMapper.selectOne(Wrappers.lambdaQuery(StoHeader.class).eq(StoHeader::getId, id));
-            if (StringUtils.isEmpty(stoHeader.getOrderStatus())) {
+            if (StringUtils.isEmpty(stoHeader.getOrderStatus()) || !stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
                 throw new ServiceException("only open order can be saved");
             }
             stoHeader = this.packingStoHeaderInfoWhenReSave(stoFormDTO, stoHeader);
@@ -239,6 +239,7 @@ public class StoHeaderService {
         stoHeader.setFromWarehouseCode(stoFormDTO.getFromWarehouseCode());
         stoHeader.setTrackingNumber(stoFormDTO.getTrackingNumber());
         stoHeader.setStoNotes(stoFormDTO.getStoNotes());
+        stoHeader.setShipoutDate(stoFormDTO.getShipoutDate());
         stoHeader.setGmtModified(new Date());
         return stoHeader;
     }
@@ -285,9 +286,12 @@ public class StoHeaderService {
                         i.setIsDeleted(1);
                     } else {
                         // 更改了老item的一些字段值
+                        i.setSkuNumber(item.getSkuNumber());
                         i.setBasicTransferQty(item.getBasicTransferQty());
                         i.setBasicUom(item.getBasicUom());
-                        i.setIsDeleted(item.getIsDeleted());
+                        if (item.getIsDeleted() == 1) {
+                            i.setIsDeleted(1);
+                        }
                     }
                     i.setGmtModified(new Date());
                     result.add(i);
@@ -431,6 +435,7 @@ public class StoHeaderService {
         log.info(">>> 预构建的doc对象为：{}", preMaterialDocVos);
         List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
         stockBalanceNewService.updateBalanceByMaterialDocsWhenReceive(materialDocs);
+        //  更新stoHeader状态
         stoHeader.setOrderStatus(StoStatus.RECEIVED.getStatus());
         stoHeader.setReceiveDate(receiveDate);
         stoHeader.setGmtModified(new Date());

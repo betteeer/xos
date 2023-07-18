@@ -212,9 +212,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
                     StockBalance b = transferToOnHand(s, materialDoc);
                     result.add(b);
                 } else { // 没找到，说明to warehouse没查到库存，那就先取from warehouse的
-                    if (warehouseCode.equals(warehouseCodes[0])) {
-                        throw new ServiceException("warehouse:"+ warehouseCode + ",skuNumber: "+ skuNumber +" does not have stock balance");
-                    }
+                    throw new ServiceException("warehouse:"+ warehouseCode + ",skuNumber: "+ skuNumber +" does not have stock balance");
                 }
             }
         }

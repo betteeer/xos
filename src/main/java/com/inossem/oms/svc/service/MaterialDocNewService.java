@@ -150,6 +150,7 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
         long docNumber = numberWorker.generateId(materialDocs.get(0).getCompanyCode(), ModuleConstant.ORDER_NUMBER_TYPE.MATERIAL_DOC);
         // 构建reverse的material doc
         List<MaterialDoc> reverseResult = new ArrayList<>();
+        // 要更新的数据
         List<MaterialDoc> result = new ArrayList<>();
         for (MaterialDoc m : materialDocs) {
             MaterialDoc rm = new MaterialDoc();
