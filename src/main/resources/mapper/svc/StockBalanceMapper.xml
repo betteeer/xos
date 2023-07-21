@@ -93,11 +93,15 @@
         <if test="balanceValueSort != null and balanceValueSort != '' ">
             order by sb.total_amount ${balanceValueSort}
         </if>
+        <if test="transferQtySort != null and transferQtySort != '' ">
+            order by sb.total_transfer_qty ${transferQtySort}
+        </if>
         <if test="skuCodeSort == null
         and totalStockQtySort == null
         and onHandQtySort == null
         and blockQtySort == null
-        and balanceValueSort == null">
+        and balanceValueSort == null
+        and transferQtySort == null">
             order by sb.gmt_create desc
         </if>
     </select>

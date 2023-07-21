@@ -63,8 +63,10 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         material_doc md
         left join movement_type mt ON md.movement_type = mt.movement_type
         <where>
-            <if test="searchText != null and searchText != ''">and (md.sku_number like concat('%',#{searchText},'%') or md.reference_number like concat('%',#{searchText},'%')
-                <if test="skuMasters != null and skuMasters.size() > 0"> or md.sku_number in
+            <if test="searchText != null and searchText != ''">
+                and (md.sku_number like concat('%',#{searchText},'%') or md.reference_number like concat('%',#{searchText},'%')
+                <if test="skuMasters != null and skuMasters.size() > 0">
+                    or md.sku_number in
                     <foreach collection="skuMasters" item="skuMaster" index="index" open="(" close=")" separator=",">
                         #{skuMaster.skuNumber}
                     </foreach>

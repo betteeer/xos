@@ -68,7 +68,11 @@ public class QueryStockBalanceResVo
     private String basicUom;
 
     @ApiModelProperty(value = "物品信息",name = "skuMaster")
+    @Deprecated
     private SkuMaster skuMaster;
+
+    @ApiModelProperty(value = "安全库存",name = "skuSatetyStock")
+    private BigDecimal skuSatetyStock;
 
     @ApiModelProperty(value = "创建时间",name = "postingDate")
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")

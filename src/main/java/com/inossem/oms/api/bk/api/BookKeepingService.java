@@ -430,22 +430,22 @@ public class BookKeepingService {
     }
 
     public String soBill(SoInvoiceModel model) throws IOException {
-        boolean inner = InnerInterfaceCall.isInner();
-        SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
-        model.setCreator(Integer.valueOf(connect.getBkCreator()));
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
-        String url = prefix + "/api/v1/ar";
+            boolean inner = InnerInterfaceCall.isInner();
+            SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
+            model.setCreator(Integer.valueOf(connect.getBkCreator()));
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+            String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
+            String url = prefix + "/api/v1/ar";
 //        String url = "http://localhost:5001/api/v1/ar";
-        logger.info("请求的地址为：" + url);
+            logger.info("请求的地址为：" + url);
 
-        String param = JSONObject.toJSONString(model,
-                JSONWriter.Feature.WriteNullStringAsEmpty);
-        param = handleParam(param);
-        logger.info("请求的参数为：" + param);
+            String param = JSONObject.toJSONString(model,
+                    JSONWriter.Feature.WriteNullStringAsEmpty);
+            param = handleParam(param);
+            logger.info("请求的参数为：" + param);
         RequestBody body = RequestBody.create(mediaType, param);
         Request request = new Request.Builder()
                 .url(url)

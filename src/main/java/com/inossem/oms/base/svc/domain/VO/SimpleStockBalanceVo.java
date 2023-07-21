@@ -24,4 +24,8 @@ public class SimpleStockBalanceVo {
     private BigDecimal totalTransferQty;
 
     private BigDecimal totalQty;
+
+    private String currencyCode;
+
+    private BigDecimal averagePrice;
 }

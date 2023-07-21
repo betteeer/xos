@@ -2,6 +2,7 @@ package com.inossem.oms.svc.controller;
 
 import com.inossem.oms.base.svc.domain.MaterialDoc;
 import com.inossem.oms.base.svc.vo.*;
+import com.inossem.oms.svc.service.MaterialDocNewService;
 import com.inossem.oms.svc.service.MaterialDocService;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.web.controller.BaseController;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.Resource;
 import javax.validation.Valid;
 import java.util.List;
 
@@ -27,14 +29,22 @@ public class MaterialDocController extends BaseController {
 
     @Autowired
     private MaterialDocService materialDocService;
-
+    @Resource
+    private MaterialDocNewService materialDocNewService;
     @GetMapping("/list")
     @ApiOperation(value = "查询物料凭证列表",notes = "通过sku_code,sku_name,order_num,wareHourse_code分页查询物料凭证列表")
     public TableDataInfo list(@ApiParam(value = "库存列表请求参数") @Valid QueryMaterialDocListVo queryMaterialDocListVo) {
         startPage();
-        List<QueryMaterialDocResVo> list = materialDocService.list(queryMaterialDocListVo);
+        List<QueryMaterialDocResVo> list = materialDocNewService.getDocList(queryMaterialDocListVo);
         return getDataTable(list);
     }
+//    @GetMapping("/list1")
+//    @ApiOperation(value = "查询物料凭证列表",notes = "通过sku_code,sku_name,order_num,wareHourse_code分页查询物料凭证列表")
+//    public TableDataInfo list1(@ApiParam(value = "库存列表请求参数") @Valid QueryMaterialDocListVo queryMaterialDocListVo) {
+//        startPage();
+//        List<QueryMaterialDocResVo> list = materialDocService.list(queryMaterialDocListVo);
+//        return getDataTable(list);
+//    }
 
     @ApiOperation(value = "创建订单",
             notes="通过json数据创建对象，输入json")
