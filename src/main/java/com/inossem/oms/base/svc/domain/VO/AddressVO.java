@@ -1,5 +1,6 @@
 package com.inossem.oms.base.svc.domain.VO;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -38,4 +39,7 @@ public class AddressVO {
 
     @ApiModelProperty(value = "isDefault",name = "isDefault")
     private int isDefault;
+
+    @TableField(exist = false)
+    private String deleteTime;
 }

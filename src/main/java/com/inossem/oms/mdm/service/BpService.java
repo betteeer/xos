@@ -302,8 +302,47 @@ public class BpService {
             updateAddress(businessPartner.getBilltoList(), nowTime, companyCode, Util.SUB_TYPE_ADDRESS_BP_BILLTO, businessPartner.getBpNumber());
             updateAddress(businessPartner.getShiptoList(), oldAddressList, companyCode, businessPartner.getBpNumber(), nowTime);
             return businessPartnerMapper.update(null, businessPartnerLambdaUpdateWrapper);*/
-            BkpBusinessPartnerDto bkpObj = convertBpToBkpObj(bp);
-            bookKeepingService.modifyBP(bkpObj);
+            //1.编辑前的bp
+            BkpBusinessPartnerDto oldObj = bookKeepingService.getBPDetailFromBkp(bp.getCompanyCode(), bp.getId().toString());
+            //2.编辑后的bp：被删除的additional_contact/shipping_address,前端不会传过来...所以只能后端自己比较
+            BkpBusinessPartnerDto newObj = convertBpToBkpObj(bp);
+
+            //3.bkp编辑接口：在【新增/删除】additional_contact和shipping_address时,需要做特殊处理
+            List<BkpAdditionalContactDto> oldAdditionalContact = oldObj.getAdditional_contact();
+            List<BkpAdditionalContactDto> newAdditionalContact = newObj.getAdditional_contact();
+            if(!oldAdditionalContact.isEmpty()){
+                for (BkpAdditionalContactDto oldDto : oldAdditionalContact) {
+                    //删除的additional_contact,也需要传递给bkp,并给delete_time字段赋值
+                    if(newAdditionalContact.stream().anyMatch(newDto->oldDto.getId().equals(newDto.getId()))) continue;
+                    oldDto.setDelete_time(new Date());
+                    newAdditionalContact.add(oldDto);
+                }
+            }
+            if (!newAdditionalContact.isEmpty()){
+                //所有additional_contact都需要有contact_id
+                for (BkpAdditionalContactDto newDto : newAdditionalContact) {
+                    newDto.setContact_id(newObj.getContact_id());
+                }
+            }
+
+            List<BkpShippingAddressDto> oldShippingAddress = oldObj.getShipping_address();
+            List<BkpShippingAddressDto> newShippingAddress = newObj.getShipping_address();
+            if(!oldShippingAddress.isEmpty()){
+                for (BkpShippingAddressDto oldDto : oldShippingAddress) {
+                    //删除的shipping_address,也需要传递给bkp,并给delete_time字段赋值
+                    if(newShippingAddress.stream().anyMatch(newDto->oldDto.getId().equals(newDto.getId()))) continue;
+                    oldDto.setDelete_time(new Date());
+                    newShippingAddress.add(oldDto);
+                }
+            }
+            if (!newShippingAddress.isEmpty()){
+                //所有shipping_address都需要有contact_id
+                for (BkpShippingAddressDto newDto : newShippingAddress) {
+                    newDto.setContact_id(newObj.getContact_id());
+                }
+            }
+
+            bookKeepingService.modifyBP(newObj);
             return 1;
         } catch (Exception e) {
             log.error("modify bp failed", e);
@@ -603,7 +642,7 @@ public class BpService {
         dto.setId(bp.getId());
         dto.setCompany_code(Integer.parseInt(bp.getCompanyCode()));
         Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>().eq(Company::getCompanyCode, bp.getCompanyCode()));
-        dto.setCompany_id(company.getId());
+        dto.setCompany_id(company.getOrgidEx());
         dto.setGl_account("");
         dto.setContact_name(bp.getBpName());
         dto.setTel(bp.getBpTel());
@@ -637,6 +676,7 @@ public class BpService {
             for (AddressVO shipTo : shipToList) {
                 BkpShippingAddressDto shippingAddress = new BkpShippingAddressDto();
                 shippingAddress.setId(shipTo.getId());
+                shippingAddress.setContact_id(bp.getBpNumber());
                 shippingAddress.setShipping_street(shipTo.getStreet());
                 shippingAddress.setShipping_city(shipTo.getCity());
                 shippingAddress.setShipping_province(shipTo.getProvince());
@@ -654,6 +694,7 @@ public class BpService {
             for (Contact contact : contactList) {
                 BkpAdditionalContactDto additionalContact = new BkpAdditionalContactDto();
                 additionalContact.setId(contact.getId());
+                additionalContact.setContact_id(bp.getBpNumber());
                 additionalContact.setContact_type(contact.getContactType());
                 additionalContact.setContact_name(contact.getContactPerson());
                 additionalContact.setTel(contact.getContactTel());
@@ -733,11 +774,12 @@ public class BpService {
     }
 
     public BusinessPartner getBpNameByBpNumber(String companyCode, String bpNumber) {
-        QueryWrapper<BusinessPartner> queryWrapper = new QueryWrapper<>();
+/*        QueryWrapper<BusinessPartner> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", companyCode);
         queryWrapper.eq("bp_number", bpNumber);
         queryWrapper.eq("is_block", 0);
-        return businessPartnerMapper.selectOne(queryWrapper);
+        return businessPartnerMapper.selectOne(queryWrapper);*/
+        return getBp(bpNumber, companyCode);
     }
 
     @Transactional(rollbackFor = Exception.class)

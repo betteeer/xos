@@ -1,6 +1,7 @@
 package com.inossem.oms.base.svc.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -72,4 +73,7 @@ public class Contact {
 
     @ApiModelProperty(value = "是否删除",name = "isDeleted")
     private int isDeleted = 0;
+
+    @TableField(exist = false)
+    private String deleteTime;
 }
