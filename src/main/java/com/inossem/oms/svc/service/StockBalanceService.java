@@ -20,6 +20,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -71,16 +72,17 @@ public class StockBalanceService {
         CheckStockBalanceResVo checkStockBalanceResVo = new CheckStockBalanceResVo();
         boolean isAdequate = true;
         List<CheckStockBalanceResSubVo> checkStockBalanceResSubVos = new ArrayList<>();
+        List<String> skuNumbers = checkStockBalanceParamVo.getCheckStockBalanceSubVos().stream().map(CheckStockBalanceParamSubVo::getSkuNumber).collect(Collectors.toList());
+        LambdaQueryWrapper<StockBalance> wrapper = new LambdaQueryWrapper<StockBalance>()
+                .eq(StockBalance::getWarehouseCode, checkStockBalanceParamVo.getWarehouseCode())
+                .eq(StockBalance::getCompanyCode, checkStockBalanceParamVo.getCompanyCode())
+                .in(StockBalance::getSkuNumber, skuNumbers);
+        List<StockBalance> stockBalances = stockBalanceMapper.selectList(wrapper);
         for (CheckStockBalanceParamSubVo checkStockBalanceParamSubVo : checkStockBalanceParamVo.getCheckStockBalanceSubVos()) {
             CheckStockBalanceResSubVo checkStockBalanceResSubVo = new CheckStockBalanceResSubVo();
-            LambdaQueryWrapper<StockBalance> stockBalanceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-            stockBalanceLambdaQueryWrapper.eq(StockBalance::getSkuNumber, checkStockBalanceParamSubVo.getSkuNumber())
-                    .eq(StockBalance::getWarehouseCode, checkStockBalanceParamVo.getWarehouseCode())
-                    .eq(StockBalance::getCompanyCode, checkStockBalanceParamVo.getCompanyCode())
-                    .last("limit 1");
-            StockBalance stockBalance = stockBalanceMapper.selectOne(stockBalanceLambdaQueryWrapper);
             checkStockBalanceResSubVo.setSkuNumber(checkStockBalanceParamSubVo.getSkuNumber());
             checkStockBalanceResSubVo.setUseQty(checkStockBalanceParamSubVo.getUseQty());
+            StockBalance stockBalance = stockBalances.stream().filter(v -> v.getSkuNumber().equals(checkStockBalanceParamSubVo.getSkuNumber())).findFirst().orElse(null);
             if (StringUtils.isNull(stockBalance)) {
                 checkStockBalanceResSubVo.setAdequate(false);
                 isAdequate = false;
@@ -97,9 +99,38 @@ public class StockBalanceService {
                     checkStockBalanceResSubVo.setAdequate(true);
                 }
             }
-
             checkStockBalanceResSubVos.add(checkStockBalanceResSubVo);
         }
+
+//        for (CheckStockBalanceParamSubVo checkStockBalanceParamSubVo : checkStockBalanceParamVo.getCheckStockBalanceSubVos()) {
+//            CheckStockBalanceResSubVo checkStockBalanceResSubVo = new CheckStockBalanceResSubVo();
+//            LambdaQueryWrapper<StockBalance> stockBalanceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+//            stockBalanceLambdaQueryWrapper.eq(StockBalance::getSkuNumber, checkStockBalanceParamSubVo.getSkuNumber())
+//                    .eq(StockBalance::getWarehouseCode, checkStockBalanceParamVo.getWarehouseCode())
+//                    .eq(StockBalance::getCompanyCode, checkStockBalanceParamVo.getCompanyCode())
+//                    .last("limit 1");
+//            StockBalance stockBalance = stockBalanceMapper.selectOne(stockBalanceLambdaQueryWrapper);
+//            checkStockBalanceResSubVo.setSkuNumber(checkStockBalanceParamSubVo.getSkuNumber());
+//            checkStockBalanceResSubVo.setUseQty(checkStockBalanceParamSubVo.getUseQty());
+//            if (StringUtils.isNull(stockBalance)) {
+//                checkStockBalanceResSubVo.setAdequate(false);
+//                isAdequate = false;
+//            } else {
+//                checkStockBalanceResSubVo.setAveragePrice(stockBalance.getAveragePrice());
+//                checkStockBalanceResSubVo.setAvailableQty(stockBalance.getTotalOnhandQty());
+//
+//                // 等于0，说明库存相等，也是可以扣的吧
+//                if (stockBalance.getTotalOnhandQty().compareTo(checkStockBalanceParamSubVo.getUseQty()) < 0) {
+////                if (stockBalance.getTotalOnhandQty().compareTo(checkStockBalanceParamSubVo.getUseQty()) <= 0) {
+//                    checkStockBalanceResSubVo.setAdequate(false);
+//                    isAdequate = false;
+//                } else {
+//                    checkStockBalanceResSubVo.setAdequate(true);
+//                }
+//            }
+//
+//            checkStockBalanceResSubVos.add(checkStockBalanceResSubVo);
+//        }
         checkStockBalanceResVo.setCheckStockBalanceSubVos(checkStockBalanceResSubVos);
         checkStockBalanceResVo.setAdequate(isAdequate);
         return checkStockBalanceResVo;
