@@ -576,6 +576,8 @@ public class BpService {
         bp.setBpEmail(obj.getString("email"));
         bp.setBpContact(obj.getString("office_receiver"));
         bp.setBpNumber(obj.getString("contact_id"));
+        bp.setBkBpNumberCustomer(obj.getString("contact_id"));
+        bp.setBkBpNumberVendor(obj.getString("contact_id"));
         List<AddressVO> officeList = new ArrayList<>();
         AddressVO office = new AddressVO();
         office.setStreet(obj.getString("office_street"));
