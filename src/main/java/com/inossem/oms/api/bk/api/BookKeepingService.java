@@ -456,6 +456,7 @@ public class BookKeepingService {
         Response response = client.newCall(request).execute();
         String msg = response.body().string();
         logger.info("接收到的数据为：" + msg);
+
         JSONObject obj = JSONObject.parseObject(msg);
         if (!"200".equals(obj.getString("statusCode"))) {
             logger.info("So开票请求BookKeeping异常,原因msg:" + obj.getString("msg"));

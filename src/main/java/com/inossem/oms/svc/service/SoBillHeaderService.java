@@ -316,11 +316,14 @@ public class SoBillHeaderService {
         log.info("SO billItems：" + billItems);
         // 查开票的公司信息
         Company company = getCompany(bill.getCompanyCode());
-        SystemConnect connect = getConnect(company.getCompanyCodeEx());
+        LambdaQueryWrapper<DeliveryItem> wrapper = new LambdaQueryWrapper<DeliveryItem>()
+                .eq(DeliveryItem::getDeliveryNumber, bill.getReferenceDoc())
+                .eq(DeliveryItem::getCompanyCode, bill.getCompanyCode());
+        DeliveryItem deliveryItem = deliveryItemMapper.selectOne(wrapper);
         // 客户
         BusinessPartner bp = getBusinessPartner(bill.getCompanyCode(), bill.getPartnerId());
-        Address bpBillAddress = getAddress(bill.getCompanyCode(), "bp", "billto"
-                , bill.getPartnerId());
+        Address bpBillAddress = getAddress(bill.getCompanyCode(), "so", "billto", deliveryItem.getReferenceDoc());
+//                , bill.getPartnerId());
         log.info(">>>>>SO bill ：" + bill);
         Address bpShiplAddress = getAddress(bill.getCompanyCode(), "SODN", "shipto"
                 , bill.getReferenceDoc());
@@ -359,7 +362,7 @@ public class SoBillHeaderService {
                 .setPosting_date(DateUtil.formatDate(bill.getPostingDate()))
 
                 // 收票方公司的客户ID
-                .setBill_to_customer_id(bp.getBkBpNumberCustomer())
+                .setBill_to_customer_id(StringUtils.isEmpty(bp.getBkBpNumberCustomer()) ? bp.getBpNumber() : bp.getBkBpNumberCustomer())
                 .setBill_to_receiver("")
                 // 02修改为bpname 01/固定为空
                 .setBill_to_company(bp.getBpName())
