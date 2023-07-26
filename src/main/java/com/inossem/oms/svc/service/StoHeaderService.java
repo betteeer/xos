@@ -42,12 +42,6 @@ public class StoHeaderService {
     @Resource
     private MaterialDocNewService materialDocNewService;
 
-    /**
-     * 获取列表
-     *
-     * @param form
-     * @return
-     */
     @Transactional(rollbackFor = Exception.class)
     public StoHeader getStoHeaderByNumber(String stoNumber) {
         LambdaQueryWrapper<StoHeader> wrapper = Wrappers.lambdaQuery(StoHeader.class).eq(StoHeader::getStoNumber, stoNumber);
@@ -57,6 +51,11 @@ public class StoHeaderService {
         }
         return stoHeader;
     }
+    /**
+     * 获取列表
+     * @param form
+     * @return
+     */
     public List<StoHeader> getList(StoSearchFormDTO form) {
         log.info(">>>查询sto列表，入参：[{}]", form);
         MPJLambdaWrapper<StoHeader> wrapper = new MPJLambdaWrapper<>();
@@ -313,7 +312,7 @@ public class StoHeaderService {
         if (!stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
             throw new ServiceException("Only open order can be cancelled");
         }
-        stoHeader.setOrderStatus(StoStatus.CANCELLED.getStatus());
+        stoHeader.setOrderStatus(StoStatus.CANCELED.getStatus());
         stoHeader.setIsDeleted(1);
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> 取消sto成功, {}", stoNumber);
