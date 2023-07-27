@@ -12,6 +12,7 @@ import com.inossem.oms.base.svc.mapper.MovementTypeMapper;
 import com.inossem.oms.base.svc.mapper.StockBalanceMapper;
 import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.base.utils.NumberWorker;
+import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.mdm.service.SkuService;
 import com.inossem.oms.mdm.service.WarehouseService;
@@ -104,7 +105,7 @@ public class MaterialDocService {
     public List<MaterialDoc> add(CreateMaterialDocVo createMaterialDocVo) throws ServiceException {
         List<MaterialDoc> materialDocList = new ArrayList<>();
         //获取用户信息
-        Long userId = 1L; //UserInfoUtils.getSysUserId();
+        Long userId = Long.valueOf(UserInfoUtils.getSysUserId());
         Date createTime = new Date();
         //根据movementType查询类型信息
         LambdaQueryWrapper<MovementType> movementTypeLambdaQueryWrapper = new LambdaQueryWrapper<>();

@@ -1,6 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.StockBalance;
 import com.inossem.oms.base.svc.vo.QueryStockBalanceResVo;
 import com.inossem.oms.base.svc.vo.QueryStockBySkuVo;
@@ -16,7 +16,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-10-11
  */
-public interface StockBalanceMapper  extends BaseMapper<StockBalance>
+public interface StockBalanceMapper  extends MPJBaseMapper<StockBalance>
 {
     List<QueryStockBalanceResVo> selectListByQueryParam(QueryStockListVo queryStockListVo);
 

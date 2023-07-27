@@ -58,6 +58,10 @@ public class MaterialDoc
     @TableField(value = "warehouse_code")
     private String warehouseCode;
 
+    @ApiModelProperty(value = "转移到的仓库编号，仅仅sto会用到该字段",name = "toWarehouseCode")
+    @TableField(value = "to_warehouse_code")
+    private String toWarehouseCode;
+
     @ApiModelProperty(value = "进出类型",name = "inOut")
     @TableField(value = "in_out")
     private Integer inOut;

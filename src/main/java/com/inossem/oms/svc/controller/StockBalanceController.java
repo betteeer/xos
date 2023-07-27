@@ -1,10 +1,13 @@
 package com.inossem.oms.svc.controller;
 
 
-import com.alibaba.druid.util.StringUtils;
-import com.inossem.oms.svc.service.StockBalanceService;
+import com.inossem.oms.base.svc.domain.DTO.WarehouseStockFormDTO;
+import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
 import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.base.utils.poi.ExcelUtil;
+import com.inossem.oms.svc.service.StockBalanceNewService;
+import com.inossem.oms.svc.service.StockBalanceService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
@@ -32,6 +35,8 @@ public class StockBalanceController extends BaseController {
     @Autowired
     private StockBalanceService stockBalanceService;
 
+    @Autowired
+    private StockBalanceNewService stockBalanceNewService;
     @GetMapping("/list")
     @ApiOperation(value = "查询库存列表", notes = "通过sku_code,sku_name,wareHourse_code分页查询库存列表")
     public TableDataInfo list(@ApiParam(value = "库存列表请求参数") QueryStockListVo queryStockListVo) {
@@ -39,7 +44,9 @@ public class StockBalanceController extends BaseController {
             return getDataTable(new ArrayList<>());
         }
         startPage();
-        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getStockList(queryStockListVo);
+
         return getDataTable(list);
     }
 
@@ -56,7 +63,8 @@ public class StockBalanceController extends BaseController {
         if (StringUtils.isEmpty(queryStockListVo.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
-        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getSatetyList(queryStockListVo);
         return getDataTable(list);
     }
 
@@ -94,4 +102,16 @@ public class StockBalanceController extends BaseController {
         boolean isAdequate = stockBalanceService.checkStockWithoutWH(skuNumber, useQty, companyCode);
         return AjaxResult.success().withData(isAdequate);
     }
+
+
+    @PostMapping("/getStockInWarehouses")
+//    @ApiOperation(value = "", notes = "")
+    public AjaxResult<List<SimpleStockBalanceVo>> getStockInWarehouse(@RequestBody() @Validated WarehouseStockFormDTO w) {
+        return AjaxResult.success().withData(
+                stockBalanceNewService.getSkuStockInWarehouse(
+                        w.getSkuNumbers(),
+                        w.getWarehouseCodes(),
+                        w.getCompanyCode()));
+    }
+
 }

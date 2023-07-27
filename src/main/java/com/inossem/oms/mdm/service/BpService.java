@@ -7,20 +7,26 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.BkpAdditionalContactDto;
+import com.inossem.oms.base.svc.domain.DTO.BkpBusinessPartnerDto;
+import com.inossem.oms.base.svc.domain.DTO.BkpShippingAddressDto;
 import com.inossem.oms.base.svc.domain.VO.AddressVO;
 import com.inossem.oms.base.svc.domain.VO.BPListVO;
 import com.inossem.oms.base.svc.mapper.AddressMapper;
 import com.inossem.oms.base.svc.mapper.BusinessPartnerMapper;
+import com.inossem.oms.base.svc.mapper.CompanyMapper;
 import com.inossem.oms.base.svc.mapper.ContactMapper;
 import com.inossem.oms.base.svc.vo.ImportBusinessPartnerVo;
 import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.base.utils.poi.ExcelUtil;
 import com.inossem.oms.mdm.common.Util;
 import com.inossem.oms.svc.service.ConditionTableService;
-import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.utils.StringUtils;
+import com.inossem.sco.common.core.web.page.PageDomain;
+import com.inossem.sco.common.core.web.page.TableDataInfo;
+import com.inossem.sco.common.core.web.page.TableSupport;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.collections.CollectionUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -28,10 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -63,11 +66,13 @@ public class BpService {
     @Resource
     private ConditionTableService conditionTableService;
 
+    @Resource
+    private CompanyMapper companyMapper;
 
     @Transactional(rollbackFor = Exception.class)
-    public BusinessPartner create(BusinessPartner businessPartner) {
+    public BusinessPartner create(BusinessPartner bp) {
         try {
-            String companyCode = businessPartner.getCompanyCode();
+      /*      String companyCode = businessPartner.getCompanyCode();
             List<BusinessPartner> businessPartnerList = businessPartnerMapper.selectList(new LambdaQueryWrapper<BusinessPartner>()
                     .eq(BusinessPartner::getBpName, businessPartner.getBpName())
                     .eq(BusinessPartner::getCompanyCode, companyCode));
@@ -168,7 +173,10 @@ public class BpService {
             if (CollectionUtils.isNotEmpty(businessPartner.getShiptoList())) {
                 saveAddress(businessPartner.getShiptoList(), companyCode, bp.getBpNumber(), Util.SUB_TYPE_ADDRESS_BP_SHIPTO, nowTime);
             }
-            return bp;
+            return bp;*/
+            BkpBusinessPartnerDto bkpObj = convertBpToBkpObj(bp);
+            JSONObject bkpRes = bookKeepingService.createBP(bkpObj);
+            return convertBkpToBpObj(bkpRes);
         } catch (Exception e) {
             log.error("create bp failed", e);
             throw new RuntimeException(e);
@@ -212,9 +220,9 @@ public class BpService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public int modify(BusinessPartner businessPartner) {
+    public int modify(BusinessPartner bp) {
         try {
-            String companyCode = businessPartner.getCompanyCode();
+/*            String companyCode = businessPartner.getCompanyCode();
             List<BusinessPartner> businessPartnerList = businessPartnerMapper.selectList(new LambdaQueryWrapper<BusinessPartner>()
                     .eq(BusinessPartner::getBpName, businessPartner.getBpName())
                     .eq(BusinessPartner::getCompanyCode, companyCode).ne(BusinessPartner::getId, businessPartner.getId()));
@@ -293,7 +301,49 @@ public class BpService {
             updateAddress(businessPartner.getOfficeList(), nowTime, companyCode, Util.SUB_TYPE_ADDRESS_BP_OFFICE, businessPartner.getBpNumber());
             updateAddress(businessPartner.getBilltoList(), nowTime, companyCode, Util.SUB_TYPE_ADDRESS_BP_BILLTO, businessPartner.getBpNumber());
             updateAddress(businessPartner.getShiptoList(), oldAddressList, companyCode, businessPartner.getBpNumber(), nowTime);
-            return businessPartnerMapper.update(null, businessPartnerLambdaUpdateWrapper);
+            return businessPartnerMapper.update(null, businessPartnerLambdaUpdateWrapper);*/
+            //1.编辑前的bp
+            BkpBusinessPartnerDto oldObj = bookKeepingService.getBPDetailFromBkp(bp.getCompanyCode(), bp.getId().toString());
+            //2.编辑后的bp：被删除的additional_contact/shipping_address,前端不会传过来...所以只能后端自己比较
+            BkpBusinessPartnerDto newObj = convertBpToBkpObj(bp);
+
+            //3.bkp编辑接口：在【新增/删除】additional_contact和shipping_address时,需要做特殊处理
+            List<BkpAdditionalContactDto> oldAdditionalContact = oldObj.getAdditional_contact();
+            List<BkpAdditionalContactDto> newAdditionalContact = newObj.getAdditional_contact();
+            if(!oldAdditionalContact.isEmpty()){
+                for (BkpAdditionalContactDto oldDto : oldAdditionalContact) {
+                    //删除的additional_contact,也需要传递给bkp,并给delete_time字段赋值
+                    if(newAdditionalContact.stream().anyMatch(newDto->oldDto.getId().equals(newDto.getId()))) continue;
+                    oldDto.setDelete_time(new Date());
+                    newAdditionalContact.add(oldDto);
+                }
+            }
+            if (!newAdditionalContact.isEmpty()){
+                //所有additional_contact都需要有contact_id
+                for (BkpAdditionalContactDto newDto : newAdditionalContact) {
+                    newDto.setContact_id(newObj.getContact_id());
+                }
+            }
+
+            List<BkpShippingAddressDto> oldShippingAddress = oldObj.getShipping_address();
+            List<BkpShippingAddressDto> newShippingAddress = newObj.getShipping_address();
+            if(!oldShippingAddress.isEmpty()){
+                for (BkpShippingAddressDto oldDto : oldShippingAddress) {
+                    //删除的shipping_address,也需要传递给bkp,并给delete_time字段赋值
+                    if(newShippingAddress.stream().anyMatch(newDto->oldDto.getId().equals(newDto.getId()))) continue;
+                    oldDto.setDelete_time(new Date());
+                    newShippingAddress.add(oldDto);
+                }
+            }
+            if (!newShippingAddress.isEmpty()){
+                //所有shipping_address都需要有contact_id
+                for (BkpShippingAddressDto newDto : newShippingAddress) {
+                    newDto.setContact_id(newObj.getContact_id());
+                }
+            }
+
+            bookKeepingService.modifyBP(newObj);
+            return 1;
         } catch (Exception e) {
             log.error("modify bp failed", e);
             throw new RuntimeException(e);
@@ -412,9 +462,9 @@ public class BpService {
         }
     }
 
-    public List<BusinessPartner> getList(BPListVO bpListVO) {
+    public TableDataInfo getList(BPListVO bpListVO) {
         try {
-            startPage();
+/*            startPage();
             LambdaQueryWrapper<BusinessPartner> businessPartnerLambdaQueryWrapper = new LambdaQueryWrapper<>();
             businessPartnerLambdaQueryWrapper.eq(BusinessPartner::getCompanyCode, bpListVO.getCompanyCode());
             businessPartnerLambdaQueryWrapper.eq(BusinessPartner::getIsBlock, "0");
@@ -484,11 +534,180 @@ public class BpService {
                 bp.setBilltoList(billtoList);
                 bp.setShiptoList(shiptoList);
             });
-            return businessPartnerList;
+            return businessPartnerList;*/
+
+            //1. 调用bkp接口,获取列表内容
+            PageDomain pageDomain = TableSupport.buildPageRequest();
+            Integer pageNum = pageDomain.getPageNum();
+            Integer pageSize = pageDomain.getPageSize();
+            JSONObject bkpRes = bookKeepingService.getBPListFromBkp(bpListVO.getCompanyCode(),
+                    bpListVO.getSearchText(), (pageNum - 1) * pageSize, pageSize, null);
+
+            //2. 内容转换
+            ArrayList<BusinessPartner> rows = new ArrayList<>();
+            JSONArray data = JSONArray.parseArray(bkpRes.get("data").toString());
+            for (int i = 0; i < data.size(); i++) {
+                JSONObject obj = data.getJSONObject(i);
+                BusinessPartner bp = convertBkpToBpObj(obj);
+                rows.add(bp);
+            }
+
+            //3. 返回数据
+            TableDataInfo res = new TableDataInfo();
+            res.setCode(200);
+            res.setRows(rows);
+            res.setMsg("查询成功");
+            res.setTotal(bkpRes.getInteger("total"));
+            return res;
         } catch (Exception e) {
             log.error("get bp list failed", e);
             throw new RuntimeException(e);
         }
+    }
+
+    @NotNull
+    private BusinessPartner convertBkpToBpObj(JSONObject obj) {
+
+        BusinessPartner bp = new BusinessPartner();
+        bp.setId(obj.getLong("id"));
+        bp.setCompanyCode(obj.getString("company_code"));
+        bp.setBpName(obj.getString("contact_name"));
+        bp.setBpTel(obj.getString("tel"));
+        bp.setBpEmail(obj.getString("email"));
+        bp.setBpContact(obj.getString("office_receiver"));
+        bp.setBpNumber(obj.getString("contact_id"));
+        bp.setBkBpNumberCustomer(obj.getString("contact_id"));
+        bp.setBkBpNumberVendor(obj.getString("contact_id"));
+        List<AddressVO> officeList = new ArrayList<>();
+        AddressVO office = new AddressVO();
+        office.setStreet(obj.getString("office_street"));
+        office.setCity(obj.getString("office_city"));
+        office.setProvince(obj.getString("office_province"));
+        office.setCountry(obj.getString("office_country"));
+        office.setPostCode(obj.getString("office_postal_code"));
+        office.setIsDefault(0);
+        officeList.add(office);
+        bp.setOfficeList(officeList);
+
+        List<AddressVO> billToList = new ArrayList<>();
+        AddressVO billTo = new AddressVO();
+        billTo.setStreet(obj.getString("billing_street"));
+        billTo.setCity(obj.getString("billing_city"));
+        billTo.setProvince(obj.getString("billing_province"));
+        billTo.setCountry(obj.getString("billing_country"));
+        billTo.setPostCode(obj.getString("billing_postal_code"));
+        billTo.setIsDefault(0);
+        billToList.add(billTo);
+        bp.setBilltoList(billToList);
+
+        List<AddressVO> shipToList = new ArrayList<>();
+        JSONArray shippingAddress = JSONArray.parseArray(obj.get("shipping_address").toString());
+        if (!shippingAddress.isEmpty()) {
+            for (int j = 0; j < shippingAddress.size(); j++) {
+                JSONObject shippingObj = shippingAddress.getJSONObject(j);
+                AddressVO shipTo = new AddressVO();
+                shipTo.setId(shippingObj.getLong("id"));
+                shipTo.setStreet(shippingObj.getString("shipping_street"));
+                shipTo.setCity(shippingObj.getString("shipping_city"));
+                shipTo.setProvince(shippingObj.getString("shipping_province"));
+                shipTo.setCountry(shippingObj.getString("shipping_country"));
+                shipTo.setPostCode(shippingObj.getString("shipping_postal_code"));
+                shipTo.setIsDefault(shippingObj.getInteger("is_default"));
+                shipToList.add(shipTo);
+            }
+        }
+        bp.setShiptoList(shipToList);
+        List<Contact> contactList = new ArrayList<>();
+        JSONArray additionalContact = JSONArray.parseArray(obj.get("additional_contact").toString());
+        if (!additionalContact.isEmpty()) {
+            for (int k = 0; k < additionalContact.size(); k++) {
+                JSONObject additionalObj = additionalContact.getJSONObject(k);
+                Contact contact = new Contact();
+                contact.setId(additionalObj.getLong("id"));
+                contact.setContactType(additionalObj.getString("contact_type"));
+                contact.setContactPerson(additionalObj.getString("contact_name"));
+                contact.setContactTel(additionalObj.getString("tel"));
+                contact.setContactEmail(additionalObj.getString("email"));
+                contact.setContactNote(additionalObj.getString("note"));
+                contactList.add(contact);
+            }
+        }
+        bp.setContactList(contactList);
+        return bp;
+    }
+
+    @NotNull
+    private BkpBusinessPartnerDto convertBpToBkpObj(BusinessPartner bp) {
+
+        BkpBusinessPartnerDto dto = new BkpBusinessPartnerDto();
+
+        dto.setId(bp.getId());
+        dto.setCompany_code(Integer.parseInt(bp.getCompanyCode()));
+        Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>().eq(Company::getCompanyCode, bp.getCompanyCode()));
+        dto.setCompany_id(company.getOrgidEx());
+        dto.setGl_account("");
+        dto.setContact_name(bp.getBpName());
+        dto.setTel(bp.getBpTel());
+        dto.setEmail(bp.getBpEmail());
+        dto.setOffice_receiver(bp.getBpContact());
+        dto.setContact_id(bp.getBpNumber());
+
+        List<AddressVO> officeList = bp.getOfficeList();
+        if (!officeList.isEmpty()){
+            AddressVO office = officeList.get(0);
+            dto.setOffice_street(office.getStreet());
+            dto.setOffice_city(office.getCity());
+            dto.setOffice_province(office.getProvince());
+            dto.setOffice_country(office.getCountry());
+            dto.setOffice_postal_code(office.getPostCode());
+        }
+
+        List<AddressVO> billToList = bp.getBilltoList();
+        if (!billToList.isEmpty()){
+            AddressVO billTo = billToList.get(0);
+            dto.setBilling_street(billTo.getStreet());
+            dto.setBilling_city(billTo.getCity());
+            dto.setBilling_province(billTo.getProvince());
+            dto.setBilling_country(billTo.getCountry());
+            dto.setBilling_postal_code(billTo.getPostCode());
+        }
+
+        List<BkpShippingAddressDto> shippingAddressList = new ArrayList<>();
+        List<AddressVO> shipToList = bp.getShiptoList();
+        if (!shipToList.isEmpty()) {
+            for (AddressVO shipTo : shipToList) {
+                BkpShippingAddressDto shippingAddress = new BkpShippingAddressDto();
+                shippingAddress.setId(shipTo.getId());
+                shippingAddress.setContact_id(bp.getBpNumber());
+                shippingAddress.setShipping_street(shipTo.getStreet());
+                shippingAddress.setShipping_city(shipTo.getCity());
+                shippingAddress.setShipping_province(shipTo.getProvince());
+                shippingAddress.setShipping_country(shipTo.getCountry());
+                shippingAddress.setShipping_postal_code(shipTo.getPostCode());
+                shippingAddress.setIs_default(shipTo.getIsDefault());
+                shippingAddressList.add(shippingAddress);
+            }
+        }
+        dto.setShipping_address(shippingAddressList);
+
+        List<BkpAdditionalContactDto> additionalContactList = new ArrayList<>();
+        List<Contact> contactList = bp.getContactList();
+        if (!contactList.isEmpty()) {
+            for (Contact contact : contactList) {
+                BkpAdditionalContactDto additionalContact = new BkpAdditionalContactDto();
+                additionalContact.setId(contact.getId());
+                additionalContact.setContact_id(bp.getBpNumber());
+                additionalContact.setContact_type(contact.getContactType());
+                additionalContact.setContact_name(contact.getContactPerson());
+                additionalContact.setTel(contact.getContactTel());
+                additionalContact.setEmail(contact.getContactEmail());
+                additionalContact.setNote(contact.getContactNote());
+                additionalContactList.add(additionalContact);
+            }
+        }
+        dto.setAdditional_contact(additionalContactList);
+
+        return dto;
     }
 
     public AddressVO pickAddressVoParams(Address address) {
@@ -505,7 +724,7 @@ public class BpService {
 
     public BusinessPartner getBp(String bpNumber, String companyCode) {
         try {
-            BusinessPartner businessPartner = businessPartnerMapper.selectOne(new LambdaQueryWrapper<BusinessPartner>()
+         /*   BusinessPartner businessPartner = businessPartnerMapper.selectOne(new LambdaQueryWrapper<BusinessPartner>()
                     .eq(BusinessPartner::getBpNumber, bpNumber)
                     .eq(BusinessPartner::getCompanyCode, companyCode));
             List<Contact> contactList = contactMapper.selectList(new LambdaQueryWrapper<Contact>()
@@ -520,8 +739,14 @@ public class BpService {
             businessPartner.setContactList(contactList);
             businessPartner.setOfficeList(generateList(addressList, Util.SUB_TYPE_ADDRESS_BP_OFFICE));
             businessPartner.setBilltoList(generateList(addressList, Util.SUB_TYPE_ADDRESS_BP_BILLTO));
-            businessPartner.setShiptoList(generateList(addressList, Util.SUB_TYPE_ADDRESS_BP_SHIPTO));
-            return businessPartner;
+            businessPartner.setShiptoList(generateList(addressList, Util.SUB_TYPE_ADDRESS_BP_SHIPTO));*/
+
+            //1. 调用bkp接口,获取详情内容
+            JSONObject bkpRes = bookKeepingService.getBPListFromBkp(companyCode, null, null, null, bpNumber);
+            //2. 内容转换
+            JSONArray data = JSONArray.parseArray(bkpRes.get("data").toString());
+            //3. 返回数据
+            return convertBkpToBpObj(data.getJSONObject(0));
         } catch (Exception e) {
             log.error("get one bp failed", e);
             throw new RuntimeException(e);
@@ -551,11 +776,12 @@ public class BpService {
     }
 
     public BusinessPartner getBpNameByBpNumber(String companyCode, String bpNumber) {
-        QueryWrapper<BusinessPartner> queryWrapper = new QueryWrapper<>();
+/*        QueryWrapper<BusinessPartner> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("company_code", companyCode);
         queryWrapper.eq("bp_number", bpNumber);
         queryWrapper.eq("is_block", 0);
-        return businessPartnerMapper.selectOne(queryWrapper);
+        return businessPartnerMapper.selectOne(queryWrapper);*/
+        return getBp(bpNumber, companyCode);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -609,7 +835,6 @@ public class BpService {
                             setPostCode((String) object[13]);
                         }});
                     }});
-
                 }
 
                 if (isOneNotBlank((String) object[14],

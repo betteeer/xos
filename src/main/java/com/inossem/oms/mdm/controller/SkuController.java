@@ -3,6 +3,7 @@ package com.inossem.oms.mdm.controller;
 import com.inossem.oms.base.svc.domain.SkuMaster;
 import com.inossem.oms.base.svc.domain.VO.SkuListReqVO;
 import com.inossem.oms.base.svc.domain.VO.SkuVO;
+import com.inossem.oms.mdm.service.SkuNewService;
 import com.inossem.oms.mdm.service.SkuService;
 import com.inossem.sco.common.core.domain.R;
 import com.inossem.sco.common.core.web.controller.BaseController;
@@ -37,6 +38,9 @@ public class SkuController extends BaseController {
 
     @Resource
     private SkuService service;
+
+    @Resource
+    private SkuNewService skuNewService;
 
     @ApiOperation(value = "create sku", notes = "create sku")
     @PostMapping("/create")
@@ -116,5 +120,10 @@ public class SkuController extends BaseController {
     public AjaxResult importSku(MultipartFile file, @RequestParam("companyCode") @NotBlank String companyCode) {
         service.importSKU(file,companyCode);
         return AjaxResult.success();
+    }
+
+    @GetMapping("/list/filterKitting")
+    public AjaxResult<List<SkuMaster>> getListInWarehouse(@RequestParam("companyCode") @NotBlank String companyCode) {
+        return AjaxResult.success().withData(skuNewService.getListFilterKitting(companyCode));
     }
 }

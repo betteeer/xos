@@ -4,11 +4,13 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.alibaba.fastjson2.JSONWriter;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.SoInvoiceModel;
 import com.inossem.oms.base.svc.domain.BkCoaRel;
 import com.inossem.oms.base.svc.domain.BusinessPartner;
 import com.inossem.oms.base.svc.domain.Company;
+import com.inossem.oms.base.svc.domain.DTO.BkpBusinessPartnerDto;
 import com.inossem.oms.base.svc.domain.SystemConnect;
 import com.inossem.oms.base.svc.domain.VO.AddressVO;
 import com.inossem.oms.base.utils.HttpParamsUtils;
@@ -39,6 +41,7 @@ public class BookKeepingService {
 
     @Resource
     private CompanyService companyService;
+
     /**
      * 获取连接信息
      *
@@ -170,7 +173,7 @@ public class BookKeepingService {
 
         //RequestBody body = RequestBody.create(mediaType, reqBody);
         logger.info("调用bk v2 coa mapping");
-        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1";
+        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1";
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)
@@ -236,7 +239,6 @@ public class BookKeepingService {
         requestBody.put("pageSize", 999999999);
         requestBody.put("pageIndex", 1);
 
-
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType, requestBody.toString());
         Request request = new Request.Builder()
@@ -247,7 +249,6 @@ public class BookKeepingService {
                 .build();
 
         Response response = client.newCall(request).execute();
-
     }
 
     public JSONObject bpCustomerList(String companyId, String companyCode, String bpName) throws IOException {
@@ -263,7 +264,7 @@ public class BookKeepingService {
         paramsMap.put("company_code", companyCode);
         paramsMap.put("contact_name", bpName);
 
-        String url = (inner ? "http://system-preferences-service:3030" :(connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
+        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
 
         url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
@@ -308,12 +309,11 @@ public class BookKeepingService {
         paramsMap.put("company_code", companyCode);
         paramsMap.put("$limit", -1);
 
-
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
 
-        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
+        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
 
         url += HttpParamsUtils.getBodyParams(paramsMap);
         logger.info(">>> 查询bp详情,请求地址url:{}", url);
@@ -367,7 +367,6 @@ public class BookKeepingService {
         data.put("pageSize", "99999");
         logger.info("请求的参数为：{}", data.toJSONString());
 
-
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
@@ -410,7 +409,6 @@ public class BookKeepingService {
         data.put("pageSize", "99999");
         logger.info("请求的参数为：{}", data.toJSONString());
 
-
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
@@ -429,26 +427,25 @@ public class BookKeepingService {
 
         JSONArray list = res.getJSONObject("data").getJSONArray("list");
         return list;
-
     }
 
     public String soBill(SoInvoiceModel model) throws IOException {
-        boolean inner = InnerInterfaceCall.isInner();
-        SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
-        model.setCreator(Integer.valueOf(connect.getBkCreator()));
-        OkHttpClient client = new OkHttpClient().newBuilder()
-                .connectTimeout(30, TimeUnit.SECONDS)
-                .build();
-        MediaType mediaType = MediaType.parse("application/json");
-        String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
-        String url = prefix + "/api/v1/ar";
+            boolean inner = InnerInterfaceCall.isInner();
+            SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
+            model.setCreator(Integer.valueOf(connect.getBkCreator()));
+            OkHttpClient client = new OkHttpClient().newBuilder()
+                    .connectTimeout(30, TimeUnit.SECONDS)
+                    .build();
+            MediaType mediaType = MediaType.parse("application/json");
+            String prefix = inner ? "http://invoice-statement-service:3030" : (connect.getApiUrl() + "/invoice-statement");
+            String url = prefix + "/api/v1/ar";
 //        String url = "http://localhost:5001/api/v1/ar";
-        logger.info("请求的地址为：" + url);
+            logger.info("请求的地址为：" + url);
 
-        String param = JSONObject.toJSONString(model,
-                JSONWriter.Feature.WriteNullStringAsEmpty);
-        param = handleParam(param);
-        logger.info("请求的参数为：" + param);
+            String param = JSONObject.toJSONString(model,
+                    JSONWriter.Feature.WriteNullStringAsEmpty);
+            param = handleParam(param);
+            logger.info("请求的参数为：" + param);
         RequestBody body = RequestBody.create(mediaType, param);
         Request request = new Request.Builder()
                 .url(url)
@@ -459,6 +456,7 @@ public class BookKeepingService {
         Response response = client.newCall(request).execute();
         String msg = response.body().string();
         logger.info("接收到的数据为：" + msg);
+
         JSONObject obj = JSONObject.parseObject(msg);
         if (!"200".equals(obj.getString("statusCode"))) {
             logger.info("So开票请求BookKeeping异常,原因msg:" + obj.getString("msg"));
@@ -501,6 +499,133 @@ public class BookKeepingService {
             throw new RuntimeException("Po开票请求BookKeeping异常,原因msg:" + obj.getString("message"));
         } else {
             return obj.getJSONObject("data").getString("invoice_no");
+        }
+    }
+
+    /**
+     * 调用bkp接口 获取Business Partner List
+     */
+    public JSONObject getBPListFromBkp(String companyCode, String SearchText, Integer skip, Integer limit, String bpNumber) throws IOException {
+        SystemConnect connect = getConnectCom(companyCode);
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("company_code", companyCode);
+        paramsMap.put("$sort[contact_id]",-1);//列表页按照contact_id及bp_number倒序排列，最新创建的在最前面
+        if (Objects.nonNull(limit)) paramsMap.put("$limit", limit);
+        if (Objects.nonNull(skip)) paramsMap.put("$skip", skip);
+        if (Objects.nonNull(bpNumber)) paramsMap.put("contact_id", bpNumber);
+        if (Objects.nonNull(SearchText)) { //oms-bp页面的搜索框
+            String text = "%" + SearchText + "%";
+            paramsMap.put("$or[0][contact_name][$like]", text);
+            paramsMap.put("$or[1][email][$like]", text);
+            paramsMap.put("$or[2][tel][$like]", text);
+        }
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact";
+        url += HttpParamsUtils.getBodyParams(paramsMap);
+        logger.info(">>> 查询bp列表,请求地址url:{}", url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("Authorization", getToken(connect))
+                .build();
+        Response response = client.newCall(request).execute();
+        String bo = Objects.requireNonNull(response.body()).string();
+        logger.info("接收到的数据为：{}", bo);
+        return JSONObject.parseObject(bo);
+    }
+
+    /**
+     * 调用bkp接口 获取单条Business Partner Detail
+     */
+    public BkpBusinessPartnerDto getBPDetailFromBkp(String companyCode, String id) throws IOException {
+        SystemConnect connect = getConnectCom(companyCode);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact/"+id;
+        logger.info(">>> 查询bp详情,请求地址url:{}", url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("Authorization", getToken(connect))
+                .build();
+        Response response = client.newCall(request).execute();
+        String bo = Objects.requireNonNull(response.body()).string();
+        logger.info("接收到的数据为：{}", bo);
+        return JSONObject.parseObject(bo,BkpBusinessPartnerDto.class);
+    }
+
+    /**
+     * 调用bkp接口 创建单条Business Partner
+     */
+    public JSONObject createBP(BkpBusinessPartnerDto dto) throws IOException {
+        SystemConnect connect = getConnectCom(dto.getCompany_code().toString());
+        logger.info("保存bp到bkp 请求的参数为：{}", dto);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(dto);
+        RequestBody body = RequestBody.create(json, mediaType);
+        String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact";
+        Request request = new Request.Builder()
+                .url(url)
+                .method("POST", body)
+                .addHeader("Authorization", getToken(connect))
+                .addHeader("Content-Type", "application/json")
+                .build();
+        Response response = client.newCall(request).execute();
+
+        String msg = response.body().string();
+        logger.info("接收到的数据为：" + msg);
+        JSONObject obj = JSONObject.parseObject(msg);
+        if (StringUtils.isEmpty(obj.getString("contact_id"))) {
+            throw new RuntimeException("请求BookKeeping异常");
+        } else {
+            return obj;
+        }
+    }
+
+    /**
+     * 调用bkp接口 修改单条Business Partner
+     */
+    public JSONObject modifyBP(BkpBusinessPartnerDto dto) throws IOException {
+        SystemConnect connect = getConnectCom(dto.getCompany_code().toString());
+        logger.info("保存bp到bkp 请求的参数为：{}", dto);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+        MediaType mediaType = MediaType.parse("application/json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        String json = objectMapper.writeValueAsString(dto);
+        RequestBody body = RequestBody.create(json, mediaType);
+        String url = (connect.getApiUrl() + "/system-preferences") + "/api/v2/contact/"+dto.getId();
+        Request request = new Request.Builder()
+                .url(url)
+                .method("PATCH", body)
+                .addHeader("Authorization", getToken(connect))
+                .addHeader("Content-Type", "application/json")
+                .build();
+        Response response = client.newCall(request).execute();
+
+        String msg = response.body().string();
+        logger.info("接收到的数据为：" + msg);
+        JSONObject obj = JSONObject.parseObject(msg);
+        if (StringUtils.isEmpty(obj.getString("contact_id"))) {
+            throw new RuntimeException("请求BookKeeping异常");
+        } else {
+            return obj;
         }
     }
 
@@ -557,7 +682,7 @@ public class BookKeepingService {
      */
     public JSONObject saveBp(BusinessPartner bp, JSONObject op) throws IOException {
         boolean inner = InnerInterfaceCall.isInner();
-        SystemConnect connect =  inner ? null : getConnectCom(bp.getCompanyCode());
+        SystemConnect connect = inner ? null : getConnectCom(bp.getCompanyCode());
         JSONObject requestData = getBpData(bp, op);
         String param = requestData.toJSONString(JSONWriter.Feature.WriteNullStringAsEmpty);
         param = param.replaceAll("\"_NULL_\"", "null");
@@ -569,7 +694,7 @@ public class BookKeepingService {
         MediaType mediaType = MediaType.parse("application/json");
         RequestBody body = RequestBody.create(mediaType,
                 param);
-        String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
+        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/contact";
         Request request = new Request.Builder()
                 .url(url)
                 .method("POST", body)
@@ -591,7 +716,6 @@ public class BookKeepingService {
             return robj;
         }
     }
-
 
     /**
      * @description: 同步bk v2 参数封装    -- otherParam在v2中已经不需要  但为了不改动太大 所以接口参数列表上保留
@@ -660,7 +784,6 @@ public class BookKeepingService {
         data.put("email", bp.getBpEmail());
         return data;
     }
-
 
 //     同步bk v1版本 参数注销
 //    private JSONObject getBpData(BusinessPartner bp, JSONObject otherParam) {
@@ -773,6 +896,4 @@ public class BookKeepingService {
 
         return builder.toString();
     }
-
-
 }

@@ -41,5 +41,6 @@ public class QueryStockListVo extends BaseEntity {
 
     private String balanceValueSort;
 
+    private String transferQtySort;
 
 }
