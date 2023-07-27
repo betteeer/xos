@@ -312,7 +312,7 @@ public class StoHeaderService {
         if (!stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
             throw new ServiceException("Only open order can be cancelled");
         }
-        stoHeader.setOrderStatus(StoStatus.CANCELED.getStatus());
+        stoHeader.setOrderStatus(StoStatus.CANCELLED.getStatus());
         stoHeader.setIsDeleted(1);
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> 取消sto成功, {}", stoNumber);

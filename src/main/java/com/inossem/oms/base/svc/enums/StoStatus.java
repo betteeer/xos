@@ -4,7 +4,7 @@ public enum StoStatus {
     OPEN("open"),
     IN_TRANSIT("intransit"),
     RECEIVED("received"),
-    CANCELED("canceled");
+    CANCELLED("cancelled");
 
     private final String status;
 
