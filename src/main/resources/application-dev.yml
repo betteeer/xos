@@ -6,7 +6,7 @@ spring:
       primary: oms
       datasource:
         oms:
-          url: jdbc:mysql://eo-test.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+          url: jdbc:mysql://dc-test.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
           username: ntdbuser
           password: Init6666
         tms:
