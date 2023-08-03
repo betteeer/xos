@@ -127,6 +127,12 @@ public interface ModuleConstant {
         String Count_Loss = "702";
         String Block_Inventory = "343";
         String Unblock_Inventory = "344";
+
+        String Transfer_Shipout = "313";
+        String Transfer_Shipout_Reverse = "314";
+
+        String Transfer_Receive = "315";
+        String Transfer_Receive_Reverse = "316";
     }
 
     /**

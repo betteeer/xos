@@ -260,4 +260,9 @@ public class CompanyService {
         }
         return false;
     }
+
+    public String getCurrencyCodeByCompanyCode(String companyCode) {
+        Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>().eq(Company::getCompanyCode, companyCode));
+        return company.getCurrencyCode();
+    }
 }

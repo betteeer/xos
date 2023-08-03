@@ -77,4 +77,10 @@ public class StoItem {
     @ApiModelProperty(value = "被哪个用户修改", name = "modifiedBy")
     @TableField(value = "modified_by")
     private String modifiedBy = "";
+
+    @TableField(exist = false)
+    private String skuName;
+
+//    @TableField(exist = false)
+//    private Integer isKitting;
 }

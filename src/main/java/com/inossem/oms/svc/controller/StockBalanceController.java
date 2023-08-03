@@ -1,13 +1,13 @@
 package com.inossem.oms.svc.controller;
 
 
-import com.alibaba.druid.util.StringUtils;
 import com.inossem.oms.base.svc.domain.DTO.WarehouseStockFormDTO;
 import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
 import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.base.utils.poi.ExcelUtil;
 import com.inossem.oms.svc.service.StockBalanceNewService;
 import com.inossem.oms.svc.service.StockBalanceService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
@@ -44,7 +44,9 @@ public class StockBalanceController extends BaseController {
             return getDataTable(new ArrayList<>());
         }
         startPage();
-        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.list(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getStockList(queryStockListVo);
+
         return getDataTable(list);
     }
 
@@ -61,7 +63,8 @@ public class StockBalanceController extends BaseController {
         if (StringUtils.isEmpty(queryStockListVo.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
-        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+//        List<QueryStockBalanceResVo> list = stockBalanceService.satetyList(queryStockListVo);
+        List<QueryStockBalanceResVo> list = stockBalanceNewService.getSatetyList(queryStockListVo);
         return getDataTable(list);
     }
 
