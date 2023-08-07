@@ -17,6 +17,22 @@ public class ChainSetValue<T> {
         this.object = object;
     }
 
+    public ChainSetValue<T> update(
+            Consumer<String> consumer, String value) {
+        consumer.accept(value);
+        return this;
+    }
+
+    public <D> ChainSetValue<T> update(
+            Consumer<? super D> consumer, D value) {
+        consumer.accept(value);
+        return this;
+    }
+    public <D> ChainSetValue<T> update(
+            Consumer<? super List<?>> consumer, List<?> value) {
+        consumer.accept(value);
+        return this;
+    }
     public ChainSetValue<T> updateIfNotNull(
             Consumer<String> consumer, String value) {
 
