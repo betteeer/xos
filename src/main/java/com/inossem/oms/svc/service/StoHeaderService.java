@@ -348,6 +348,8 @@ public class StoHeaderService {
             LocalDateTime startOfDay = LocalDate.now().atStartOfDay();
             Date date = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
             stoHeader.setShipoutDate(date);
+        } else {
+            stoHeader.setShipoutDate(stoFormDTO.getShipoutDate());
         }
         Date shipoutDate = stoHeader.getShipoutDate();
         List<PreMaterialDocVo> preMaterialDocVos = new ArrayList<>();
@@ -397,6 +399,8 @@ public class StoHeaderService {
         Date date = Date.from(startOfDay.atZone(ZoneId.systemDefault()).toInstant());
         if (StringUtils.isNull(stoFormDTO.getReceiveDate())) {
             stoHeader.setReceiveDate(date);
+        } else {
+            stoHeader.setReceiveDate(stoFormDTO.getReceiveDate());
         }
         Date receiveDate = stoHeader.getReceiveDate();
         // 查询库存,并转为skuNumber-onHandQty的map
@@ -413,7 +417,7 @@ public class StoHeaderService {
             stockBalances.stream().filter(v -> v.getSkuNumber().equals(item.getSkuNumber())).findFirst().ifPresent(b -> {
                 PreMaterialDocVo preMaterialDocVo = new PreMaterialDocVo();
                 preMaterialDocVo.setMovementType(ModuleConstant.MOVEMENT_TYPE.Transfer_Receive);
-                preMaterialDocVo.setStoNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setStoNumber(stoNumber);
                 preMaterialDocVo.setCompanyCode(companyCode);
                 preMaterialDocVo.setWarehouseCode(toWarehouse);
                 // receive只是单个库内部从transfer转移到了available，不存在toWarehouse
@@ -424,7 +428,7 @@ public class StoHeaderService {
                 preMaterialDocVo.setSkuQty(item.getBasicTransferQty());
                 preMaterialDocVo.setBasicUom(item.getBasicUom());
                 preMaterialDocVo.setReferenceType("WSTO");
-                preMaterialDocVo.setReferenceNumber(stoHeader.getStoNumber());
+                preMaterialDocVo.setReferenceNumber(stoNumber);
                 preMaterialDocVo.setReferenceItem(item.getStoItem());
                 preMaterialDocVo.setStockStatus("A");
                 preMaterialDocVo.setPostingDate(receiveDate);
@@ -437,6 +441,11 @@ public class StoHeaderService {
         //  更新stoHeader状态
         stoHeader.setOrderStatus(StoStatus.RECEIVED.getStatus());
         stoHeader.setReceiveDate(receiveDate);
+        stoHeader = ChainSetValue.of(stoHeader)
+                .updateIfNotNull(stoHeader::setReferenceNumber, stoFormDTO.getReferenceNumber())
+                .updateIfNotNull(stoHeader::setTrackingNumber, stoFormDTO.getTrackingNumber())
+                .updateIfNotNull(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
+                .val();
         stoHeader.setGmtModified(new Date());
         stoHeader.setReceiveMaterialDoc(materialDocs.get(0).getDocNumber());
         stoHeaderMapper.updateById(stoHeader);
@@ -499,9 +508,9 @@ public class StoHeaderService {
         StoHeader stoHeader = this.getStoHeaderByNumber(stoFormDTO.getStoNumber());
         // 按非空修改三个字段值，仅仅处理referenceNumber,trackingNumber,stoNotes
         stoHeader = ChainSetValue.of(stoHeader)
-                .updateIfNotNull(stoHeader::setReferenceNumber, stoFormDTO.getReferenceNumber())
-                .updateIfNotNull(stoHeader::setTrackingNumber, stoFormDTO.getTrackingNumber())
-                .updateIfNotNull(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
+                .update(stoHeader::setReferenceNumber, stoFormDTO.getReferenceNumber())
+                .update(stoHeader::setTrackingNumber, stoFormDTO.getTrackingNumber())
+                .update(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
                 .val();
         int i = stoHeaderMapper.updateById(stoHeader);
         return i > 0;

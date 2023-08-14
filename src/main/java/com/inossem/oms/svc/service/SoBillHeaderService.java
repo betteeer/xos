@@ -18,6 +18,7 @@ import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.BpService;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.mdm.service.SkuService;
+import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -319,7 +320,13 @@ public class SoBillHeaderService {
         LambdaQueryWrapper<DeliveryItem> wrapper = new LambdaQueryWrapper<DeliveryItem>()
                 .eq(DeliveryItem::getDeliveryNumber, bill.getReferenceDoc())
                 .eq(DeliveryItem::getCompanyCode, bill.getCompanyCode());
-        DeliveryItem deliveryItem = deliveryItemMapper.selectOne(wrapper);
+        List<DeliveryItem> deliveryItems = deliveryItemMapper.selectList(wrapper);
+        DeliveryItem deliveryItem;
+        if (StringUtils.isNotEmpty(deliveryItems)) {
+            deliveryItem = deliveryItems.get(0);
+        } else {
+            throw new ServiceException("no matched deliveryItem");
+        }
         // 客户
         BusinessPartner bp = getBusinessPartner(bill.getCompanyCode(), bill.getPartnerId());
         Address bpBillAddress = getAddress(bill.getCompanyCode(), "so", "billto", deliveryItem.getReferenceDoc());

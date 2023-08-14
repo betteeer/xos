@@ -1,6 +1,7 @@
 package com.inossem.oms.mdm.controller;
 
 import com.inossem.oms.base.svc.domain.SkuMaster;
+import com.inossem.oms.base.svc.domain.VO.SimpleSkuMasterVO;
 import com.inossem.oms.base.svc.domain.VO.SkuListReqVO;
 import com.inossem.oms.base.svc.domain.VO.SkuVO;
 import com.inossem.oms.mdm.service.SkuNewService;
@@ -123,7 +124,11 @@ public class SkuController extends BaseController {
     }
 
     @GetMapping("/list/filterKitting")
-    public AjaxResult<List<SkuMaster>> getListInWarehouse(@RequestParam("companyCode") @NotBlank String companyCode) {
-        return AjaxResult.success().withData(skuNewService.getListFilterKitting(companyCode));
+    public TableDataInfo getListInWarehouse(@RequestParam("companyCode") @NotBlank String companyCode, String search, Integer pageSize) {
+        if (pageSize != null && pageSize.intValue() != -1) {
+            startPage();
+        }
+        List<SimpleSkuMasterVO> listFilterKitting = skuNewService.getListFilterKitting(companyCode, search);
+        return getDataTable(listFilterKitting);
     }
 }
