@@ -10,11 +10,11 @@ spring:
       primary: oms
       datasource:
         oms:
-          url: jdbc:mysql://eo-prod-db.mysql.database.azure.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+          url: jdbc:mysql://dc.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
           username: ntdbuser
           password: Init6666
         tms:
-          url: jdbc:mysql://eo-prod-db.mysql.database.azure.com:3306/timesheet-service?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+          url: jdbc:mysql://dc.inossemcanada.com:3306/timesheet-service?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
           username: ntdbuser
           password: Init6666
   redis:
