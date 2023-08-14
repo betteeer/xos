@@ -68,4 +68,8 @@ public class SystemConnect extends BaseEntity
 
     private String bkCreator;
 
+    private Boolean activeGl;
+    private Boolean activeAr;
+    private Boolean activeAp;
+
 }
