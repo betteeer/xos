@@ -432,6 +432,10 @@ public class BookKeepingService {
     public String soBill(SoInvoiceModel model) throws IOException {
             boolean inner = InnerInterfaceCall.isInner();
             SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
+            if (!connect.getActiveAr()) {
+                logger.info("-----activeAR未激活，不需要与bkp交互");
+                return "";
+            }
             model.setCreator(Integer.valueOf(connect.getBkCreator()));
             OkHttpClient client = new OkHttpClient().newBuilder()
                     .connectTimeout(30, TimeUnit.SECONDS)
@@ -469,6 +473,10 @@ public class BookKeepingService {
     public String poBill(PoInvoiceModel model) throws IOException {
         boolean inner = InnerInterfaceCall.isInner();
         SystemConnect connect = inner ? null : getConnect(model.getCompany_code());
+        if (!connect.getActiveAp()) {
+            logger.info("-----activeAP未激活，不需要与bkp交互");
+            return "";
+        }
         model.setCreator(connect.getBkCreator());
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
@@ -642,6 +650,10 @@ public class BookKeepingService {
         logger.info(">>>>>postBkGL,requestBody:{}", requestBody);
         boolean inner = InnerInterfaceCall.isInner();
         SystemConnect connect = inner ? null : getConnect(requestBody.getString("company_code"));
+        if (!connect.getActiveGl()) {
+            logger.info("-----activeGL未激活，不需要与bkp交互");
+            return "";
+        }
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
