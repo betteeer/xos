@@ -4,6 +4,9 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.inossem.oms.base.svc.domain.SoHeader;
 import com.inossem.oms.base.svc.domain.VO.OrderHeaderResp;
 import com.inossem.oms.base.svc.domain.VO.SalesOrderListQyery;
+import com.inossem.oms.base.svc.domain.dashboard.vo.BestSellerVo;
+import com.inossem.oms.base.svc.domain.dashboard.req.DashboardReq;
+import com.inossem.oms.base.svc.domain.dashboard.vo.SalesPercentageVo;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -50,5 +53,9 @@ public interface SoHeaderMapper extends BaseMapper<SoHeader> {
     List<SoHeader> checkWareHoseCode(@Param("wareHouseCode")String wareHouseCode,@Param("companyCode") String companyCode);
 
     List<SoHeader> checkSku(@Param("skuCode") String skuCode,@Param("companyCode") String companyCode);
+
+    List<SalesPercentageVo> getSalesAmountAndCount(@Param("res") DashboardReq res);
+
+    List<BestSellerVo> getSkuSoldAmountAndQuantity(@Param("res") DashboardReq res);
 
 }

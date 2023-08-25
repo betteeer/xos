@@ -2,6 +2,9 @@ package com.inossem.oms.base.svc.mapper;
 
 import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.StockBalance;
+import com.inossem.oms.base.svc.domain.dashboard.dto.MostInventoryDto;
+import com.inossem.oms.base.svc.domain.dashboard.req.MostInventoryReq;
+import com.inossem.oms.base.svc.domain.dashboard.vo.MostInventoryVo;
 import com.inossem.oms.base.svc.vo.QueryStockBalanceResVo;
 import com.inossem.oms.base.svc.vo.QueryStockBySkuVo;
 import com.inossem.oms.base.svc.vo.QueryStockListVo;
@@ -23,4 +26,8 @@ public interface StockBalanceMapper  extends MPJBaseMapper<StockBalance>
     BigDecimal selectSkuTotalQty(@Param("skuNumber") String skuNumber,@Param("companyCode") String companyCode);
 
     QueryStockBalanceResVo selectStockBySkuAndCompany(QueryStockBySkuVo queryStockListVo);
+
+    List<MostInventoryDto> getStockAmountAndQuantity(@Param("res") MostInventoryReq res);
+
+    MostInventoryVo getStockTotalAmountAndQuantity(@Param("res") MostInventoryReq res);
 }

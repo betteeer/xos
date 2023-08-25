@@ -118,4 +118,37 @@
         HAVING
             sku_number = #{skuNumber}
     </select>
+    <select id="getStockAmountAndQuantity" resultType="com.inossem.oms.base.svc.domain.dashboard.dto.MostInventoryDto">
+        SELECT
+            b.sku_number skuNumber,
+            m.sku_name skuName,
+            IFNULL( SUM( b.total_amount ), 0 ) amount,
+            IFNULL( SUM( b.total_onhand_qty ), 0 ) quantity
+        FROM
+            stock_balance b
+                LEFT JOIN sku_master m ON b.sku_number = m.sku_number
+        WHERE
+            b.company_code = #{res.companyCode}
+          <if test="res.warehouseCode != null and res.warehouseCode != 'all'">
+              AND b.warehouse_code = #{res.warehouseCode}
+          </if>
+        GROUP BY
+            b.sku_number,
+            m.sku_name
+        ORDER BY
+            SUM( b.total_amount ) DESC
+            LIMIT 20
+    </select>
+    <select id="getStockTotalAmountAndQuantity" resultType="com.inossem.oms.base.svc.domain.dashboard.vo.MostInventoryVo">
+        SELECT
+        IFNULL( SUM( total_amount ), 0 ) totalAmount,
+        IFNULL( SUM( total_onhand_qty ), 0 ) totalQuantity
+        FROM
+        stock_balance
+        WHERE
+        company_code = #{res.companyCode}
+        <if test="res.warehouseCode != null and res.warehouseCode != 'all'">
+            AND warehouse_code = #{res.warehouseCode}
+        </if>
+    </select>
 </mapper>

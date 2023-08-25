@@ -233,5 +233,41 @@
           AND si.is_deleted = 0
           AND sh.is_deleted = 0
     </select>
+    <select id="getSalesAmountAndCount" resultType="com.inossem.oms.base.svc.domain.dashboard.vo.SalesPercentageVo">
+        SELECT
+            IFNULL( c.channel_des, 'Others' ) name,
+            COUNT( h.so_number ) totalOrder,
+            IFNULL( SUM( h.gross_amount ), 0 ) `value`
+        FROM
+            so_header h
+                LEFT JOIN sales_channel c ON h.channel_id = c.id
+        WHERE
+            h.order_date BETWEEN #{res.startDate} AND #{res.endDate}
+          AND h.is_deleted = 0
+          AND h.company_code = #{res.companyCode}
+        GROUP BY
+            h.channel_id
+    </select>
+    <select id="getSkuSoldAmountAndQuantity" resultType="com.inossem.oms.base.svc.domain.dashboard.vo.BestSellerVo">
+        SELECT
+            i.sku_number skuNumber,
+            m.sku_name skuName,
+            IFNULL(SUM( i.net_value ),0) amount,
+            IFNULL(SUM( i.basic_qty ),0) soldCount
+        FROM
+            so_item AS i
+                LEFT JOIN so_header AS h ON i.so_number = h.so_number
+                LEFT JOIN sku_master AS m ON i.sku_number = m.sku_number
+        WHERE
+            h.order_date BETWEEN #{res.startDate} AND #{res.endDate}
+          AND h.is_deleted = 0
+          AND h.company_code = #{res.companyCode}
+        GROUP BY
+            i.sku_number,
+            m.sku_name
+        ORDER BY
+            SUM( net_value ) DESC
+            LIMIT 10
+    </select>
 
 </mapper>
