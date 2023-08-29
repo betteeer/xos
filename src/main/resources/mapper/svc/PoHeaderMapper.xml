@@ -140,6 +140,24 @@
             <if test="companyCode!='' and companyCode !=null">
                 and t.company_code = #{companyCode}
             </if>
+            <if test="orderDateStart != null and orderDateStart != '' and orderDateEnd != null and orderDateEnd != ''">
+                and ( t.order_date BETWEEN #{orderDateStart} AND #{orderDateEnd} )
+            </if>
+            <if test="grossAmountStart != null and grossAmountStart != ''">
+                and t.gross_amount <![CDATA[ >= ]]> #{grossAmountStart}
+            </if>
+            <if test="grossAmountEnd != null and grossAmountEnd != ''">
+                and t.gross_amount <![CDATA[ <= ]]> #{grossAmountEnd}
+            </if>
+            <if test="netAmountStart != null and netAmountStart != ''">
+                and t.net_amount <![CDATA[ >= ]]> #{netAmountStart}
+            </if>
+            <if test="netAmountEnd != null and netAmountEnd != ''">
+                and t.net_amount <![CDATA[ <= ]]> #{netAmountEnd}
+            </if>
+            <if test="currencyCode != null and currencyCode != ''">
+                and ( t.currency_code = #{currencyCode} )
+            </if>
                 and t.is_deleted = 0
                 and i.is_deleted = 0
         </where>
