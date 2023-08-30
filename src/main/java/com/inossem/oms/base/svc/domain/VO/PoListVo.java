@@ -42,4 +42,7 @@ public class PoListVo {
     private BigDecimal netAmountEnd;
     private String currencyCode;
 
+    private String orderBy;
+    private Boolean isAsc;
+
 }
