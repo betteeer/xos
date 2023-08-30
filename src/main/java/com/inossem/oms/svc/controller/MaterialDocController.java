@@ -67,6 +67,12 @@ public class MaterialDocController extends BaseController {
         List<MaterialDoc> materialDocList = materialDocService.reverseMaterialDoc(reversedMaterialDocVO);
         return getDataTable(materialDocList);
     }
+    @PostMapping("/saveNote")
+    @ApiOperation(value = "根据传入的物料凭证进行反向操作",notes = "通过docNum查询物料凭证")
+    public TableDataInfo saveNote(@RequestBody @Valid ReversedMaterialDocVO reversedMaterialDocVO) {
+        List<MaterialDoc> materialDocList = materialDocNewService.saveNote(reversedMaterialDocVO);
+        return getDataTable(materialDocList);
+    }
 
     @GetMapping("/test")
     @ApiOperation(value = "查询未回退的物料凭证列表",notes = "通过docNum查询物料凭证")

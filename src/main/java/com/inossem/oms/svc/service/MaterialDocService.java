@@ -495,6 +495,10 @@ public class MaterialDocService {
         queryUnReversedResVo.setWarehouse(materialDocAll.get(0).getWarehouseCode());
         queryUnReversedResVo.setStockStatus(materialDocAll.get(0).getStockStatus());
         queryUnReversedResVo.setPostDate(materialDocAll.get(0).getPostingDate());
+        LambdaQueryWrapper<MovementType> movementTypeWrapper = new LambdaQueryWrapper<>();
+        movementTypeWrapper.eq(MovementType::getMovementType, materialDocAll.get(0).getMovementType());
+        MovementType movementType = movementTypeMapper.selectOne(movementTypeWrapper);
+        queryUnReversedResVo.setTransactionType(movementType.getMovementDescription());
         if (!CollectionUtils.isEmpty(materialDocList)) {
             List<QueryUnReversedSubResVo> queryUnReversedSubResVoList = new ArrayList<>();
             for (MaterialDoc materialDoc : materialDocList) {
@@ -514,6 +518,7 @@ public class MaterialDocService {
                 StockBalance stockBalance = stockBalanceMapper.selectOne(stockBalanceLambdaQueryWrapper);
                 BeanUtils.copyProperties(stockBalance, queryUnReversedSubResVo);
                 queryUnReversedSubResVo.setId(materialDoc.getId());
+                queryUnReversedSubResVo.setMaterialDocTotalAmount(materialDoc.getTotalAmount());
                 queryUnReversedSubResVoList.add(queryUnReversedSubResVo);
             }
             queryUnReversedResVo.setQueryUnReversedSubResVoList(queryUnReversedSubResVoList);
@@ -532,7 +537,7 @@ public class MaterialDocService {
     public List<MaterialDoc> reverseMaterialDoc(ReversedMaterialDocVO reversedMaterialDocVO) throws ServiceException {
         List<MaterialDoc> materialDocList = new ArrayList<>();
         //获取用户信息
-        Long userId = 1l;//UserInfoUtils.getSysUserId();
+        Long userId = Long.valueOf(UserInfoUtils.getSysUserId());
         Date createTime = new Date();
         Long docNumber = numberWorker.generateId(reversedMaterialDocVO.getCompanyCode(), ModuleConstant.ORDER_NUMBER_TYPE.MATERIAL_DOC);
         int i = 0;
@@ -1060,6 +1065,4 @@ public class MaterialDocService {
         System.out.println(c.subtract(d));
         System.out.println(c.subtract(d).setScale(2, BigDecimal.ROUND_HALF_UP));
     }
-
-
 }

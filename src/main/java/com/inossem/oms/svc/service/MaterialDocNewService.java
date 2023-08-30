@@ -15,6 +15,7 @@ import com.inossem.oms.base.svc.mapper.MaterialDocMapper;
 import com.inossem.oms.base.svc.mapper.MovementTypeMapper;
 import com.inossem.oms.base.svc.vo.QueryMaterialDocListVo;
 import com.inossem.oms.base.svc.vo.QueryMaterialDocResVo;
+import com.inossem.oms.base.svc.vo.ReversedMaterialDocVO;
 import com.inossem.oms.base.utils.NumberWorker;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.utils.StringUtils;
@@ -31,6 +32,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 interface IMaterialDocService extends IService<MaterialDoc> {
 
@@ -200,5 +202,20 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
                 .orderByDesc(MaterialDoc::getGmtCreate);
         List<QueryMaterialDocResVo> queryMaterialDocResVos = materialDocMapper.selectJoinList(QueryMaterialDocResVo.class, wrapper);
         return queryMaterialDocResVos;
+    }
+
+    public List<MaterialDoc> saveNote(ReversedMaterialDocVO reversedMaterialDocVO) {
+        LambdaQueryWrapper<MaterialDoc> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(MaterialDoc::getDocNumber, reversedMaterialDocVO.getDocNumber())
+                .in(MaterialDoc::getId, reversedMaterialDocVO.getReversedMaterialDocItemVos().stream().map(v -> v.getMaterialDocId()).collect(Collectors.toList()));
+
+        List<MaterialDoc> materialDocs = materialDocMapper.selectList(wrapper);
+
+        materialDocs.forEach(materialDoc -> {
+            materialDoc.setNote(reversedMaterialDocVO.getNote());
+            materialDoc.setGmtModified(new Date());
+        });
+        saveOrUpdateBatch(materialDocs);
+        return materialDocs;
     }
 }

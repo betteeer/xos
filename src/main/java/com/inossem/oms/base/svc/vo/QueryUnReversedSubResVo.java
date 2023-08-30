@@ -35,4 +35,6 @@ public class QueryUnReversedSubResVo extends MaterialDoc{
     @ApiModelProperty(value = "商品名字",name = "skuName")
     private String skuName;
 
+    @ApiModelProperty(value = "material doc上的total amount", name="materialDocTotalAmount")
+    private BigDecimal materialDocTotalAmount;
 }
