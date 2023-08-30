@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 【采购订单】Controller
@@ -46,6 +47,30 @@ public class PoHeaderController extends BaseController {
         return getDataTable(list);
     }
 
+    @PostMapping("/list")
+    public TableDataInfo getPoList(@RequestBody PoListVo po) {
+        if (StringUtils.isEmpty(po.getCompanyCode())) {
+            return getDataTable(new ArrayList<>());
+        }
+        //参数校验
+        Boolean flag = Boolean.FALSE;
+        if (Objects.nonNull(po.getGrossAmountStart()) && Objects.nonNull(po.getGrossAmountEnd())) {
+            if (po.getGrossAmountEnd().compareTo(po.getGrossAmountStart()) < 0) flag = Boolean.TRUE;
+        }
+        if (Objects.nonNull(po.getNetAmountStart()) && Objects.nonNull(po.getNetAmountEnd())) {
+            if (po.getNetAmountEnd().compareTo(po.getNetAmountStart()) < 0) flag = Boolean.TRUE;
+        }
+        if (flag) {
+            TableDataInfo tableDataInfo = new TableDataInfo();
+            tableDataInfo.setCode(404);
+            tableDataInfo.setMsg("invalid param");
+            return tableDataInfo;
+        }
+        startPage();
+        List<PoHeader> list = poHeaderService.selectPoHeaderList(po);
+        return getDataTable(list);
+    }
+
     /**
      * 获取【采购订单】详细信息
      */
@@ -55,13 +80,12 @@ public class PoHeaderController extends BaseController {
         return AjaxResult.success(poHeaderService.details(companyCode, poNumber, "po"));
     }
 
-
     /**
      * 获取【开票订单】详细信息
      */
     @GetMapping(value = "/getInvoiceInfo/{company_code}/{po_number}")
     public AjaxResult getInvoiceInfo(@PathVariable("company_code") String companyCode,
-                              @PathVariable("po_number") String poNumber) {
+                                     @PathVariable("po_number") String poNumber) {
         return AjaxResult.success(poHeaderService.details(companyCode, poNumber, "invoice"));
     }
 
@@ -80,7 +104,6 @@ public class PoHeaderController extends BaseController {
     public AjaxResult<PoHeader> modify(@RequestBody PoSaveVo po) {
         return AjaxResult.success().withData(poHeaderService.modify(po));
     }
-
 
     /**
      * create po delivery
@@ -164,7 +187,6 @@ public class PoHeaderController extends BaseController {
         return AjaxResult.success().withData(deliveryService.getPoOrderHeader(poNumber, companyCode));
     }
 
-
     /**
      * update service so status
      * 针对SEPO   修改Po的状态
@@ -175,8 +197,7 @@ public class PoHeaderController extends BaseController {
      */
     @ApiOperation(value = "update service po status", notes = "修改service po的order status")
     @GetMapping("/update_sepo_status/{poNumber}/{companyCode}")
-    public AjaxResult updateStatus(@PathVariable("poNumber") String poNumber,@PathVariable("companyCode") String companyCode) {
-        return toAjax(poHeaderService.updateStatus(poNumber,companyCode));
+    public AjaxResult updateStatus(@PathVariable("poNumber") String poNumber, @PathVariable("companyCode") String companyCode) {
+        return toAjax(poHeaderService.updateStatus(poNumber, companyCode));
     }
-
 }

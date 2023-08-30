@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
+import java.math.BigDecimal;
 
 /**
  * PO list query params
@@ -32,5 +33,13 @@ public class PoListVo {
 
     @ApiModelProperty(value = "invoiceStatus", name = "invoiceStatus")
     private String invoiceStatus;
+
+    private String orderDateStart;
+    private String orderDateEnd;
+    private BigDecimal grossAmountStart;
+    private BigDecimal grossAmountEnd;
+    private BigDecimal netAmountStart;
+    private BigDecimal netAmountEnd;
+    private String currencyCode;
 
 }
