@@ -140,8 +140,11 @@
             <if test="companyCode!='' and companyCode !=null">
                 and t.company_code = #{companyCode}
             </if>
-            <if test="orderDateStart != null and orderDateStart != '' and orderDateEnd != null and orderDateEnd != ''">
-                and ( t.order_date BETWEEN #{orderDateStart} AND #{orderDateEnd} )
+            <if test="orderDateStart != null and orderDateStart != ''">
+                and t.order_date <![CDATA[ >= ]]> #{orderDateStart}
+            </if>
+            <if test="orderDateEnd != null and orderDateEnd != ''">
+                and t.order_date <![CDATA[ <= ]]> #{orderDateEnd}
             </if>
             <if test="grossAmountStart != null and grossAmountStart != ''">
                 and t.gross_amount <![CDATA[ >= ]]> #{grossAmountStart}
@@ -161,7 +164,9 @@
                 and t.is_deleted = 0
                 and i.is_deleted = 0
         </where>
-        order by t.gmt_create desc, t.order_date desc
+        <if test="orderBy != null and orderBy != ''">
+            ORDER BY ${orderBy}
+        </if>
     </select>
 
 

@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 
@@ -52,7 +53,7 @@ public class PoHeaderController extends BaseController {
         if (StringUtils.isEmpty(po.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
-        //参数校验
+        //参数校验1:数量区间[a,b] b>=a
         Boolean flag = Boolean.FALSE;
         if (Objects.nonNull(po.getGrossAmountStart()) && Objects.nonNull(po.getGrossAmountEnd())) {
             if (po.getGrossAmountEnd().compareTo(po.getGrossAmountStart()) < 0) flag = Boolean.TRUE;
@@ -60,6 +61,12 @@ public class PoHeaderController extends BaseController {
         if (Objects.nonNull(po.getNetAmountStart()) && Objects.nonNull(po.getNetAmountEnd())) {
             if (po.getNetAmountEnd().compareTo(po.getNetAmountStart()) < 0) flag = Boolean.TRUE;
         }
+        //参数校验2:排序字段枚举(默认按照po_number倒序)
+        if (StringUtils.isEmpty(po.getOrderBy())) po.setOrderBy("po_number");
+        List<String> orderByFields = Arrays.asList("po_number","gross_amount","net_amount","order_date","bp_vendor");
+        if (!orderByFields.contains(po.getOrderBy())) flag = Boolean.TRUE;
+        if (Objects.nonNull(po.getIsAsc())) po.setOrderBy(po.getOrderBy() + (po.getIsAsc() ? " ASC" : " DESC"));
+        else po.setOrderBy(po.getOrderBy() + " DESC");
         if (flag) {
             TableDataInfo tableDataInfo = new TableDataInfo();
             tableDataInfo.setCode(404);
