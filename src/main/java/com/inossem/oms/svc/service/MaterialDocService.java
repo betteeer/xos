@@ -468,12 +468,17 @@ public class MaterialDocService {
     }
 
     @Transactional
-    public QueryUnReversedResVo getUnReversedByDocNumber(String docNumber, String companyCode) {
+    public QueryUnReversedResVo getUnReversedByDocNumber(String docNumber, String companyCode, Integer onlyReversed) {
         LambdaQueryWrapper<MaterialDoc> materialDocLambdaQueryWrapper = new LambdaQueryWrapper<>();
         materialDocLambdaQueryWrapper.eq(MaterialDoc::getDocNumber, docNumber)
                 .eq(MaterialDoc::getCompanyCode, companyCode)
-                .eq(MaterialDoc::getIsDeleted, ModuleConstant.IS_DELETED.NO_DELETE)
-                .eq(MaterialDoc::getIsReversed, ModuleConstant.IS_REVERSED.NORMAL);
+                .eq(MaterialDoc::getIsDeleted, ModuleConstant.IS_DELETED.NO_DELETE);
+        if (onlyReversed.intValue() == 1) {
+            materialDocLambdaQueryWrapper.eq(MaterialDoc::getIsReversed, ModuleConstant.IS_REVERSED.REVERSED);
+        } else {
+            materialDocLambdaQueryWrapper.eq(MaterialDoc::getIsReversed, ModuleConstant.IS_REVERSED.NORMAL);
+        }
+
         List<MaterialDoc> materialDocList = materialDocMapper.selectList(materialDocLambdaQueryWrapper);
 
         LambdaQueryWrapper<MaterialDoc> materialDocAllLambdaQueryWrapper = new LambdaQueryWrapper<>();
