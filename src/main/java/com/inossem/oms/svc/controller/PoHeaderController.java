@@ -1,11 +1,11 @@
 package com.inossem.oms.svc.controller;
 
-import com.alibaba.druid.util.StringUtils;
 import com.inossem.oms.base.svc.domain.DeliveryHeader;
 import com.inossem.oms.base.svc.domain.PoHeader;
 import com.inossem.oms.base.svc.domain.VO.*;
 import com.inossem.oms.svc.service.IDeliveryHeaderService;
 import com.inossem.oms.svc.service.PoHeaderService;
+import com.inossem.sco.common.core.utils.StringUtils;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
@@ -14,10 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * 【采购订单】Controller
@@ -50,6 +47,7 @@ public class PoHeaderController extends BaseController {
 
     @PostMapping("/list")
     public TableDataInfo getPoList(@RequestBody PoListVo po) {
+
         if (StringUtils.isEmpty(po.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
@@ -61,18 +59,18 @@ public class PoHeaderController extends BaseController {
         if (Objects.nonNull(po.getNetAmountStart()) && Objects.nonNull(po.getNetAmountEnd())) {
             if (po.getNetAmountEnd().compareTo(po.getNetAmountStart()) < 0) flag = Boolean.TRUE;
         }
-        //参数校验2:排序字段枚举(默认按照po_number倒序)
-        if (StringUtils.isEmpty(po.getOrderBy())) po.setOrderBy("po_number");
-        List<String> orderByFields = Arrays.asList("po_number","gross_amount","net_amount","order_date","bp_vendor");
+        //参数校验2:排序字段枚举(默认按照po_number升序)
+        List<String> orderByFields = Arrays.asList("poNumber","grossAmount","netAmount","orderDate","bpVendor");
         if (!orderByFields.contains(po.getOrderBy())) flag = Boolean.TRUE;
-        if (Objects.nonNull(po.getIsAsc())) po.setOrderBy(po.getOrderBy() + (po.getIsAsc() ? " ASC" : " DESC"));
-        else po.setOrderBy(po.getOrderBy() + " DESC");
+        po.setOrderBy(StringUtils.toUnderScoreCase(po.getOrderBy()) + (po.getIsAsc() ? " ASC" : " DESC"));
         if (flag) {
             TableDataInfo tableDataInfo = new TableDataInfo();
             tableDataInfo.setCode(404);
             tableDataInfo.setMsg("invalid param");
             return tableDataInfo;
         }
+
+        //分页查询
         startPage();
         List<PoHeader> list = poHeaderService.selectPoHeaderList(po);
         return getDataTable(list);

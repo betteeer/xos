@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * PO list query params
@@ -23,16 +24,16 @@ public class PoListVo {
     private String companyCode;
 
     @ApiModelProperty(value = "orderType", name = "orderType")
-    private String orderType;
+    private List<String> orderType;
 
     @ApiModelProperty(value = "orderStatus", name = "orderStatus")
-    private String orderStatus;
+    private List<String> orderStatus;
 
     @ApiModelProperty(value = "deliveryStatus", name = "deliveryStatus")
-    private String deliveryStatus;
+    private List<String> deliveryStatus;
 
     @ApiModelProperty(value = "invoiceStatus", name = "invoiceStatus")
-    private String invoiceStatus;
+    private List<String> invoiceStatus;
 
     private String orderDateStart;
     private String orderDateEnd;
@@ -40,9 +41,8 @@ public class PoListVo {
     private BigDecimal grossAmountEnd;
     private BigDecimal netAmountStart;
     private BigDecimal netAmountEnd;
-    private String currencyCode;
+    private List<String> currencyCode;
 
-    private String orderBy;
-    private Boolean isAsc;
-
+    private String orderBy = "poNumber";
+    private Boolean isAsc = true;
 }
