@@ -3,6 +3,7 @@ package com.inossem.oms.svc.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.inossem.oms.api.bk.api.BookKeepingService;
+import com.inossem.oms.api.bk.api.ConnectionUtils;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.SkuListReqVO;
@@ -836,7 +837,11 @@ public class MaterialDocService {
      * @throws IOException
      */
     public String remoteBkGL(CreateMaterialDocVo createMaterialDocVo, String docNumber) throws IOException {
-//        RemoteBkGl remoteBkGl = new RemoteBkGl();
+        SystemConnect connection = ConnectionUtils.getConnection(createMaterialDocVo.getCompanyCode());
+        if (!connection.getActiveGl()) {
+            return "";
+        }
+        //        RemoteBkGl remoteBkGl = new RemoteBkGl();
                 RemoteBkGlV2 remoteBkGl = new RemoteBkGlV2();
 //        LambdaQueryWrapper<BkCoaRel> bkCoaRelLambdaQueryWrapper = new LambdaQueryWrapper<>();
 //        bkCoaRelLambdaQueryWrapper.eq(BkCoaRel::getCode, createMaterialDocVo.getMovementType())
@@ -845,7 +850,7 @@ public class MaterialDocService {
 //        BkCoaRel bkCoaRel = bkCoaRelMapper.selectOne(bkCoaRelLambdaQueryWrapper);
                 Company company = companyService.getCompany(createMaterialDocVo.getCompanyCode());
                 ArrayList<BkCoaRel> bkCoaRels = bookKeepingService.getBkCoaRels(company);
-                Optional<BkCoaRel> bkCoaRelOptional = bkCoaRels.stream().filter(b -> b.getCode().equals(createMaterialDocVo.getMovementType()) && b.getCompanyCode().equals(createMaterialDocVo.getCompanyCode())).findFirst();
+                Optional<BkCoaRel> bkCoaRelOptional = bkCoaRels.stream().filter(b -> createMaterialDocVo.getMovementType().equals(b.getCode()) && createMaterialDocVo.getCompanyCode().equals(b.getCompanyCode())).findFirst();
 
                 if (bkCoaRelOptional.isPresent()) {
                     BkCoaRel bkCoaRel = bkCoaRelOptional.get();
