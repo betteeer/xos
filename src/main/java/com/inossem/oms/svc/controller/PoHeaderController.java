@@ -40,6 +40,7 @@ public class PoHeaderController extends BaseController {
         if (StringUtils.isEmpty(po.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
+        po.setOrderBy(StringUtils.toUnderScoreCase(po.getOrderBy()) + (po.getIsAsc() ? " ASC" : " DESC"));
         startPage();
         List<PoHeader> list = poHeaderService.selectPoHeaderList(po);
         return getDataTable(list);
