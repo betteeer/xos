@@ -62,6 +62,10 @@ public class PoHeaderService {
         return poHeaderMapper.selectPoHeaderList(po);
     }
 
+    public List<PoHeader> selectPoHeaderList1(PoListVo1 po) {
+        return poHeaderMapper.selectPoHeaderList1(po);
+    }
+
 
     /**
      * 开票的详情和订单的详情数据类似，可以使用同一个服务实现

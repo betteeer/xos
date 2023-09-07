@@ -3,6 +3,7 @@ package com.inossem.oms.base.svc.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.inossem.oms.base.svc.domain.PoHeader;
 import com.inossem.oms.base.svc.domain.VO.PoListVo;
+import com.inossem.oms.base.svc.domain.VO.PoListVo1;
 import com.inossem.oms.base.svc.domain.VO.PoOrderHeaderResp;
 import org.apache.ibatis.annotations.Param;
 
@@ -30,6 +31,8 @@ public interface PoHeaderMapper  extends BaseMapper<PoHeader> {
      * @return 【请填写功能名称】集合
      */
     List<PoHeader> selectPoHeaderList(PoListVo po);
+
+    List<PoHeader> selectPoHeaderList1(PoListVo1 po);
 
     /**
      * 新增【请填写功能名称】

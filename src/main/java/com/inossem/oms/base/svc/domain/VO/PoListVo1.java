@@ -15,7 +15,7 @@ import java.util.List;
  */
 @Data
 @ApiModel("PO list view object")
-public class PoListVo {
+public class PoListVo1 {
 
     @ApiModelProperty(value = "searchText", name = "searchText")
     private String searchText;
@@ -24,14 +24,25 @@ public class PoListVo {
     private String companyCode;
 
     @ApiModelProperty(value = "orderType", name = "orderType")
-    private String orderType;
+    private List<String> orderType;
 
     @ApiModelProperty(value = "orderStatus", name = "orderStatus")
-    private String orderStatus;
+    private List<String> orderStatus;
 
     @ApiModelProperty(value = "deliveryStatus", name = "deliveryStatus")
-    private String deliveryStatus;
+    private List<String> deliveryStatus;
 
     @ApiModelProperty(value = "invoiceStatus", name = "invoiceStatus")
-    private String invoiceStatus;
+    private List<String> invoiceStatus;
+
+    private String orderDateStart;
+    private String orderDateEnd;
+    private BigDecimal grossAmountStart;
+    private BigDecimal grossAmountEnd;
+    private BigDecimal netAmountStart;
+    private BigDecimal netAmountEnd;
+    private List<String> currencyCode;
+
+    private String orderBy = "poNumber";
+    private Boolean isAsc = true;
 }

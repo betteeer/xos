@@ -40,14 +40,13 @@ public class PoHeaderController extends BaseController {
         if (StringUtils.isEmpty(po.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
         }
-        po.setOrderBy(StringUtils.toUnderScoreCase(po.getOrderBy()) + (po.getIsAsc() ? " ASC" : " DESC"));
         startPage();
         List<PoHeader> list = poHeaderService.selectPoHeaderList(po);
         return getDataTable(list);
     }
 
     @PostMapping("/list")
-    public TableDataInfo getPoList(@RequestBody PoListVo po) {
+    public TableDataInfo getPoList(@RequestBody PoListVo1 po) {
 
         if (StringUtils.isEmpty(po.getCompanyCode())) {
             return getDataTable(new ArrayList<>());
@@ -73,7 +72,7 @@ public class PoHeaderController extends BaseController {
 
         //分页查询
         startPage();
-        List<PoHeader> list = poHeaderService.selectPoHeaderList(po);
+        List<PoHeader> list = poHeaderService.selectPoHeaderList1(po);
         return getDataTable(list);
     }
 
