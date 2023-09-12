@@ -54,4 +54,8 @@ public class CreateMaterialDocVo {
     @ApiModelProperty(value = "部门",name = "department")
     @Length(max = 100,message = "department Max Length is 100")
     private String department;
+
+    @ApiModelProperty(value = "备注",name = "note")
+    @Length(max = 500,message = "note Max Length is 500")
+    private String note;
 }

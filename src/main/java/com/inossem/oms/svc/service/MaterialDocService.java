@@ -256,6 +256,7 @@ public class MaterialDocService {
             materialDoc.setDocItem(String.valueOf(i + 1));
             materialDoc.setIsReversed(ModuleConstant.IS_REVERSED.NORMAL);
             materialDoc.setTotalAmount(increTotalAmount);
+            materialDoc.setNote(createMaterialDocVo.getNote());
             materialDocMapper.insert(materialDoc);
 
             materialDocList.add(materialDoc);
