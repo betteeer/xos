@@ -111,9 +111,15 @@ public class PoItemService
         wrapper.in(StringUtils.isNotEmpty(form.getCurrencyCode()), PoItem::getCurrencyCode, form.getCurrencyCode());
         // 拼接 tax exmpt
         wrapper.in(StringUtils.isNotEmpty(form.getTaxExmpt()), PoItem::getTaxExmpt, form.getTaxExmpt());
-        // join skuMaster，查询skuName，并根绝searchText进行过滤
-        wrapper.leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, PoItem::getSkuNumber,
-                ext -> ext.selectAs(SkuMaster::getSkuName, PoItem::getSkuName).nested(i -> i.like(SkuMaster::getSkuNumber, form.getSearchText()).or().like(SkuMaster::getSkuName, form.getSearchText())));
+        // join skuMaster，查询skuName，并根据searchText进行过滤
+        wrapper.leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, PoItem::getSkuNumber, ext -> {
+            ext.selectAs(SkuMaster::getSkuName, PoItem::getSkuName);
+            ext.nested(StringUtils.isNotEmpty(form.getSearchText()), i ->
+                    i.like(SkuMaster::getSkuNumber, form.getSearchText())
+                            .or().like(SkuMaster::getSkuName, form.getSearchText())
+                            .or().like(PoItem::getPoNumber, form.getSearchText()));
+            return ext;
+        });
         // 拼接order by
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序

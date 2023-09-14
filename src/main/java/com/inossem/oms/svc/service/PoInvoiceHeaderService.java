@@ -379,11 +379,19 @@ public class PoInvoiceHeaderService {
         wrapper.between(StringUtils.isNotNull(form.getNetAmountStart()), PoInvoiceHeader::getNetAmount, form.getNetAmountStart(), form.getNetAmountEnd());
         wrapper.between(StringUtils.isNotNull(form.getGrossAmountStart()), PoInvoiceHeader::getGrossAmount, form.getGrossAmountStart(), form.getGrossAmountEnd());
 
-        // 查询 warehouse
-        wrapper.nested(StringUtils.isNotEmpty(form.getSearchText()), i -> {
-            i.like(PoInvoiceHeader::getInvoiceNumber, form.getSearchText()).or().like(PoInvoiceHeader::getAccountingDoc, form.getSearchText());
+        // 关键字搜索+ 查bpName
+        wrapper.leftJoin(PoHeader.class, PoHeader::getPoNumber, PoInvoiceHeader::getReferenceDoc, ext ->{
+            ext.nested(StringUtils.isNotEmpty(form.getSearchText()), i -> {
+                i.like(PoInvoiceHeader::getInvoiceNumber, form.getSearchText())
+                        .or().like(PoInvoiceHeader::getAccountingDoc, form.getSearchText())
+                        .or().like(PoHeader::getBpName, form.getSearchText());
+            });
+            return  ext.selectAs(PoHeader::getBpName, PoInvoiceHeader::getBpName);
         });
-        wrapper.leftJoin(PoHeader.class, PoHeader::getPoNumber, PoInvoiceHeader::getReferenceDoc, ext -> ext.selectAs(PoHeader::getBpName, PoInvoiceHeader::getBpName));
+        //查询deliveryNumber
+        wrapper.leftJoin(DeliveryHeader.class, DeliveryHeader::getBillingNumber, PoInvoiceHeader::getInvoiceNumber,
+                ext -> ext.selectAs(DeliveryHeader::getDeliveryNumber, PoInvoiceHeader::getDeliveryNumber));
+
         // 拼接order by
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序

@@ -108,5 +108,7 @@ public class PoInvoiceHeader
 
     @TableField(exist=false)
     private String bpName;
+    @TableField(exist = false)
+    private String deliveryNumber;
 
 }

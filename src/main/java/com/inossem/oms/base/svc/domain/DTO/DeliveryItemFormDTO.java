@@ -4,6 +4,7 @@ import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Pattern;
+import java.util.Date;
 import java.util.List;
 
 @Data
@@ -15,6 +16,10 @@ public class DeliveryItemFormDTO {
     private List<String> status;
 
     private List<String> warehouseCode;
+
+    private Date postingDateStart;
+    private Date postingDateEnd;
+
     @Pattern(regexp = "^deliveryNumber|deliveryQty|deliveredQty|referenceDoc$", message = "order by should within deliveryNumber,deliveryQty,deliveredQty,referenceDoc")
     private String orderBy;
     private Boolean isAsc = true;
