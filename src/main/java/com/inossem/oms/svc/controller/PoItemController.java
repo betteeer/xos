@@ -1,10 +1,12 @@
 package com.inossem.oms.svc.controller;
 
+import com.inossem.oms.base.svc.domain.DTO.PoItemSearchFormDTO;
 import com.inossem.oms.base.svc.domain.PoItem;
 import com.inossem.oms.svc.service.PoItemService;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -34,6 +36,11 @@ public class PoItemController extends BaseController
         return getDataTable(list);
     }
 
+    @PostMapping("/list")
+    public TableDataInfo list(@RequestBody @Validated PoItemSearchFormDTO poItemSearchForm) {
+        startPage();
+        return getDataTable(poItemService.getList(poItemSearchForm));
+    }
     /**
      * 获取【请填写功能名称】详细信息
      */

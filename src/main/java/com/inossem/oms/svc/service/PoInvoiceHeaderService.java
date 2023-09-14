@@ -2,6 +2,7 @@ package com.inossem.oms.svc.service;
 
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.bk.model.BkCoaMappingModel;
@@ -9,6 +10,7 @@ import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.PoInvoiceHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
 import com.inossem.oms.base.svc.mapper.CurrencyExchangeMapper;
 import com.inossem.oms.base.svc.mapper.PoHeaderMapper;
@@ -363,6 +365,31 @@ public class PoInvoiceHeaderService {
 
         return billNumber;
 
+    }
+
+    public List<PoInvoiceHeader> getList(PoInvoiceHeaderFormDTO form) {
+        log.info(">>>查询列表，入参：[{}]", form);
+        MPJLambdaWrapper<PoInvoiceHeader> wrapper = new MPJLambdaWrapper<>();
+        wrapper.selectAll(PoInvoiceHeader.class);
+        // 指定 company code数据范围
+        wrapper.eq(PoInvoiceHeader::getCompanyCode, form.getCompanyCode());
+        // 查询 status
+        wrapper.in(StringUtils.isNotEmpty(form.getCurrencyCode()), PoInvoiceHeader::getCurrencyCode, form.getCurrencyCode());
+        wrapper.between(StringUtils.isNotNull(form.getPostingDateStart()), PoInvoiceHeader::getPostingDate, form.getPostingDateStart(), form.getPostingDateEnd());
+        wrapper.between(StringUtils.isNotNull(form.getNetAmountStart()), PoInvoiceHeader::getNetAmount, form.getNetAmountStart(), form.getNetAmountEnd());
+        wrapper.between(StringUtils.isNotNull(form.getGrossAmountStart()), PoInvoiceHeader::getGrossAmount, form.getGrossAmountStart(), form.getGrossAmountEnd());
+
+        // 查询 warehouse
+        wrapper.nested(StringUtils.isNotEmpty(form.getSearchText()), i -> {
+            i.like(PoInvoiceHeader::getInvoiceNumber, form.getSearchText()).or().like(PoInvoiceHeader::getAccountingDoc, form.getSearchText());
+        });
+        wrapper.leftJoin(PoHeader.class, PoHeader::getPoNumber, PoInvoiceHeader::getReferenceDoc, ext -> ext.selectAs(PoHeader::getBpName, PoInvoiceHeader::getBpName));
+        // 拼接order by
+        wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
+        // 排序的字段值相同则按照id倒序
+        wrapper.orderBy(true, false, PoInvoiceHeader::getId);
+        List<PoInvoiceHeader> poInvoiceHeaders = poInvoiceHeaderMapper.selectJoinList(PoInvoiceHeader.class, wrapper);
+        return poInvoiceHeaders;
     }
 
 

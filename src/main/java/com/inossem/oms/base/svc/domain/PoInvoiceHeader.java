@@ -106,4 +106,7 @@ public class PoInvoiceHeader
     @TableField(exist = false)
     private BigDecimal exchangeRate = BigDecimal.ONE;
 
+    @TableField(exist=false)
+    private String bpName;
+
 }

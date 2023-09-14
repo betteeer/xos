@@ -1,6 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.PoInvoiceHeader;
 
 import java.util.List;
@@ -11,7 +11,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2022-12-09
  */
-public interface PoInvoiceHeaderMapper extends BaseMapper<PoInvoiceHeader>
+public interface PoInvoiceHeaderMapper extends MPJBaseMapper<PoInvoiceHeader>
 {
     /**
      * 查询【请填写功能名称】

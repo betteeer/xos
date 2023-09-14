@@ -1,7 +1,7 @@
 package com.inossem.oms.base.svc.mapper;
 
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.DeliveryItem;
 import com.inossem.oms.base.svc.domain.VO.DeliveryShippedResp;
 import com.inossem.oms.base.svc.domain.VO.PoDeliveryShippedResp;
@@ -16,7 +16,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-10-20
  */
-public interface DeliveryItemMapper extends BaseMapper<DeliveryItem> {
+public interface DeliveryItemMapper extends MPJBaseMapper<DeliveryItem> {
 
     List<DeliveryShippedResp> selectShippedHeader(@Param("soNumber") String soNumber, @Param("companyCode") String companyCode);
 

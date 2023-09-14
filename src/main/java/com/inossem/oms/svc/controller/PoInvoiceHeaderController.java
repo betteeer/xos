@@ -1,9 +1,12 @@
 package com.inossem.oms.svc.controller;
 
+import com.inossem.oms.base.svc.domain.DTO.PoInvoiceHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.PoInvoiceHeader;
 import com.inossem.oms.svc.service.PoInvoiceHeaderService;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
+import com.inossem.sco.common.core.web.page.TableDataInfo;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -32,6 +35,11 @@ public class PoInvoiceHeaderController extends BaseController
     public AjaxResult create(@RequestBody PoInvoiceHeader poInvoiceHeader)
     {
         return toAjax(poInvoiceHeaderService.insertPoInvoiceHeader(poInvoiceHeader));
+    }
+
+    @PostMapping("/list")
+    public TableDataInfo getList(@RequestBody @Validated PoInvoiceHeaderFormDTO form) {
+        return getDataTable(poInvoiceHeaderService.getList(form));
     }
 
 

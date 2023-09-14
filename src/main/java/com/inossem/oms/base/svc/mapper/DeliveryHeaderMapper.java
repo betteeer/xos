@@ -1,7 +1,7 @@
 package com.inossem.oms.base.svc.mapper;
 
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.DeliveryHeader;
 import com.inossem.oms.base.svc.domain.DeliveryItem;
 import com.inossem.oms.base.svc.domain.VO.DeliveryedListQuery;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-10-20
  */
-public interface DeliveryHeaderMapper extends BaseMapper<DeliveryHeader> {
+public interface DeliveryHeaderMapper extends MPJBaseMapper<DeliveryHeader> {
 
     List<DeliveryedListResp> selectDeliveryList(DeliveryedListQuery deliveryedListQueryVo);
 

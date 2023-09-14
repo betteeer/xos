@@ -1,6 +1,7 @@
 package com.inossem.oms.base.svc.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -90,4 +91,6 @@ public class PoItem
     @ApiModelProperty(value = "是否被删除", name = "isDeleted")
     private Integer isDeleted;
 
+    @TableField(exist = false)
+    private String skuName;
 }

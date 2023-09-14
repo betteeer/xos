@@ -11,6 +11,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Date;
 
 
 /**
@@ -130,4 +131,11 @@ public class DeliveryItem {
     @TableField(exist = false)
     private BigDecimal avagUnitPrice;
 
+    @TableField(exist = false)
+    private  String skuName;
+    @TableField(exist=false)
+    private String kittingSkuName;
+    @TableField(exist = false)
+    private Date postingDate;
 }
+

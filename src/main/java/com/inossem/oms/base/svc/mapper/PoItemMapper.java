@@ -1,6 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.PoItem;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-11-04
  */
-public interface PoItemMapper  extends BaseMapper<PoItem> {
+public interface PoItemMapper  extends MPJBaseMapper<PoItem> {
     /**
      * 查询【请填写功能名称】
      *

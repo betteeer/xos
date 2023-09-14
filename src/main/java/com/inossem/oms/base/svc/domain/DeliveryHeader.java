@@ -1,6 +1,7 @@
 package com.inossem.oms.base.svc.domain;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -146,4 +147,8 @@ public class DeliveryHeader {
     private String deliveryNotes;
 
 
+    @TableField(exist = false)
+    private String bpName;
+    @TableField(exist = false)
+    private String orderType;
 }
