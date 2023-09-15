@@ -50,7 +50,7 @@ public class BookKeepingService {
      */
     public SystemConnect getConnect(String companyCode) {
         SystemConnect connect = new SystemConnect();
-        connect.setCompanyCodeEx(Long.parseLong(companyCode));
+        connect.setCompanyCodeEx(companyCode);
         connect.setExSystem("bk");
 //        List<SystemConnect> connects = remoteSvcService.connectLists(connect);
         List<SystemConnect> connects = systemConnectService.selectSyctemConectList(connect);

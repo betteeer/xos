@@ -93,4 +93,6 @@ public class PoItem
 
     @TableField(exist = false)
     private String skuName;
+    @TableField(exist = false)
+    private String orderStatus;
 }

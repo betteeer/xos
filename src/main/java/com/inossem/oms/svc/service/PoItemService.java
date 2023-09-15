@@ -2,6 +2,7 @@ package com.inossem.oms.svc.service;
 
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.svc.domain.DTO.PoItemSearchFormDTO;
+import com.inossem.oms.base.svc.domain.PoHeader;
 import com.inossem.oms.base.svc.domain.PoItem;
 import com.inossem.oms.base.svc.domain.SkuMaster;
 import com.inossem.oms.base.svc.mapper.PoItemMapper;
@@ -120,6 +121,9 @@ public class PoItemService
                             .or().like(PoItem::getPoNumber, form.getSearchText()));
             return ext;
         });
+        // join PoHeader 查询orderStatus
+        wrapper.leftJoin(PoHeader.class, PoHeader::getPoNumber, PoItem::getPoNumber,
+                ext -> ext.selectAs(PoHeader::getOrderStatus,PoItem::getOrderStatus));
         // 拼接order by
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序

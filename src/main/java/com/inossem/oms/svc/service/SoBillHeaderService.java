@@ -595,7 +595,7 @@ public class SoBillHeaderService {
 
     public SystemConnect getConnect(String companyCode) {
         SystemConnect connect = new SystemConnect();
-        connect.setCompanyCodeEx(Long.parseLong(companyCode));
+        connect.setCompanyCodeEx(companyCode);
         connect.setExSystem("bk");
         List<SystemConnect> connects = systemConnectService.selectSyctemConectList(connect);
         if (connects == null || connects.isEmpty()) {

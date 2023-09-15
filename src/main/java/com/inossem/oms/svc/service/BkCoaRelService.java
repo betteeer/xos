@@ -163,7 +163,7 @@ public class BkCoaRelService {
                 cl.setAccountId(o.getString("id"));
                 cl.setAccountName(o.getString("account_code"));
                 cl.setCompanyCode(companyCode);
-                cl.setCompanyCodeEx(Long.parseLong(o.getString("company_code")));
+                cl.setCompanyCodeEx(o.getString("company_code"));
                 cl.setGmtCreate(new Date());
                 cl.setGmtModified(new Date());
                 cl.setIsDeleted(0);

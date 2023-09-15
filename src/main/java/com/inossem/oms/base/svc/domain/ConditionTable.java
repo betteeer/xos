@@ -32,7 +32,7 @@ public class ConditionTable extends BaseEntity
     private String companyCode;
 
     /** company id */
-    private Long companyCodeEx;
+    private String companyCodeEx;
 
     /** condition key
 S001: sales

@@ -32,7 +32,7 @@ public class CoaList extends BaseEntity
     private String companyCode;
 
     /** company id */
-    private Long companyCodeEx;
+    private String companyCodeEx;
 
     /** GL account id */
     private String accountId;

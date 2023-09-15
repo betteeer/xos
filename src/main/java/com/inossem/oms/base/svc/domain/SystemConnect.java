@@ -35,7 +35,7 @@ public class SystemConnect extends BaseEntity
     private String exSystem;
 
     /** company id */
-    private Long companyCodeEx;
+    private String companyCodeEx;
 
     /** user name for external system */
     private String userNameEx;
