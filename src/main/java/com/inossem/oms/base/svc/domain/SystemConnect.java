@@ -2,7 +2,6 @@ package com.inossem.oms.base.svc.domain;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.inossem.sco.common.core.web.domain.BaseEntity;
 import io.swagger.annotations.ApiModel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -17,11 +16,11 @@ import java.util.Date;
  * @date 2022-12-10
  */
 @Data
-@TableName("system_conect")
-@ApiModel("system_conect表")
+@TableName("system_connect")
+@ApiModel("system_connect表")
 @AllArgsConstructor
 @NoArgsConstructor
-public class SystemConnect extends BaseEntity
+public class SystemConnect
 {
     private static final long serialVersionUID = 1L;
 

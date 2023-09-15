@@ -19,4 +19,5 @@ public class ConfigReader {
     public static String getActiveProfile() {
         return getConfig("spring.profiles.active");
     }
+
 }

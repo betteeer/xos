@@ -1,5 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.inossem.oms.base.svc.domain.SystemConnect;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
  * @author ruoyi
  * @date 2022-12-10
  */
-public interface SystemConnectMapper
+public interface SystemConnectMapper extends BaseMapper<SystemConnect>
 {
     /**
      * 查询system connect info

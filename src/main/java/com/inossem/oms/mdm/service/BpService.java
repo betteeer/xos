@@ -3,10 +3,12 @@ package com.inossem.oms.mdm.service;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.inossem.oms.api.bk.api.BookKeepingService;
-import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.Address;
+import com.inossem.oms.base.svc.domain.BusinessPartner;
+import com.inossem.oms.base.svc.domain.Company;
+import com.inossem.oms.base.svc.domain.Contact;
 import com.inossem.oms.base.svc.domain.DTO.BkpAdditionalContactDto;
 import com.inossem.oms.base.svc.domain.DTO.BkpBusinessPartnerDto;
 import com.inossem.oms.base.svc.domain.DTO.BkpShippingAddressDto;
@@ -33,12 +35,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.inossem.sco.common.core.utils.PageUtils.startPage;
 
 /**
  * @author zoutong
@@ -642,7 +644,7 @@ public class BpService {
         BkpBusinessPartnerDto dto = new BkpBusinessPartnerDto();
 
         dto.setId(bp.getId());
-        dto.setCompany_code(Integer.parseInt(bp.getCompanyCode()));
+        dto.setCompany_code(bp.getCompanyCode());
         Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>().eq(Company::getCompanyCode, bp.getCompanyCode()));
         dto.setCompany_id(company.getOrgidEx());
         dto.setGl_account("");

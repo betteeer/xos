@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.BookKeepingService;
+import com.inossem.oms.api.bk.api.ConnectionUtils;
 import com.inossem.oms.api.bk.model.BkCoaMappingModel;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.TaxContentBuilder;
@@ -126,7 +127,11 @@ public class PoInvoiceHeaderService {
                 }
             }
             // 同步bk.
-            String s = syncToBk(poInvoiceHeader, poInvoiceItemList);
+            Boolean activeAp = ConnectionUtils.getConnection(companyCode).getActiveAp();
+            String s = "";
+            if (activeAp) {
+                s = syncToBk(poInvoiceHeader, poInvoiceItemList);
+            }
             LambdaQueryWrapper<PoInvoiceHeader> poInvoiceHeaderLambdaQueryWrapper = new LambdaQueryWrapper<PoInvoiceHeader>()
                     .eq(PoInvoiceHeader::getInvoiceNumber, billNumber)
                     .eq(PoInvoiceHeader::getCompanyCode, companyCode);

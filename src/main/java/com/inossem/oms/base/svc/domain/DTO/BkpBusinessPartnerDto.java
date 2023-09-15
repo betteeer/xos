@@ -18,7 +18,7 @@ public class BkpBusinessPartnerDto {
 
     private String company_id;
 
-    private Integer company_code;
+    private String company_code;
 
     private String contact_name;
 
