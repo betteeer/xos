@@ -19,7 +19,7 @@ public class DeliveryHeaderFormDTO {
     private Date deliveryDateEnd;
     private Date postDateStart;
     private Date postDateEnd;
-
+    private List<String> orderType;
     private List<String> warehouseCode;
 
     private List<String> carrierCode;

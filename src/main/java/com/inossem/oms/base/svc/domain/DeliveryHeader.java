@@ -151,4 +151,6 @@ public class DeliveryHeader {
     private String bpName;
     @TableField(exist = false)
     private String orderType;
+    @TableField(exist = false)
+    private String poNumber;
 }

@@ -50,7 +50,9 @@ public class DeliveryHeaderService {
         wrapper.leftJoin(DeliveryItem.class, DeliveryItem::getDeliveryNumber, DeliveryHeader::getDeliveryNumber, ext -> {
             ext.leftJoin(PoHeader.class, PoHeader::getPoNumber, DeliveryItem::getReferenceDoc)
                     .selectAs(PoHeader::getBpName, DeliveryHeader::getBpName)
-                    .selectAs(PoHeader::getOrderType, DeliveryHeader::getOrderType);
+                    .selectAs(PoHeader::getOrderType, DeliveryHeader::getOrderType)
+                    .selectAs(PoHeader::getPoNumber, DeliveryHeader::getPoNumber);
+            ext.nested(StringUtils.isNotEmpty(form.getOrderType()), i -> i.in(PoHeader::getOrderType, form.getOrderType()));
             return ext;
         });
         // 拼接order by
@@ -84,7 +86,7 @@ public class DeliveryHeaderService {
         wrapper.leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, DeliveryItem::getKittingSku, ext -> ext.selectAs(SkuMaster::getSkuName, DeliveryItem::getKittingSkuName));
         wrapper.leftJoin(DeliveryHeader.class, DeliveryHeader::getDeliveryNumber, DeliveryItem::getDeliveryNumber, ext -> {
             ext.nested(StringUtils.isNotNull(form.getPostingDateStart()), i -> i.between(DeliveryHeader::getPostingDate, form.getPostingDateStart(), form.getPostingDateEnd()));
-            return  ext.selectAs(DeliveryHeader::getPostingDate, DeliveryItem::getPostingDate);
+            return ext.selectAs(DeliveryHeader::getPostingDate, DeliveryItem::getPostingDate);
         });
 
         // 拼接order by
