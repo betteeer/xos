@@ -2,12 +2,11 @@ package com.inossem.oms.common.service;
 
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.inossem.oms.api.kyc.api.KycCommonService;
 import com.inossem.oms.base.svc.domain.MaterialDoc;
 import com.inossem.oms.base.svc.domain.SystemConnect;
 import com.inossem.oms.base.svc.mapper.MaterialDocMapper;
-import com.inossem.oms.base.svc.mapper.SystemConnectMapper;
+import com.inossem.oms.svc.service.SystemConnectService;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -17,6 +16,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -26,7 +26,7 @@ public class OuterSubscribeService {
     private MaterialDocMapper materialDocMapper;
 
     @Resource
-    private SystemConnectMapper systemConnectMapper;
+    private SystemConnectService systemConnectService;
     @Resource
     private KycCommonService kycCommonService;
 
@@ -35,8 +35,11 @@ public class OuterSubscribeService {
         if (existMaterialDoc) {
             return "A";
         } else {
-            SystemConnect systemConnect = systemConnectMapper.selectOne(Wrappers.lambdaQuery(SystemConnect.class).eq(SystemConnect::getCompanyCode, "3002"));
-            if (systemConnect == null) {
+            SystemConnect connect = new SystemConnect();
+            connect.setCompanyCodeEx(companyCode);
+            connect.setExSystem("bk");
+            List<SystemConnect> connects = systemConnectService.selectSyctemConectList(connect);
+            if (connects == null || connects.isEmpty()) {
                 return "Z";
             }
             boolean hasSubscribe = hasSubscribeInKyc(companyCode);

@@ -1,8 +1,6 @@
 useInnerInterfaceCall: false
 KYC:
   baseUrl: http://kyc-test.inossemcanada.com/api-v2-test
-  functions:
-      validSubs: /subscription/validSubs
 spring:
   datasource:
     dynamic:

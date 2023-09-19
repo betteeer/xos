@@ -1,8 +1,6 @@
 useInnerInterfaceCall: false
 KYC:
   baseUrl: https://kyc.inossemtimes.com/api-v2
-  functions:
-    validSubs: /subscription/validSubs
 server:
   port: 9011
   servlet:

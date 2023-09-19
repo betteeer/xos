@@ -54,7 +54,7 @@ public class CompanyController extends BaseController {
 
     @ApiOperation(value = "get company detail",notes = "get company detail")
     @GetMapping("/get/{id}")
-    public AjaxResult getCompany(@PathVariable("id") Long id) {
-        return AjaxResult.success("some-information").withData(companyService.getCompanyById(id));
+    public AjaxResult getCompany(@PathVariable("id") Long id ,@RequestParam("companyCode") String companyCode) {
+        return AjaxResult.success("some-information").withData(companyService.getCompany(companyCode));
     }
 }

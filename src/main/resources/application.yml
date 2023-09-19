@@ -1,4 +1,8 @@
 useInnerInterfaceCall: false
+KYC:
+  functions:
+    validSubs: /subscription/validSubs
+    getCompanyInfoByCode: /mainData/getOneByCode
 server:
   port: 9011
   servlet:

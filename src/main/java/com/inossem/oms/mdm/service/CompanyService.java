@@ -2,20 +2,23 @@ package com.inossem.oms.mdm.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.inossem.oms.base.svc.domain.Company;
+import com.inossem.oms.api.kyc.api.KycCommonService;
+import com.inossem.oms.api.kyc.model.KycCompany;
+import com.inossem.oms.api.kyc.utils.TaxChartUtils;
 import com.inossem.oms.base.svc.domain.Address;
+import com.inossem.oms.base.svc.domain.Company;
 import com.inossem.oms.base.svc.domain.CompanyUserCheck;
 import com.inossem.oms.base.svc.mapper.AddressMapper;
 import com.inossem.oms.base.svc.mapper.CompanyMapper;
 import com.inossem.oms.base.svc.mapper.CompanyUserCheckMapper;
 import com.inossem.oms.mdm.common.Util;
-//import com.inossem.oms.common.utils.UserInfoUtils;
 import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -32,6 +35,8 @@ public class CompanyService {
     @Resource
     private CompanyUserCheckMapper companyUserCheckMapper;
 
+    @Resource
+    private KycCommonService kycCommonService;
     @Transactional(rollbackFor = Exception.class)
     public Company create(Company companyVO) {
         try {
@@ -98,24 +103,22 @@ public class CompanyService {
 
     public Company getCompany(String companyCode) {
         try {
-            Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>()
-                    .eq(Company::getCompanyCode, companyCode));
-            Address address = addressMapper.selectOne(new LambdaQueryWrapper<Address>()
-                    .eq(Address::getCompanyCode, companyCode)
-                    .eq(Address::getType, Util.TYPE_ADDRESS_COMPANY)
-                    .eq(Address::getSubType, Util.SUB_TYPE_ADDRESS_COMPANY)
-                    .eq(Address::getReferenceKey, companyCode)
-                    .eq(Address::getIsDeleted, 0));
-            if (null != address) {
-                company.setAddressId(address.getId());
-                company.setStreet(address.getAddress1());
-                company.setCity(address.getCity());
-                company.setCountry(address.getCountryCode());
-                company.setProvince(address.getRegionCode());
-                company.setPostCode(address.getPostalCode());
-            }
+            KycCompany kycCompany = kycCommonService.getCompanyByCode(companyCode);
+            Company company = new Company();
+            company.setId(Long.valueOf(kycCompany.getId()));
+            company.setCompanyCode(kycCompany.getCode());
+            company.setOrgidEx(kycCompany.getId());
+            company.setCompanyCodeEx(kycCompany.getCode());
+            company.setName(kycCompany.getName());
+            company.setDescription(kycCompany.getName());
+            company.setCurrencyCode(kycCompany.getCurrency());
+            company.setLanguageCode(kycCompany.getLanguage());
+            company.setTimeZone(kycCompany.getTimezone());
+            company.setCompanyEmail(kycCompany.getEmail());
+            company.setDeptid(kycCompany.getId());
+            company.setGstHstTaxCode(TaxChartUtils.getTaxValue(kycCompany.getTaxChart(), "HST / GST"));
             return company;
-        } catch (Exception e) {
+        } catch (IOException e) {
             log.error("get Company failed", e);
             throw new RuntimeException(e);
         }
@@ -146,6 +149,13 @@ public class CompanyService {
         }
     }
 
+    /**
+     * @deprecated
+     * no usage
+     * @param userName
+     * @return
+     */
+    @Deprecated
     public List<Company> list(String userName) {
         try {
             LambdaQueryWrapper<CompanyUserCheck> userCheckLambdaQueryWrapper = new LambdaQueryWrapper<CompanyUserCheck>()
