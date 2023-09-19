@@ -3,6 +3,7 @@ package com.inossem.oms.api.kyc.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.Date;
 import java.util.List;
@@ -10,6 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@ToString
 public class KycCompany {
 
     private String addressLine1;
@@ -115,6 +117,7 @@ public class KycCompany {
     @AllArgsConstructor
     @NoArgsConstructor
     @Data
+    @ToString
     public static class TaxItem {
         private String name;
         private String value;

@@ -59,8 +59,7 @@ public class DeliveryHeaderService {
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序
         wrapper.orderBy(true, false, DeliveryHeader::getId);
-        List<DeliveryHeader> deliveryItems = deliveryHeaderMapper.selectJoinList(DeliveryHeader.class, wrapper);
-        return deliveryItems;
+        return deliveryHeaderMapper.selectJoinList(DeliveryHeader.class, wrapper);
 
     }
 
@@ -93,7 +92,6 @@ public class DeliveryHeaderService {
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序
         wrapper.orderBy(true, false, DeliveryHeader::getId);
-        List<DeliveryItem> deliveryItems = deliveryItemMapper.selectJoinList(DeliveryItem.class, wrapper);
-        return deliveryItems;
+        return deliveryItemMapper.selectJoinList(DeliveryItem.class, wrapper);
     }
 }

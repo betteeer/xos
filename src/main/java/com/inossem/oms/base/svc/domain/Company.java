@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.inossem.oms.api.kyc.model.KycCompany;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 
 import java.util.Date;
+import java.util.List;
 
 @Data
 @ApiModel("公司表")
@@ -122,4 +124,7 @@ public class Company {
     @ApiModelProperty(value = "邮编",name = "postCode")
     @TableField(exist = false)
     private String postCode;
+
+    @TableField(exist = false)
+    private List<KycCompany.TaxItem> taxCharts;
 }

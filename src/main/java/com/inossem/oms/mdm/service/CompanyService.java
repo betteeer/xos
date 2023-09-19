@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.inossem.oms.api.kyc.api.KycCommonService;
 import com.inossem.oms.api.kyc.model.KycCompany;
-import com.inossem.oms.api.kyc.utils.TaxChartUtils;
 import com.inossem.oms.base.svc.domain.Address;
 import com.inossem.oms.base.svc.domain.Company;
 import com.inossem.oms.base.svc.domain.CompanyUserCheck;
@@ -116,7 +115,7 @@ public class CompanyService {
             company.setTimeZone(kycCompany.getTimezone());
             company.setCompanyEmail(kycCompany.getEmail());
             company.setDeptid(kycCompany.getId());
-            company.setGstHstTaxCode(TaxChartUtils.getTaxValue(kycCompany.getTaxChart(), "HST / GST"));
+            company.setTaxCharts(kycCompany.getTaxChart());
             return company;
         } catch (IOException e) {
             log.error("get Company failed", e);
