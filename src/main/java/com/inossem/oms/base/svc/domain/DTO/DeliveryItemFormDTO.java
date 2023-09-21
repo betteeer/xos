@@ -14,9 +14,8 @@ public class DeliveryItemFormDTO {
     private String searchText;
 
     private List<String> status;
-
+    private List<String> skuType;
     private List<String> warehouseCode;
-
     private Date postingDateStart;
     private Date postingDateEnd;
 

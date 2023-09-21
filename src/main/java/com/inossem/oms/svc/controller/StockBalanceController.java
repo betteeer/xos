@@ -1,6 +1,7 @@
 package com.inossem.oms.svc.controller;
 
 
+import com.inossem.oms.base.svc.domain.DTO.BalanceSearchFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.WarehouseStockFormDTO;
 import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
 import com.inossem.oms.base.svc.vo.*;
@@ -50,6 +51,11 @@ public class StockBalanceController extends BaseController {
         return getDataTable(list);
     }
 
+    @PostMapping("/list")
+    public TableDataInfo getList(@RequestBody @Validated BalanceSearchFormDTO form) {
+        startPage();
+        return getDataTable(stockBalanceNewService.getList(form));
+    }
 
     /**
      * 库存报警查询 (sku低于安全库存的库存列表)

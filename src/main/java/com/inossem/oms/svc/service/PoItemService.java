@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -95,15 +96,35 @@ public class PoItemService
     public List<PoItem> getList(PoItemSearchFormDTO form) {
         log.info(">>>查询列表，入参：[{}]", form);
         MPJLambdaWrapper<PoItem> wrapper = new MPJLambdaWrapper<>();
+        if (form.getItemType() == null) {
+            form.setItemType(new ArrayList<>());
+        }
         wrapper.selectAll(PoItem.class);
         // 指定 company code数据范围
         wrapper.eq(PoItem::getCompanyCode, form.getCompanyCode());
         // 保留有效的数据
         wrapper.eq(PoItem::getIsDeleted, 0);
-        // 拼接 itemType
-        wrapper.in(StringUtils.isNotEmpty(form.getItemType()), PoItem::getItemType, form.getItemType());
-        // 拼接 warehouse
-        wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), PoItem::getWarehouseCode, form.getWarehouseCode());
+//        // 拼接 itemType
+//        wrapper.in(StringUtils.isNotEmpty(form.getItemType()), PoItem::getItemType, form.getItemType());
+        // itemType全选或者全不选
+        if (form.getItemType().size() == 2 || form.getItemType().size() == 0) {
+            // warehouse不是空的
+            // 那么需要筛选 itemType=INVENTORY，WAREHOUSE满足条件的 + 所有的itemType=SERVICE的
+            if (StringUtils.isNotEmpty(form.getWarehouseCode())) {
+                wrapper.nested(i -> {
+                   i.eq(PoItem::getItemType, "IN").in(PoItem::getWarehouseCode, form.getWarehouseCode())
+                           .or().eq(PoItem::getItemType, "SE");
+                });
+            }
+            //如果warehouse是空的
+            // 那么需要筛选 所有
+        } else {
+//            itemType只有一种, 先只筛这一种，然后如果是IN的，还需要再筛选warehouse
+            wrapper.in(PoItem::getItemType, form.getItemType());
+            if (form.getItemType().contains("IN")) {
+                wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), PoItem::getWarehouseCode, form.getWarehouseCode());
+            }
+        }
         // 拼接unit price
         wrapper.between(StringUtils.isNotNull(form.getUnitPriceStart()), PoItem::getUnitPrice, form.getUnitPriceStart(), form.getUnitPriceEnd());
         // 拼接purchase qty

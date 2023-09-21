@@ -5,11 +5,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.toolkit.JoinWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.inossem.oms.base.svc.domain.MaterialDoc;
-import com.inossem.oms.base.svc.domain.SkuMaster;
-import com.inossem.oms.base.svc.domain.StockBalance;
+import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.BalanceSearchFormDTO;
 import com.inossem.oms.base.svc.domain.VO.SimpleStockBalanceVo;
-import com.inossem.oms.base.svc.domain.Warehouse;
 import com.inossem.oms.base.svc.mapper.StockBalanceMapper;
 import com.inossem.oms.base.svc.vo.QueryStockBalanceResVo;
 import com.inossem.oms.base.svc.vo.QueryStockListVo;
@@ -394,5 +392,34 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
                 return false;
             }
         }).collect(Collectors.toList());
+    }
+
+    public List<StockBalance> getList(BalanceSearchFormDTO form) {
+        MPJLambdaWrapper<StockBalance> wrapper = new MPJLambdaWrapper<>();
+        wrapper.selectAll(StockBalance.class);
+        wrapper.eq(StockBalance::getCompanyCode, form.getCompanyCode());
+        wrapper.in(StringUtils.isNotEmpty(form.getWarehouse()), StockBalance::getWarehouseCode, form.getWarehouse());
+        wrapper.between(StringUtils.isNotNull(form.getTotalQtyStart()), StockBalance::getTotalQty, form.getTotalQtyStart(), form.getTotalQtyEnd());
+        wrapper.between(StringUtils.isNotNull(form.getTotalOnhandQtyStart()), StockBalance::getTotalOnhandQty, form.getTotalOnhandQtyStart(), form.getTotalOnhandQtyEnd());
+        wrapper.between(StringUtils.isNotNull(form.getTotalBlockQtyStart()), StockBalance::getTotalBlockQty, form.getTotalBlockQtyStart(), form.getTotalBlockQtyEnd());
+        wrapper.between(StringUtils.isNotNull(form.getTotalTransferQtyStart()), StockBalance::getTotalTransferQty, form.getTotalTransferQtyStart(), form.getTotalTransferQtyEnd());
+        wrapper.between(StringUtils.isNotNull(form.getAveragePriceStart()), StockBalance::getAveragePrice, form.getAveragePriceStart(), form.getAveragePriceEnd());
+        wrapper.leftJoin(SkuMaster.class,SkuMaster::getSkuNumber, StockBalance::getSkuNumber,  ext -> {
+            ext.nested(StringUtils.isNotEmpty(form.getSearchText()),
+                    i -> i.like(SkuMaster::getSkuName, form.getSearchText())
+                            .or().like(SkuMaster::getSkuNumber, form.getSearchText()));
+            ext.in(StringUtils.isNotEmpty(form.getSkuGroup()), SkuMaster::getSkuGroupCode, form.getSkuGroup());
+            if (form.getSafetyStock().equals("BelowSafety")) {
+                ext.isNotNull(SkuMaster::getSkuSatetyStock).gt(SkuMaster::getSkuSatetyStock, StockBalance::getTotalOnhandQty);
+            } else if (form.getSafetyStock().equals("Safety")) {
+                ext.isNotNull(SkuMaster::getSkuSatetyStock);
+            }
+            return ext.selectAs(SkuMaster::getSkuSatetyStock, StockBalance::getSkuSatetyStock)
+                    .selectAs(SkuMaster::getSkuGroupName, StockBalance::getSkuGroupName);
+        });
+        wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
+        // 排序的字段值相同则按照id倒序
+        wrapper.orderBy(true, false, StockBalance::getId);
+        return stockBalanceMapper.selectJoinList(StockBalance.class, wrapper);
     }
 }

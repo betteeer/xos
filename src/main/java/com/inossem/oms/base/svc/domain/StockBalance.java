@@ -107,5 +107,9 @@ public class StockBalance
     //带有尾差的移动平均价格
     @TableField(exist = false)
     private BigDecimal averagePriceNumber = BigDecimal.ONE;
+    @TableField(exist = false)
+    private BigDecimal skuSatetyStock;
+    @TableField(exist = false)
+    private String skuGroupName;
 
 }
