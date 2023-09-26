@@ -39,6 +39,7 @@ public class PoInvoiceHeaderController extends BaseController
 
     @PostMapping("/list")
     public TableDataInfo getList(@RequestBody @Validated PoInvoiceHeaderFormDTO form) {
+        startPage();
         return getDataTable(poInvoiceHeaderService.getList(form));
     }
 
