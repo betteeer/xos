@@ -409,13 +409,22 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
                     i -> i.like(SkuMaster::getSkuName, form.getSearchText())
                             .or().like(SkuMaster::getSkuNumber, form.getSearchText()));
             ext.in(StringUtils.isNotEmpty(form.getSkuGroup()), SkuMaster::getSkuGroupCode, form.getSkuGroup());
-            if (form.getSafetyStock().equals("BelowSafety")) {
-                ext.isNotNull(SkuMaster::getSkuSatetyStock).gt(SkuMaster::getSkuSatetyStock, StockBalance::getTotalOnhandQty);
-            } else if (form.getSafetyStock().equals("Safety")) {
-                ext.isNotNull(SkuMaster::getSkuSatetyStock);
-            }
+
+            ext.and(form.getSafetyStock().size() > 0, e -> {
+                if (form.getSafetyStock().contains("None")) {
+                    e.or().isNull(SkuMaster::getSkuSatetyStock);
+                }
+                if (form.getSafetyStock().contains("BelowSafety")) {
+                    e.or().isNotNull(SkuMaster::getSkuSatetyStock).gt(SkuMaster::getSkuSatetyStock, StockBalance::getTotalOnhandQty);
+                }
+                if (form.getSafetyStock().contains("Safety")) {
+                    e.or().isNotNull(SkuMaster::getSkuSatetyStock).le(SkuMaster::getSkuSatetyStock, StockBalance::getTotalOnhandQty);
+                }
+            });
+
             return ext.selectAs(SkuMaster::getSkuSatetyStock, StockBalance::getSkuSatetyStock)
-                    .selectAs(SkuMaster::getSkuGroupName, StockBalance::getSkuGroupName);
+                    .selectAs(SkuMaster::getSkuGroupName, StockBalance::getSkuGroupName)
+                    .selectAs(SkuMaster::getSkuName, StockBalance::getSkuName);
         });
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序

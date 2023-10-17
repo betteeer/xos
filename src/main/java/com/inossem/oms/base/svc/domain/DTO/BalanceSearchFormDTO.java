@@ -15,7 +15,7 @@ public class BalanceSearchFormDTO {
     private String searchText;
 
     // None Safety BelowSafety
-    private String safetyStock;
+    private List<String> safetyStock;
 
     private List<String> warehouse;
 

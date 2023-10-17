@@ -54,6 +54,11 @@ public class MaterialDocController extends BaseController {
         return AjaxResult.success().withData(materialDoc);
     }
 
+    @PostMapping("/quick/add")
+    public AjaxResult quickAdd(@RequestBody QuickCreateMaterialDocVo quickCreateMaterialDocVo) {
+        return AjaxResult.success().withData(materialDocNewService.quickAdd(quickCreateMaterialDocVo));
+    }
+
     @GetMapping("/getunreversed/{docNumber}/{companyCode}/{showAll}")
     @ApiOperation(value = "查询未回退的物料凭证列表",notes = "通过docNum查询物料凭证")
     public AjaxResult<QueryUnReversedResVo> getUnReversedByDocNumber(@PathVariable("docNumber") String docNumber, @PathVariable("companyCode") String companyCode, @PathVariable("showAll") Integer showAll) {

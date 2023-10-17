@@ -111,5 +111,7 @@ public class StockBalance
     private BigDecimal skuSatetyStock;
     @TableField(exist = false)
     private String skuGroupName;
+    @TableField(exist = false)
+    private String skuName;
 
 }

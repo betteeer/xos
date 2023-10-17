@@ -6,16 +6,13 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.common.constant.ModuleConstant;
-import com.inossem.oms.base.svc.domain.MaterialDoc;
-import com.inossem.oms.base.svc.domain.MovementType;
-import com.inossem.oms.base.svc.domain.SkuMaster;
+import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.PreMaterialDocVo;
-import com.inossem.oms.base.svc.domain.Warehouse;
+import com.inossem.oms.base.svc.enums.TransactionType;
 import com.inossem.oms.base.svc.mapper.MaterialDocMapper;
 import com.inossem.oms.base.svc.mapper.MovementTypeMapper;
-import com.inossem.oms.base.svc.vo.QueryMaterialDocListVo;
-import com.inossem.oms.base.svc.vo.QueryMaterialDocResVo;
-import com.inossem.oms.base.svc.vo.ReversedMaterialDocVO;
+import com.inossem.oms.base.svc.mapper.StockBalanceMapper;
+import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.base.utils.NumberWorker;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.inossem.sco.common.core.utils.StringUtils;
@@ -48,6 +45,11 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
     @Resource
     private MovementTypeMapper movementTypeMapper;
 
+    @Resource
+    private StockBalanceMapper stockBalanceMapper;
+
+    @Resource
+    private MaterialDocService materialDocService;
     public List<MaterialDoc> generateMaterialDoc(String companyCode, List<PreMaterialDocVo> preMaterialDocVos) {
         if (StringUtils.isEmpty(preMaterialDocVos)) {
             throw new ServiceException("no item pass to generate material doc");
@@ -217,5 +219,42 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
         });
         saveOrUpdateBatch(materialDocs);
         return materialDocs;
+    }
+
+    public List<MaterialDoc> quickAdd(QuickCreateMaterialDocVo q) {
+        // 找到匹配的类型
+        TransactionType tt;
+        try {
+            tt = TransactionType.valueOf(q.getTransactionType());
+        } catch (IllegalArgumentException e) {
+            throw new ServiceException("Undefined transaction type");
+        }
+        // 构建material doc中add方法需要的参数
+        CreateMaterialDocVo cmd = new CreateMaterialDocVo();
+        cmd.setCompanyCode(q.getCompanyCode());
+        cmd.setPostingDate(q.getPostingDate());
+        cmd.setWarehouseCode(q.getWarehouseCode());
+        cmd.setStockStatus(tt.getStockStatus());
+        cmd.setMovementType(tt.getMovementType());
+
+        //  从stock balance中查询sku数据，设置对应的uom和currency
+        LambdaQueryWrapper<StockBalance> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(StockBalance::getSkuNumber, q.getSkuNumber());
+        wrapper.eq(StockBalance::getWarehouseCode, q.getWarehouseCode());
+        StockBalance stockBalance = stockBalanceMapper.selectOne(wrapper);
+        if (StringUtils.isNull(stockBalance)) {
+            throw new ServiceException("can't find matched sku in stock balance");
+        }
+        CreateMaterialDocSkuVo sku = new CreateMaterialDocSkuVo();
+        sku.setSkuQty(q.getSkuQty());
+        sku.setSkuNumber(q.getSkuNumber());
+        sku.setBasicUom(stockBalance.getBasicUom());
+        sku.setCurrencyCode(stockBalance.getCurrencyCode());
+        List<CreateMaterialDocSkuVo> createMaterialDocSkuVos = new ArrayList<>();
+        createMaterialDocSkuVos.add(sku);
+        cmd.setCreateMaterialDocSkuVoList(createMaterialDocSkuVos);
+
+        // 准备好了，交给materialDocService
+        return materialDocService.add(cmd);
     }
 }
