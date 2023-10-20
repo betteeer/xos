@@ -1,5 +1,6 @@
 package com.inossem.oms.svc.controller;
 
+import com.inossem.oms.base.svc.domain.DTO.MaterialDocFormDTO;
 import com.inossem.oms.base.svc.domain.MaterialDoc;
 import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.svc.service.MaterialDocNewService;
@@ -37,6 +38,11 @@ public class MaterialDocController extends BaseController {
         startPage();
         List<QueryMaterialDocResVo> list = materialDocNewService.getDocList(queryMaterialDocListVo);
         return getDataTable(list);
+    }
+    @PostMapping("/list")
+    public TableDataInfo getList(@RequestBody @Validated MaterialDocFormDTO mdf) {
+        startPage();
+        return getDataTable(materialDocNewService.getMaterialDocsList(mdf));
     }
 //    @GetMapping("/list1")
 //    @ApiOperation(value = "查询物料凭证列表",notes = "通过sku_code,sku_name,order_num,wareHourse_code分页查询物料凭证列表")

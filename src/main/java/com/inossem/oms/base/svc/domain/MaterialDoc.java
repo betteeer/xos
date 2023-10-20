@@ -139,6 +139,8 @@ public class MaterialDoc
     @ApiModelProperty(value = "accountingDoc",name = "accountingDoc")
     private String accountingDoc;
 
+    @TableField(exist = false)
+    private String skuName;
 
     @Override
     public String toString() {

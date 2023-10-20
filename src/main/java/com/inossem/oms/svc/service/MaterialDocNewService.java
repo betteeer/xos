@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.MaterialDocFormDTO;
 import com.inossem.oms.base.svc.domain.VO.PreMaterialDocVo;
 import com.inossem.oms.base.svc.enums.TransactionType;
 import com.inossem.oms.base.svc.mapper.MaterialDocMapper;
@@ -256,5 +257,28 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
 
         // 准备好了，交给materialDocService
         return materialDocService.add(cmd);
+    }
+
+    public List<MaterialDoc> getMaterialDocsList(MaterialDocFormDTO form) {
+        MPJLambdaWrapper<MaterialDoc> wrapper = new MPJLambdaWrapper<>();
+        wrapper.selectAll(MaterialDoc.class);
+        wrapper.eq(MaterialDoc::getCompanyCode, form.getCompanyCode());
+        wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), MaterialDoc::getWarehouseCode, form.getWarehouseCode());
+        wrapper.in(StringUtils.isNotEmpty(form.getTransactionType()), MaterialDoc::getMovementType, form.getTransactionType());
+        wrapper.in(StringUtils.isNotEmpty(form.getStockStatus()), MaterialDoc::getStockStatus, form.getStockStatus());
+        wrapper.between(StringUtils.isNotNull(form.getPostingDateStart()), MaterialDoc::getPostingDate, form.getPostingDateStart(), form.getPostingDateEnd());
+        wrapper.between(StringUtils.isNotNull(form.getQuantityStart()), MaterialDoc::getSkuQty, form.getQuantityStart(), form.getQuantityEnd());
+        wrapper.between(StringUtils.isNotNull(form.getTotalAmountStart()), MaterialDoc::getTotalAmount, form.getTotalAmountStart(), form.getTotalAmountEnd());
+        wrapper.leftJoin(SkuMaster.class, SkuMaster::getSkuNumber, MaterialDoc::getSkuNumber, ext -> {
+            ext.nested(StringUtils.isNotEmpty(form.getSearchText()),
+                    i -> i.like(SkuMaster::getSkuName, form.getSearchText())
+                            .or().like(SkuMaster::getSkuNumber, form.getSearchText())
+                            .or().like(MaterialDoc::getDocNumber, form.getSearchText())
+                            .or().like(MaterialDoc::getReferenceNumber, form.getSearchText())
+                    );
+            return ext.selectAs(SkuMaster::getSkuName, MaterialDoc::getSkuName);
+        });
+        wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
+        return materialDocMapper.selectJoinList(MaterialDoc.class, wrapper);
     }
 }
