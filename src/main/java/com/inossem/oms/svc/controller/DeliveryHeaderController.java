@@ -4,12 +4,10 @@ import com.inossem.oms.base.svc.domain.DTO.DeliveryHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.DeliveryItemFormDTO;
 import com.inossem.oms.svc.service.DeliveryHeaderService;
 import com.inossem.sco.common.core.web.controller.BaseController;
+import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -29,5 +27,11 @@ public class DeliveryHeaderController extends BaseController {
     public TableDataInfo getItem(@RequestBody @Validated DeliveryItemFormDTO form) {
         startPage();
         return getDataTable(deliveryHeaderService.getItem(form));
+    }
+
+    @GetMapping("/next/number")
+    public AjaxResult<String> getNextDeliveryNumber(@RequestParam String soNumber, @RequestParam String companyCode) {
+        String num = deliveryHeaderService.getNextDeliveryNumber(soNumber, companyCode);
+        return AjaxResult.success().withData(num);
     }
 }

@@ -1,5 +1,6 @@
 package com.inossem.oms.svc.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.DTO.DeliveryHeaderFormDTO;
@@ -11,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -111,5 +113,21 @@ public class DeliveryHeaderService {
         // 排序的字段值相同则按照id倒序
         wrapper.orderBy(true, false, DeliveryHeader::getId);
         return deliveryItemMapper.selectJoinList(DeliveryItem.class, wrapper);
+    }
+
+    public String getNextDeliveryNumber(String soNumber, String companyCode) {
+        QueryWrapper<DeliveryItem> deliveryItemQueryWrapper = new QueryWrapper<>();
+        deliveryItemQueryWrapper.eq("reference_doc", soNumber);
+        deliveryItemQueryWrapper.eq("company_code", companyCode);
+        deliveryItemQueryWrapper.orderByDesc("id");
+        deliveryItemQueryWrapper.last("limit 1");
+        DeliveryItem deliveryItem = deliveryItemMapper.selectOne(deliveryItemQueryWrapper);
+        String deliveryNumber = null;
+        if (deliveryItem != null) {
+            deliveryNumber = BigDecimal.ONE.add(new BigDecimal(deliveryItem.getDeliveryNumber())).toString();
+        } else {
+            deliveryNumber = "9" + soNumber + "001";
+        }
+        return deliveryNumber;
     }
 }
