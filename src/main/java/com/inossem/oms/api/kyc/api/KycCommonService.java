@@ -24,7 +24,7 @@ public class KycCommonService {
     private String getRequestUrl(String key) {
         return ConfigReader.getConfig("KYC.baseUrl") + ConfigReader.getConfig(key);
     }
-    public JSONObject getValidSubscribe(String companyCode) throws IOException {
+    public JSONObject getValidSubscribe(String companyCode, Boolean returnAll) throws IOException {
         OkHttpClient client = new OkHttpClient().newBuilder()
                 .connectTimeout(30, TimeUnit.SECONDS)
                 .build();
@@ -43,9 +43,13 @@ public class KycCommonService {
             throw new RuntimeException("调用kyc接口失败");
         }
         String responseBody = response.body().string();
+        if (returnAll) {
+            return JSONObject.parseObject(responseBody);
+        }
         logger.info("接收到的数据为：{}", responseBody);
         return JSONObject.parseObject(responseBody).getJSONObject("body");
     }
+
 
     public KycCompany getCompanyByCode(String companyCode) throws IOException {
         OkHttpClient client = new OkHttpClient().newBuilder()
@@ -82,5 +86,35 @@ public class KycCommonService {
         KycCompany company = JSONObject.parseObject(obj.toString(), KycCompany.class);
         company.setTaxChart(taxItems);
         return company;
+    }
+
+    public JSONObject getMenu(String account) throws IOException {
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+        String url = getRequestUrl("KYC.functions.getMenu");
+        Map<String, Object> paramsMap = new HashMap<>();
+        paramsMap.put("account", account);
+
+        String params = JSONObject.toJSONString(paramsMap,
+                JSONWriter.Feature.WriteNullStringAsEmpty);
+        logger.info("params:{}", params);
+
+        RequestBody body = RequestBody.Companion.create(params, MediaType.get("application/json"));
+
+        Request request = new Request.Builder()
+                .url(url)
+                .post(body)
+                .addHeader("Content-Type", "application/json")
+                .build();
+
+        String response = client
+                .newCall(request)
+                .execute().body().string();
+        JSONObject obj = JSONObject.parseObject(response);
+        if (obj == null) {
+            throw new RuntimeException("调用kyc获取menu信息失败");
+        };
+        return obj;
     }
 }

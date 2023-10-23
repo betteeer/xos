@@ -3,12 +3,15 @@ KYC:
   functions:
     validSubs: /subscription/validSubs
     getCompanyInfoByCode: /mainData/getOneByCode
+    getMenu: /menuConfig/menu
 server:
   port: 9011
   servlet:
     context-path: /oms
 
 spring:
+  thymeleaf:
+    encoding: UTF-8
   profiles:
     active: "@spring.profiles.active@"
 #    active: dev

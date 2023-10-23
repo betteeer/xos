@@ -48,7 +48,7 @@ public class OuterSubscribeService {
     }
 
     private boolean hasSubscribeInKyc(String companyCode) throws IOException {
-        JSONObject validSubscribe = kycCommonService.getValidSubscribe(companyCode);
+        JSONObject validSubscribe = kycCommonService.getValidSubscribe(companyCode, false);
         if (validSubscribe == null) return false;
         Set<String> subSets = validSubscribe.keySet();
         Optional<String> om = subSets.stream().filter(s -> s.contains("OM")).findFirst();
