@@ -646,7 +646,7 @@ public class BpService {
         dto.setId(bp.getId());
         dto.setCompany_code(bp.getCompanyCode());
         Company company = companyMapper.selectOne(new LambdaQueryWrapper<Company>().eq(Company::getCompanyCode, bp.getCompanyCode()));
-        dto.setCompany_id(company.getOrgidEx());
+        dto.setCompany_id(company != null ? company.getOrgidEx() : bp.getCompanyCode());
         dto.setGl_account("");
         dto.setContact_name(bp.getBpName());
         dto.setTel(bp.getBpTel());
@@ -655,7 +655,7 @@ public class BpService {
         dto.setContact_id(bp.getBpNumber());
 
         List<AddressVO> officeList = bp.getOfficeList();
-        if (!officeList.isEmpty()){
+        if (officeList != null && !officeList.isEmpty()){
             AddressVO office = officeList.get(0);
             dto.setOffice_street(office.getStreet());
             dto.setOffice_city(office.getCity());
@@ -665,7 +665,7 @@ public class BpService {
         }
 
         List<AddressVO> billToList = bp.getBilltoList();
-        if (!billToList.isEmpty()){
+        if (billToList != null && !billToList.isEmpty()){
             AddressVO billTo = billToList.get(0);
             dto.setBilling_street(billTo.getStreet());
             dto.setBilling_city(billTo.getCity());
@@ -676,7 +676,7 @@ public class BpService {
 
         List<BkpShippingAddressDto> shippingAddressList = new ArrayList<>();
         List<AddressVO> shipToList = bp.getShiptoList();
-        if (!shipToList.isEmpty()) {
+        if (shipToList != null && !shipToList.isEmpty()) {
             for (AddressVO shipTo : shipToList) {
                 BkpShippingAddressDto shippingAddress = new BkpShippingAddressDto();
                 shippingAddress.setId(shipTo.getId());
@@ -694,7 +694,7 @@ public class BpService {
 
         List<BkpAdditionalContactDto> additionalContactList = new ArrayList<>();
         List<Contact> contactList = bp.getContactList();
-        if (!contactList.isEmpty()) {
+        if (contactList != null && !contactList.isEmpty()) {
             for (Contact contact : contactList) {
                 BkpAdditionalContactDto additionalContact = new BkpAdditionalContactDto();
                 additionalContact.setId(contact.getId());
