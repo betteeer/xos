@@ -47,4 +47,5 @@ public class PoDeliveryShippedResp {
     @ApiModelProperty(value = "poOrderItems", name = "poOrderItems")
     private List<PoOrderItems> poOrderItems;
 
+    private String shippingReference;
 }

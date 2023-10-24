@@ -146,6 +146,8 @@ public class DeliveryHeader {
     @ApiModelProperty(value = "备注", name = "deliveryNotes")
     private String deliveryNotes;
 
+    private String shippingReference;
+
 
     @TableField(exist = false)
     private String bpName;

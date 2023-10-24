@@ -124,4 +124,7 @@ public class PoHeader
     @TableField(exist = false)
     private Date invoiceDate;
 
+    private BigDecimal clearanceFee;
+    private BigDecimal logisticsCosts;
+    private BigDecimal otherExpenses;
 }

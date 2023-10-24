@@ -98,4 +98,8 @@ public class SoOrderHeaderInfoVo {
     @ApiModelProperty(value = "so order header notes", name = "soNotes")
     private String soNotes;
 
+    private BigDecimal clearanceFee;
+    private BigDecimal logisticsCosts;
+    private BigDecimal otherExpenses;
+
 }

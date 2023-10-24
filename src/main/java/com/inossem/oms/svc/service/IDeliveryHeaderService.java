@@ -670,6 +670,7 @@ public class IDeliveryHeaderService {
         dh.setCarrierCode(deliveryInfoVo.getCarrierCode());
         dh.setTrackingNumber(deliveryInfoVo.getTrackingNumber());
         dh.setDeliveryNotes(deliveryInfoVo.getDeliveryNotes());
+        dh.setShippingReference(deliveryInfoVo.getShippingReference());
         Date date = new Date();
         dh.setGmtCreate(date);
         dh.setGmtModified(date);
@@ -1029,6 +1030,7 @@ public class IDeliveryHeaderService {
         dh.setCreateBy(String.valueOf(1));
         dh.setModifiedBy(String.valueOf(1));
         dh.setIsDeleted(0);
+        dh.setShippingReference(deliveryInfoVo.getShippingReference());
         return dh;
     }
 

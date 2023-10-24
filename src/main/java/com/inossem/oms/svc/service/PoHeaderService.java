@@ -325,6 +325,10 @@ public class PoHeaderService {
         header.setGmtModified(date);
         header.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
         header.setIsDeleted(0);
+
+        header.setClearanceFee(po.getClearanceFee());
+        header.setLogisticsCosts(po.getLogisticsCosts());
+        header.setOtherExpenses(po.getOtherExpenses());
         return header;
     }
 
@@ -356,6 +360,9 @@ public class PoHeaderService {
         header.setCompanyCode(po.getCompanyCode());
         header.setCurrencyCode(po.getCurrencyCode());
         header.setDeliveryDate(po.getDeliveryDate());
+        header.setClearanceFee(po.getClearanceFee());
+        header.setLogisticsCosts(po.getLogisticsCosts());
+        header.setOtherExpenses(po.getOtherExpenses());
         if ("DSPO".equals(po.getOrderType())) {
             header.setDropshipComplete(0);
         }

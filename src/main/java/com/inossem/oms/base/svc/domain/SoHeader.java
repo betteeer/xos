@@ -130,4 +130,9 @@ public class SoHeader {
 //    @TableField(exist = false)
     private String bpName;
 
+
+    private BigDecimal clearanceFee;
+    private BigDecimal logisticsCosts;
+    private BigDecimal otherExpenses;
+
 }

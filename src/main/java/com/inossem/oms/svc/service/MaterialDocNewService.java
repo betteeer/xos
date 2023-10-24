@@ -266,6 +266,7 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
         wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), MaterialDoc::getWarehouseCode, form.getWarehouseCode());
         wrapper.in(StringUtils.isNotEmpty(form.getTransactionType()), MaterialDoc::getMovementType, form.getTransactionType());
         wrapper.in(StringUtils.isNotEmpty(form.getStockStatus()), MaterialDoc::getStockStatus, form.getStockStatus());
+        wrapper.in(StringUtils.isNotEmpty(form.getReferenceType()), MaterialDoc::getReferenceType, form.getReferenceType());
         wrapper.between(StringUtils.isNotNull(form.getPostingDateStart()), MaterialDoc::getPostingDate, form.getPostingDateStart(), form.getPostingDateEnd());
         wrapper.between(StringUtils.isNotNull(form.getQuantityStart()), MaterialDoc::getSkuQty, form.getQuantityStart(), form.getQuantityEnd());
         wrapper.between(StringUtils.isNotNull(form.getTotalAmountStart()), MaterialDoc::getTotalAmount, form.getTotalAmountStart(), form.getTotalAmountEnd());

@@ -68,4 +68,6 @@ public class DeliveryInfoVo {
 
     @ApiModelProperty(value = "deliveryItemList", name = "deliveryItemList")
     List<DeliveryItem>  deliveryItemList;
+
+    private String shippingReference;
 }

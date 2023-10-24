@@ -157,6 +157,11 @@ public class ISoHeaderService {
         soHeader.setGmtModified(date);
         soHeader.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
         soHeader.setIsDeleted(0);
+
+        soHeader.setClearanceFee(soOrderHeaderInfoVo.getClearanceFee());
+        soHeader.setLogisticsCosts(soOrderHeaderInfoVo.getLogisticsCosts());
+        soHeader.setOtherExpenses(soOrderHeaderInfoVo.getOtherExpenses());
+
         return soHeader;
     }
 

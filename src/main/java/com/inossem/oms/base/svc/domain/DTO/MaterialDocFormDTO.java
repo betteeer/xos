@@ -18,6 +18,8 @@ public class MaterialDocFormDTO {
 
     private List<String> warehouseCode;
 
+    private List<String> referenceType;
+
     // A: Available
     // B: Blocked
     // T: Intransit(for sprint2)

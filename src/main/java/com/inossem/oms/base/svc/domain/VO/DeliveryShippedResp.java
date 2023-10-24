@@ -70,4 +70,5 @@ public class DeliveryShippedResp {
     @TableField(exist = false)
     private BigDecimal totalAmount = BigDecimal.ZERO;
 
+    private String shippingReference;
 }

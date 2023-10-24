@@ -95,4 +95,8 @@ public class PoSaveVo {
 
     @ApiModelProperty(value = "so order header notes", name = "poNotes")
     private String poNotes;
+
+    private BigDecimal clearanceFee;
+    private BigDecimal logisticsCosts;
+    private BigDecimal otherExpenses;
 }
