@@ -123,4 +123,8 @@ public class KycCompany {
         private String value;
         private String taxCode;
     }
+
+    public String getConcatAddress() {
+        return addressLine1 + " " + city + " " + region + " " + country + " " + postCode;
+    }
 }
