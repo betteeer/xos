@@ -908,4 +908,31 @@ public class BookKeepingService {
 
         return builder.toString();
     }
+
+    public String getCompanyLogo(String companyCode) throws IOException {
+        SystemConnect connect = getConnectCom(companyCode);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+
+        String url = (connect.getApiUrl() + "/users/api/v1/company?code=" + companyCode);
+        logger.info(">>> 根绝公司code查询公司信息获取logo,请求地址url:{}", url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("Authorization", getToken(connect))
+                .build();
+        Response response = client.newCall(request).execute();
+        if (response.code() != 200) {
+            throw new RuntimeException("调用接口失败");
+        }
+        String responseBody = response.body().string();
+        JSONObject jsonObject = JSONObject.parseObject(responseBody);
+        JSONObject data = (JSONObject) jsonObject.getJSONArray("data").get(0);
+        String logo = data.getString("logo");
+        logger.info(">>> 获取公司logo成功");
+        return logo;
+    }
 }

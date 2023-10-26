@@ -61,12 +61,24 @@
         width: 100%;
         height: 1px;
         background-color: #004fc1;
+        clear: both;
       }
-      .to {
-        margin: 15px 0;
+      .from {
+        margin-bottom: 15px;
         font-size: 16px;
+        clear: both;
       }
-      .to .toCompany {
+      .from .company {
+        float: left;
+        display: inline-block;
+         margin-top: 15px;
+      }
+      .from .address {
+        float: left;
+        display: inline-block;
+         margin-top: 15px;
+      }
+      .from .toCompany {
         font-weight: 700;
         margin-right: 50px;
         color: #004fc1;
@@ -141,7 +153,7 @@
     <div class="container">
       <div class="logo">
         <img th:src="${logo}" style="object-fit: cover; height: 120px;"/>
-        <div class="so">Sales Order</div>
+        <div class="so">Purchase Order</div>
       </div>
       <div class="detail">
         <div class="left">
@@ -182,19 +194,30 @@
         </div>
       </div>
       <div class="split"></div>
-      <div class="to">
-        <span>To:</span>
-        <span class="toCompany" th:text="${to}"></span>
-        <span>Ship to:</span>
-        <span th:text="${shipTo}"></span>
+      <div class="from">
+        <div class="company">
+          <span>From:</span>
+          <span class="toCompany" th:text="${from}"></span>
+        </div>
+        <div class="address">
+          <div>
+            <span>Ship to:</span>
+            <span th:text="${shipTo}"></span>
+          </div>
+          <div style="margin-top: 10px;">
+            <span>Bill to:</span>
+            <span th:text="${billTo}"></span>
+          </div>
+        </div>
       </div>
+      <div style="clear:both;height: 1px;"></div>
       <table class="tableContainer">
         <thead>
           <tr>
             <th></th>
             <th>SKU Name</th>
             <th>SKU No.</th>
-            <th>Sales QTY</th>
+            <th>Purchase QTY</th>
             <th>Unit Price</th>
             <th>Net Total Amount</th>
           </tr>
@@ -210,8 +233,8 @@
           </tr>
         </tbody>
       </table>
-      <div th:style="${skus.size()} >= 7 and ${skus.size()} <= 12 ?'page-break-after: always;' : ''"></div>
-      <div th:style="${skus.size()} >= 28 and ${skus.size()} <= 33 ?'page-break-after: always;' : ''"></div>
+      <div th:style="${skus.size()} >= 6 and ${skus.size()} <= 11 ?'page-break-after: always;' : ''"></div>
+      <div th:style="${skus.size()} >= 27 and ${skus.size()} <= 32 ?'page-break-after: always;' : ''"></div>
       <div class="bottom">
         <div class="comment" th:text="${soNote}"></div>
         <div class="moneys">

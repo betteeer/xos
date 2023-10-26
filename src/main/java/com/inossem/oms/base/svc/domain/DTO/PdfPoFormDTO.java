@@ -8,15 +8,16 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class PdfSoFormDTO {
+public class PdfPoFormDTO {
     private String companyCode;
     private String currencyCode;
     private String orderNo;
     private String orderDate;
     private String referenceNumber;
     private String paymentTerm;
-    private String to;
+    private String from;
     private String shipTo;
+    private String billTo;
     private String netAmount;
     private String gst_hstAmount;
     private String qstAmount;

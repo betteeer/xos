@@ -1,8 +1,10 @@
 package com.inossem.oms.svc.service;
 
+import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.kyc.api.KycCommonService;
 import com.inossem.oms.api.kyc.model.KycCompany;
 import com.inossem.oms.base.common.domain.SpecialConfig;
+import com.inossem.oms.base.svc.domain.DTO.PdfPoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.PdfSoFormDTO;
 import com.inossem.oms.common.service.SpecialConfigService;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
@@ -22,7 +24,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -38,38 +39,53 @@ public class PdfService {
     @Resource
     private KycCommonService kycCommonService;
 
-    public ResponseEntity<byte[]> generateSoPdf(PdfSoFormDTO so) throws IOException, InvocationTargetException, IllegalAccessException {
+    @Resource
+    private BookKeepingService bookKeepingService;
+
+    public ResponseEntity<byte[]> generateSoPdf(PdfSoFormDTO so) throws IOException, IllegalAccessException {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(so);
+//        List<PdfSoFormDTO.Sku> skus = new ArrayList<>();
+//        for (int i = 0; i < 31; i++) {
+//            PdfSoFormDTO.Sku sku = new PdfSoFormDTO.Sku();
+//            // 拷贝需要的属性
+//            BeanUtils.copyProperties(so.getSkus().get(0), sku);
+//            sku.setOrder(String.valueOf(i + 1) );
+//            skus.add(sku);
+//        }
+//        map.put("skus", skus);
         SpecialConfig specialConfig = specialConfigService.findOne(so.getCompanyCode());
         if (specialConfig != null) {
             map.put("ending", specialConfig.getSoPdfEndingText());
         }
-        KycCompany company = kycCommonService.getCompanyByCode(so.getCompanyCode());
+        map.put("companyCode", so.getCompanyCode());
+        setCompanyInfo(map, so.getCompanyCode());
+        context.setVariables(map);
+        return generator(context, "so");
+    }
+    public ResponseEntity<byte[]> generatePoPdf(PdfPoFormDTO po) throws IOException, IllegalAccessException {
+        Context context = new Context();
+        Map<String, Object> map = convertUsingReflection(po);
+        SpecialConfig specialConfig = specialConfigService.findOne(po.getCompanyCode());
+        if (specialConfig != null) {
+            map.put("ending", specialConfig.getPoPdfEndingText());
+        }
+        map.put("companyCode", po.getCompanyCode());
+        setCompanyInfo(map, po.getCompanyCode());
+        context.setVariables(map);
+        return generator(context, "po");
+    }
+
+
+    private void setCompanyInfo(Map<String, Object> map, String companyCode) throws IOException {
+        String companyLogo = bookKeepingService.getCompanyLogo(companyCode);
+        KycCompany company = kycCommonService.getCompanyByCode(companyCode);
         map.put("name", company.getName());
         map.put("address", company.getConcatAddress());
         map.put("email", company.getEmail());
         map.put("tel", company.getPhone());
-        context.setVariables(map);
-        return generator(context, "so");
+        map.put("logo", companyLogo);
     }
-
-    private Map<String, Object> convertUsingReflection(Object object) throws IllegalAccessException {
-        Map<String, Object> map = new HashMap<>();
-        Field[] fields = object.getClass().getDeclaredFields();
-
-        for (Field field: fields) {
-            field.setAccessible(true);
-            map.put(field.getName(), field.get(object));
-        }
-        return map;
-    }
-    public ResponseEntity<byte[]> generatePoPdf(PdfSoFormDTO form) throws IOException {
-        Context context = new Context();
-        context.setVariable("name", "哈哈哈");
-        return generator(context, "po");
-    }
-
     private ResponseEntity<byte[]> generator(Context context, String templateName) throws IOException {
         ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
         templateResolver.setPrefix("/templates/");
@@ -80,7 +96,6 @@ public class PdfService {
         TemplateEngine templateEngine = new TemplateEngine();
         templateEngine.setTemplateResolver(templateResolver);
         String html = templateEngine.process(templateName, context);
-        System.out.println(html);
         PdfRendererBuilder builder = new PdfRendererBuilder();
         builder.useFastMode();
         builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/WeiRuanYaHei.ttf").getFile()), "WeiRuanYaHei");
@@ -92,5 +107,16 @@ public class PdfService {
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_PDF);
         return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+    }
+
+    private Map<String, Object> convertUsingReflection(Object object) throws IllegalAccessException {
+        Map<String, Object> map = new HashMap<>();
+        Field[] fields = object.getClass().getDeclaredFields();
+
+        for (Field field: fields) {
+            field.setAccessible(true);
+            map.put(field.getName(), field.get(object));
+        }
+        return map;
     }
 }
