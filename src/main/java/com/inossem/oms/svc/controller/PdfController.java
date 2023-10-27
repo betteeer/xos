@@ -16,27 +16,12 @@ import java.io.IOException;
 public class PdfController {
     @Resource
     private PdfService pdfService;
-//    @PostMapping("/so")
-//    public ResponseEntity<byte[]> convertHtmlToSoPdf(@RequestBody PdfSoFormDTO form) throws IOException, IllegalAccessException {
-////        String htmlFilePath = "classpath:templates/so.html";
-////        Resource resource = resourceLoader.getResource(htmlFilePath);
-////        String html = readHtmlToString(resource);
-//        return pdfService.generateSoPdf(form);
-//    }
+    @PostMapping("/so")
+    public ResponseEntity<byte[]> convertHtmlToSoPdf(@RequestBody PdfSoFormDTO form) throws IOException, IllegalAccessException {
+        return pdfService.generateSoPdf(form);
+    }
     @PostMapping("/po")
     public ResponseEntity<byte[]> convertHtmlToPoPdf(@RequestBody PdfPoFormDTO form) throws IOException, IllegalAccessException {
         return pdfService.generatePoPdf(form);
-    }
-
-    @GetMapping("/company")
-    public String getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
-        return pdfService.getCompany(companyCode);
-    }
-    @PostMapping("/so")
-    public ResponseEntity<byte[]> convertHtmlToSoHtml(@RequestBody PdfSoFormDTO form) throws IOException, IllegalAccessException {
-//        String htmlFilePath = "classpath:templates/so.html";
-//        Resource resource = resourceLoader.getResource(htmlFilePath);
-//        String html = readHtmlToString(resource);
-        return pdfService.generateSoHtml(form);
     }
 }
