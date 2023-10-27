@@ -168,10 +168,11 @@ public class PdfService {
             throw new ServiceException("解析html出错");
         }
 
-        PdfRendererBuilder builder = new PdfRendererBuilder();
+        PdfRendererBuilder builder;
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
         try {
+            builder = new PdfRendererBuilder();
             builder.useFastMode();
             builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/WeiRuanYaHei.ttf").getFile()), "WeiRuanYaHei");
             builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/Lato.ttf").getFile()), "Lato");
