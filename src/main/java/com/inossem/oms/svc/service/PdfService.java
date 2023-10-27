@@ -121,7 +121,7 @@ public class PdfService {
         return map;
     }
 
-    public KycCompany getCompany(String companyCode) throws IOException {
+    public String getCompany(String companyCode) throws IOException {
         String companyLogo = "";
         try {
             companyLogo = bookKeepingService.getCompanyLogo(companyCode);
@@ -131,10 +131,39 @@ public class PdfService {
         KycCompany company;
         try {
             company = kycCommonService.getCompanyByCode(companyCode);
-            company.setCity(companyLogo);
         } catch (Exception e) {
             throw new ServiceException("获取公司信息出错");
         }
-        return company;
+        Map<String, Object> map = new HashMap<>();
+        map.put("name", company.getName());
+        map.put("address", company.getConcatAddress());
+        map.put("email", company.getEmail());
+        map.put("tel", company.getPhone());
+        map.put("logo", companyLogo);
+
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        TemplateEngine templateEngine = new TemplateEngine();
+        try {
+            templateResolver.setPrefix("/templates/");
+            templateResolver.setSuffix(".html");
+            templateResolver.setTemplateMode(TemplateMode.HTML);
+            templateResolver.setCharacterEncoding("UTF-8"); // 设置字符集为UTF-8
+        } catch (Exception e) {
+            throw new ServiceException("解析templateResolver出错");
+        }
+        try {
+            templateEngine.setTemplateResolver(templateResolver);
+        } catch (Exception e) {
+            throw new ServiceException("解析templateEngine出错");
+        }
+        Context context = new Context();
+        context.setVariables(map);
+        String html = "";
+        try {
+            html = templateEngine.process("so", context);
+        } catch (Exception e) {
+            throw new ServiceException("解析html出错");
+        }
+        return html;
     }
 }
