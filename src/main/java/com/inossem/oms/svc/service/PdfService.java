@@ -123,7 +123,7 @@ public class PdfService {
         return map;
     }
 
-    public ResponseEntity<byte[]> getCompany(String companyCode) throws IOException {
+    public String getCompany(String companyCode) throws IOException {
         String companyLogo = "";
         try {
             companyLogo = bookKeepingService.getCompanyLogo(companyCode);
@@ -171,6 +171,7 @@ public class PdfService {
         PdfRendererBuilder builder;
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         HttpHeaders headers = new HttpHeaders();
+
         try {
             builder = new PdfRendererBuilder();
             builder.useFastMode();
@@ -183,12 +184,13 @@ public class PdfService {
         } catch (Exception e) {
             throw new ServerException("解析pdf出错");
         }
-        ResponseEntity<byte[]> body;
-        try {
-            body = ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
-        } catch (Exception e) {
-            throw new ServerException("解析pdf stream出错");
-        }
-        return body;
+        return html;
+//        ResponseEntity<byte[]> body;
+//        try {
+//            body = ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+//        } catch (Exception e) {
+//            throw new ServerException("解析pdf stream出错");
+//        }
+//        return body;
     }
 }

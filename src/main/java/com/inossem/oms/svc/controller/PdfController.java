@@ -29,7 +29,7 @@ public class PdfController {
     }
 
     @GetMapping("/company")
-    public ResponseEntity<byte[]> getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
+    public String getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
         return pdfService.getCompany(companyCode);
     }
 }
