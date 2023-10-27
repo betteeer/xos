@@ -13,7 +13,6 @@ import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.layout.font.FontProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -77,16 +76,16 @@ public class PdfService {
     public ResponseEntity<byte[]> generatePoPdf(PdfPoFormDTO po) throws IOException, IllegalAccessException {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(po);
-        List<PdfPoFormDTO.Sku> skus = new ArrayList<>();
-        for (int i = 0; i < 56; i++) {
-            PdfPoFormDTO.Sku sku = new PdfPoFormDTO.Sku();
-            // 拷贝需要的属性
-            BeanUtils.copyProperties(po.getSkus().get(0), sku);
-            sku.setOrder(String.valueOf(i + 1));
-            skus.add(sku);
-        }
-        map.put("skus", skus);
-        po.setSkus(skus);
+//        List<PdfPoFormDTO.Sku> skus = new ArrayList<>();
+//        for (int i = 0; i < 56; i++) {
+//            PdfPoFormDTO.Sku sku = new PdfPoFormDTO.Sku();
+//            // 拷贝需要的属性
+//            BeanUtils.copyProperties(po.getSkus().get(0), sku);
+//            sku.setOrder(String.valueOf(i + 1));
+//            skus.add(sku);
+//        }
+//        map.put("skus", skus);
+//        po.setSkus(skus);
         SpecialConfig specialConfig = specialConfigService.findOne(po.getCompanyCode());
         if (specialConfig != null) {
             map.put("ending", specialConfig.getPoPdfEndingText());
