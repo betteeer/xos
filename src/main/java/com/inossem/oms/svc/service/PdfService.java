@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.rmi.ServerException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
@@ -166,16 +167,27 @@ public class PdfService {
         } catch (Exception e) {
             throw new ServiceException("解析html出错");
         }
+
         PdfRendererBuilder builder = new PdfRendererBuilder();
-        builder.useFastMode();
-        builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/WeiRuanYaHei.ttf").getFile()), "WeiRuanYaHei");
-        builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/Lato.ttf").getFile()), "Lato");
-        builder.withHtmlContent(html, "");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        builder.toStream(outputStream);
-        builder.run();
         HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+        try {
+            builder.useFastMode();
+            builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/WeiRuanYaHei.ttf").getFile()), "WeiRuanYaHei");
+            builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/Lato.ttf").getFile()), "Lato");
+            builder.withHtmlContent(html, "");
+            builder.toStream(outputStream);
+            builder.run();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+        } catch (Exception e) {
+            throw new ServerException("解析pdf出错");
+        }
+        ResponseEntity<byte[]> body;
+        try {
+            body = ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+        } catch (Exception e) {
+            throw new ServerException("解析pdf stream出错");
+        }
+        return body;
     }
 }
