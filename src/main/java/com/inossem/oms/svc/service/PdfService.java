@@ -162,7 +162,7 @@ public class PdfService {
         try {
             html = templateEngine.process("so", context);
         } catch (Exception e) {
-            throw new ServiceException("解析html出错");
+            return e.getMessage();
         }
         return html;
     }
