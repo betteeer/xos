@@ -164,8 +164,23 @@ public class PdfService {
         try {
             html = templateEngine.process("so", context);
         } catch (Exception e) {
+            throw new ServiceException("解析html出错");
+        }
+        try {
+            PdfRendererBuilder builder = new PdfRendererBuilder();
+            builder.useFastMode();
+            builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/WeiRuanYaHei.ttf").getFile()), "WeiRuanYaHei");
+            builder.useFont(new File(this.getClass().getClassLoader().getResource("fonts/Lato.ttf").getFile()), "Lato");
+            builder.withHtmlContent(html, "");
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            builder.toStream(outputStream);
+            builder.run();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            return "123";
+        } catch(Exception e) {
             return e.getMessage();
         }
-        return html;
+
     }
 }
