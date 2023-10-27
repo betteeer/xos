@@ -251,12 +251,6 @@
         </dependency>
 
         <!-- itext7html转pdf  -->
-        <!-- https://mvnrepository.com/artifact/com.itextpdf/itext7-core -->
-        <dependency>
-            <groupId>com.itextpdf</groupId>
-            <artifactId>itext7-core</artifactId>
-            <version>7.1.9</version>
-        </dependency>
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>html2pdf</artifactId>
