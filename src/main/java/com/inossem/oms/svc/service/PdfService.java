@@ -25,6 +25,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -156,6 +157,7 @@ public class PdfService {
         } catch (Exception e) {
             throw new ServiceException("解析templateEngine出错");
         }
+        map.put("skus", new ArrayList<>());
         Context context = new Context();
         context.setVariables(map);
         String html = "";
