@@ -7,6 +7,7 @@ import com.inossem.oms.base.common.domain.SpecialConfig;
 import com.inossem.oms.base.svc.domain.DTO.PdfPoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.PdfSoFormDTO;
 import com.inossem.oms.common.service.SpecialConfigService;
+import com.inossem.sco.common.core.exception.ServiceException;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.layout.font.FontProvider;
@@ -121,16 +122,20 @@ public class PdfService {
     }
 
     private ResponseEntity<byte[]> convertToPdf(String html) {
-        ConverterProperties converterProperties = new ConverterProperties();
-        FontProvider fontProvider = new FontProvider();
-        fontProvider.addFont("src/main/resources/fonts/WeiRuanYaHei.ttf");
-        fontProvider.addFont("src/main/resources/fonts/Lato.ttf");
-        converterProperties.setFontProvider(fontProvider);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        HtmlConverter.convertToPdf(html, outputStream, converterProperties);
-        HttpHeaders headers = new HttpHeaders();
-        headers.setContentType(MediaType.APPLICATION_PDF);
-        return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+        try {
+            ConverterProperties converterProperties = new ConverterProperties();
+            FontProvider fontProvider = new FontProvider();
+            fontProvider.addFont("src/main/resources/fonts/WeiRuanYaHei.ttf");
+            fontProvider.addFont("src/main/resources/fonts/Lato.ttf");
+            converterProperties.setFontProvider(fontProvider);
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            HtmlConverter.convertToPdf(html, outputStream, converterProperties);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_PDF);
+            return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
+        } catch (Exception e) {
+            throw new ServiceException(e.getMessage());
+        }
     }
     /**
      * @param map context上下文需要的数据
