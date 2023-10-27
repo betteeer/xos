@@ -32,4 +32,11 @@ public class PdfController {
     public String getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
         return pdfService.getCompany(companyCode);
     }
+    @PostMapping("/so/html")
+    public String convertHtmlToSoHtml(@RequestBody PdfSoFormDTO form) throws IOException, IllegalAccessException {
+//        String htmlFilePath = "classpath:templates/so.html";
+//        Resource resource = resourceLoader.getResource(htmlFilePath);
+//        String html = readHtmlToString(resource);
+        return pdfService.generateSoHtml(form);
+    }
 }

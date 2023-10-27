@@ -110,6 +110,18 @@ public class PdfService {
         headers.setContentType(MediaType.APPLICATION_PDF);
         return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
     }
+    private String generatorHtml(Context context, String templateName) throws IOException {
+        ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
+        templateResolver.setPrefix("/templates/");
+        templateResolver.setSuffix(".html");
+        templateResolver.setTemplateMode(TemplateMode.HTML);
+        templateResolver.setCharacterEncoding("UTF-8"); // 设置字符集为UTF-8
+        // 创建Thymeleaf模板引擎
+        TemplateEngine templateEngine = new TemplateEngine();
+        templateEngine.setTemplateResolver(templateResolver);
+        String html = templateEngine.process(templateName, context);
+        return html;
+    }
 
     private Map<String, Object> convertUsingReflection(Object object) throws IllegalAccessException {
         Map<String, Object> map = new HashMap<>();
@@ -191,5 +203,27 @@ public class PdfService {
 //            throw new ServerException("解析pdf stream出错");
 //        }
 //        return body;
+    }
+
+    public String generateSoHtml(PdfSoFormDTO so) throws IllegalAccessException, IOException {
+        Context context = new Context();
+        Map<String, Object> map = convertUsingReflection(so);
+//        List<PdfSoFormDTO.Sku> skus = new ArrayList<>();
+//        for (int i = 0; i < 31; i++) {
+//            PdfSoFormDTO.Sku sku = new PdfSoFormDTO.Sku();
+//            // 拷贝需要的属性
+//            BeanUtils.copyProperties(so.getSkus().get(0), sku);
+//            sku.setOrder(String.valueOf(i + 1) );
+//            skus.add(sku);
+//        }
+//        map.put("skus", skus);
+        SpecialConfig specialConfig = specialConfigService.findOne(so.getCompanyCode());
+        if (specialConfig != null) {
+            map.put("ending", specialConfig.getSoPdfEndingText());
+        }
+        map.put("companyCode", so.getCompanyCode());
+        setCompanyInfo(map, so.getCompanyCode());
+        context.setVariables(map);
+        return generatorHtml(context, "so");
     }
 }
