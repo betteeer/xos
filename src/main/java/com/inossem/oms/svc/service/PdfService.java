@@ -10,7 +10,9 @@ import com.inossem.oms.common.service.SpecialConfigService;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
+import com.itextpdf.layout.font.FontProvider;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.io.IOUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
@@ -25,6 +27,7 @@ import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -123,10 +126,7 @@ public class PdfService {
     private ResponseEntity<byte[]> convertToPdf(String html) {
         try {
             ConverterProperties converterProperties = new ConverterProperties();
-//            FontProvider fontProvider = new FontProvider();
-//            fontProvider.addFont("src/main/resources/fonts/WeiRuanYaHei.ttf");
-//            fontProvider.addFont("src/main/resources/fonts/Lato.ttf");
-//            converterProperties.setFontProvider(fontProvider);
+            setFontProvider(converterProperties);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             HtmlConverter.convertToPdf(html, outputStream, converterProperties);
             HttpHeaders headers = new HttpHeaders();
@@ -135,6 +135,18 @@ public class PdfService {
         } catch (Exception e) {
             throw new ServiceException(e.getMessage());
         }
+    }
+    public void setFontProvider(ConverterProperties converterProperties) throws IOException {
+        ClassLoader classLoader = getClass().getClassLoader();
+        FontProvider fontProvider = new FontProvider();
+        String[] fonts = {"fonts/WeiRuanYaHei.ttf", "fonts/Lato.ttf"};
+        for (String font : fonts) {
+            InputStream resourceAsStream = classLoader.getResourceAsStream(font);
+            assert resourceAsStream != null;
+            byte[] fontData = IOUtils.toByteArray(resourceAsStream);
+            fontProvider.addFont(fontData);
+        }
+        converterProperties.setFontProvider(fontProvider);
     }
     /**
      * @param map context上下文需要的数据
