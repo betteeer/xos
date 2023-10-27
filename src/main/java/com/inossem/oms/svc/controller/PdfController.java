@@ -3,7 +3,6 @@ package com.inossem.oms.svc.controller;
 import com.inossem.oms.base.svc.domain.DTO.PdfPoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.PdfSoFormDTO;
 import com.inossem.oms.svc.service.PdfService;
-import com.inossem.sco.common.core.web.domain.AjaxResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +29,7 @@ public class PdfController {
     }
 
     @GetMapping("/company")
-    public AjaxResult getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
-        return AjaxResult.success().withData(pdfService.getCompany(companyCode));
+    public ResponseEntity<byte[]> getCompany(@RequestParam("companyCode") String companyCode) throws IOException {
+        return pdfService.getCompany(companyCode);
     }
 }
