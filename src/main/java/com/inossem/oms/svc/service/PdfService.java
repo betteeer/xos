@@ -7,6 +7,7 @@ import com.inossem.oms.base.common.domain.SpecialConfig;
 import com.inossem.oms.base.svc.domain.DTO.PdfPoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.PdfSoFormDTO;
 import com.inossem.oms.common.service.SpecialConfigService;
+import com.inossem.sco.common.core.exception.ServiceException;
 import com.openhtmltopdf.pdfboxout.PdfRendererBuilder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.ResourceLoader;
@@ -118,5 +119,22 @@ public class PdfService {
             map.put(field.getName(), field.get(object));
         }
         return map;
+    }
+
+    public KycCompany getCompany(String companyCode) throws IOException {
+        String companyLogo = "";
+        try {
+            companyLogo = bookKeepingService.getCompanyLogo(companyCode);
+        } catch (Exception e) {
+            throw new ServiceException("获取公司logo出错");
+        }
+        KycCompany company;
+        try {
+            company = kycCommonService.getCompanyByCode(companyCode);
+            company.setCity(companyLogo);
+        } catch (Exception e) {
+            throw new ServiceException("获取公司信息出错");
+        }
+        return company;
     }
 }
