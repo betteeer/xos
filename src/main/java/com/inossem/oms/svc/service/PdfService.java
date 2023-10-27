@@ -10,7 +10,6 @@ import com.inossem.oms.common.service.SpecialConfigService;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
-import com.itextpdf.layout.font.FontProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ResourceLoader;
@@ -124,10 +123,10 @@ public class PdfService {
     private ResponseEntity<byte[]> convertToPdf(String html) {
         try {
             ConverterProperties converterProperties = new ConverterProperties();
-            FontProvider fontProvider = new FontProvider();
-            fontProvider.addFont("src/main/resources/fonts/WeiRuanYaHei.ttf");
-            fontProvider.addFont("src/main/resources/fonts/Lato.ttf");
-            converterProperties.setFontProvider(fontProvider);
+//            FontProvider fontProvider = new FontProvider();
+//            fontProvider.addFont("src/main/resources/fonts/WeiRuanYaHei.ttf");
+//            fontProvider.addFont("src/main/resources/fonts/Lato.ttf");
+//            converterProperties.setFontProvider(fontProvider);
             ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
             HtmlConverter.convertToPdf(html, outputStream, converterProperties);
             HttpHeaders headers = new HttpHeaders();
