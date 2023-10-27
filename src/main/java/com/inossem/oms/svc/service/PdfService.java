@@ -19,6 +19,8 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
+import com.itextpdf.html2pdf.ConverterProperties;
+import com.itextpdf.html2pdf.HtmlConverter;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
@@ -205,18 +207,9 @@ public class PdfService {
 //        return body;
     }
 
-    public String generateSoHtml(PdfSoFormDTO so) throws IllegalAccessException, IOException {
+    public ResponseEntity<byte[]> generateSoHtml(PdfSoFormDTO so) throws IllegalAccessException, IOException {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(so);
-//        List<PdfSoFormDTO.Sku> skus = new ArrayList<>();
-//        for (int i = 0; i < 31; i++) {
-//            PdfSoFormDTO.Sku sku = new PdfSoFormDTO.Sku();
-//            // 拷贝需要的属性
-//            BeanUtils.copyProperties(so.getSkus().get(0), sku);
-//            sku.setOrder(String.valueOf(i + 1) );
-//            skus.add(sku);
-//        }
-//        map.put("skus", skus);
         SpecialConfig specialConfig = specialConfigService.findOne(so.getCompanyCode());
         if (specialConfig != null) {
             map.put("ending", specialConfig.getSoPdfEndingText());
@@ -224,6 +217,12 @@ public class PdfService {
         map.put("companyCode", so.getCompanyCode());
         setCompanyInfo(map, so.getCompanyCode());
         context.setVariables(map);
-        return generatorHtml(context, "so");
+        String html = generatorHtml(context, "so");
+        ConverterProperties converterProperties = new ConverterProperties();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        HtmlConverter.convertToPdf(html,outputStream, converterProperties);
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        return ResponseEntity.ok().headers(headers).body(outputStream.toByteArray());
     }
 }
