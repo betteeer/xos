@@ -52,7 +52,7 @@ public class PdfService {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(so);
 //        List<PdfSoFormDTO.Sku> skus = new ArrayList<>();
-//        for (int i = 0; i < 56; i++) {
+//        for (int i = 0; i < 10; i++) {
 //            PdfSoFormDTO.Sku sku = new PdfSoFormDTO.Sku();
 //            // 拷贝需要的属性
 //            BeanUtils.copyProperties(so.getSkus().get(0), sku);
@@ -150,7 +150,7 @@ public class PdfService {
     /**
      * @param map context上下文需要的数据
      * @param size skus的size
-     * @param firstPageCeil 第一页可以容纳的条数，实际上需要 减去1，比如这边传12，实际上最多可以容纳11条
+     * @param firstPageCeil 第一页可以容纳的条数，实际上需要 减去1，比如这边传12，实际上最多可以容纳11条, 也就是第二页的第一条的序号
      */
     private void setSplitStartEndFlag(Map<String, Object> map, int size, int firstPageCeil) {
         List<Integer[]> list = new ArrayList<>();
@@ -158,7 +158,7 @@ public class PdfService {
         int pageSize = 19;
         int start = firstPageCeil;
         int end = firstPageCeil + pageSize;
-        while (start < size) {
+        while (start <= size) {
             list.add(new Integer[]{start, end});
             start += pageSize;
             end += pageSize;
