@@ -396,6 +396,9 @@ public class ISoHeaderService {
         soHeader.setQstAmount(soOrderHeaderInfoVo.getQstAmount());
         soHeader.setPstAmount(soOrderHeaderInfoVo.getPstAmount());
         soHeader.setNetAmount(soOrderHeaderInfoVo.getNetAmount());
+        soHeader.setClearanceFee(soOrderHeaderInfoVo.getClearanceFee());
+        soHeader.setLogisticsCosts(soOrderHeaderInfoVo.getLogisticsCosts());
+        soHeader.setOtherExpenses(soOrderHeaderInfoVo.getOtherExpenses());
         if (!StringUtils.isEmpty(soOrderHeaderInfoVo.getSoNotes())) {
             soHeader.setSoNotes(soOrderHeaderInfoVo.getSoNotes());
         }
@@ -436,7 +439,11 @@ public class ISoHeaderService {
             //更新item
             List<SoItem> soItemList = this.soItemInfoPacking(soHeader, soOrderHeaderInfoVo);
             soItemList.forEach(sItem -> {
-                soItemMapper.updateById(sItem);
+                if (sItem.getId() == null) {
+                    soItemMapper.insert(sItem);
+                } else {
+                    soItemMapper.updateById(sItem);
+                }
             });
 
             //判断是否存在删除行

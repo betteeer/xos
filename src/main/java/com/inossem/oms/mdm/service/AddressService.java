@@ -139,7 +139,7 @@ public class AddressService {
             addr.setSubType(address.getSubType());
             addr.setReferenceKey(address.getKey());
             addr.setAddress1(address.getStreet());
-            addr.setCity(address.getStreet());
+            addr.setCity(address.getCity());
             addr.setRegionCode(address.getProvince());
             addr.setCountryCode(address.getCountry());
             addr.setPostalCode(address.getPostCode());
