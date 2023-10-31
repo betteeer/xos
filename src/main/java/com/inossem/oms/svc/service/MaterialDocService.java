@@ -521,7 +521,7 @@ public class MaterialDocService {
                         .eq(StockBalance::getCompanyCode, materialDoc.getCompanyCode())
                         .eq(StockBalance::getWarehouseCode, queryUnReversedSubResVo.getWarehouseCode()).last("limit 1");
                 StockBalance stockBalance = stockBalanceMapper.selectOne(stockBalanceLambdaQueryWrapper);
-                BeanUtils.copyProperties(stockBalance, queryUnReversedSubResVo);
+                BeanUtils.copyProperties(stockBalance, queryUnReversedSubResVo, "skuSatetyStock", "skuGroupName", "skuName");
                 queryUnReversedSubResVo.setId(materialDoc.getId());
                 queryUnReversedSubResVo.setMaterialDocTotalAmount(materialDoc.getTotalAmount());
                 queryUnReversedSubResVoList.add(queryUnReversedSubResVo);
