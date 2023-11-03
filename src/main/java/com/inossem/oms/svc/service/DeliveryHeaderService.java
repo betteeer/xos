@@ -29,7 +29,9 @@ public class DeliveryHeaderService {
     public List<DeliveryHeader> getList(DeliveryHeaderFormDTO form) {
         log.info(">>>查询列表，入参：[{}]", form);
         MPJLambdaWrapper<DeliveryHeader> wrapper = new MPJLambdaWrapper<>();
-        wrapper.selectAll(DeliveryHeader.class);
+//        wrapper.selectAll(DeliveryHeader.class);
+        wrapper.select("distinct(t.id) as id");
+        wrapper.selectFilter(DeliveryHeader.class, i -> !i.getColumn().equals("id"));
         // 指定 company code数据范围
         wrapper.eq(DeliveryHeader::getCompanyCode, form.getCompanyCode());
         // 保留有效的数据
