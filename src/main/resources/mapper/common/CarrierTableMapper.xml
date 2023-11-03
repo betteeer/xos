@@ -17,7 +17,7 @@ PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
     </resultMap>
 
     <sql id="selectCarrierTableVo">
-        select id, carrier_code, name, status, access_token, carrier_username, carrier_password, tracking_url, logo_url from carrier_table
+        select id, carrier_code, name, status, access_token, carrier_username, carrier_password, tracking_url, logo_url from carrier_table_list
     </sql>
 
     <select id="selectCarrierTableList" parameterType="com.inossem.oms.base.common.domain.CarrierTable" resultMap="CarrierTableResult">
