@@ -22,6 +22,9 @@ public class SpecialConfigService {
         if (StringUtils.isNull(sc)) {
             SpecialConfig s = new SpecialConfig();
             s.setCompanyCode(companyCode);
+            s.setPoPdfEndingText("Thank you for your business!");
+            s.setSoPdfEndingText("Thank you for your business!");
+            specialConfigMapper.insert(s);
             return s;
         } else {
             return sc;
