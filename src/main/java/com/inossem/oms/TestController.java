@@ -3,7 +3,6 @@ package com.inossem.oms;
 import com.alibaba.fastjson2.JSONObject;
 import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.ConnectionUtils;
-import com.inossem.oms.api.bk.model.BkCoaMappingModel;
 import com.inossem.oms.api.file.api.FileService;
 import com.inossem.oms.base.svc.domain.SystemConnect;
 import com.inossem.oms.selftest.AppVersion;
@@ -53,10 +52,10 @@ public class TestController {
         System.out.println(connection);
     }
     @GetMapping(value="token")
-    public String getToken(SystemConnect systemConnect) throws IOException {
-        BkCoaMappingModel s001 = bkCoaMappingService.getOrderTypeMapping("3002", "S001");
-        System.out.println(s001.getCoaJson().get(0).getSkuGroup());
-        return "1";
+    public String getToken(@RequestHeader(name="X-UserId") String userId) throws IOException {
+//        BkCoaMappingModel s001 = bkCoaMappingService.getOrderTypeMapping("3002", "S001");
+//        System.out.println(s001.getCoaJson().get(0).getSkuGroup());
+        return userId;
     }
 
     @GetMapping(value = "stock")
