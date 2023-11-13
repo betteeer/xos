@@ -61,8 +61,8 @@ public class MaterialDocController extends BaseController {
     }
 
     @PostMapping("/quick/add")
-    public AjaxResult quickAdd(@RequestBody QuickCreateMaterialDocVo quickCreateMaterialDocVo) {
-        return AjaxResult.success().withData(materialDocNewService.quickAdd(quickCreateMaterialDocVo));
+    public AjaxResult quickAdd(@RequestHeader(name="X-Userid") String userId, @RequestBody QuickCreateMaterialDocVo quickCreateMaterialDocVo) {
+        return AjaxResult.success().withData(materialDocNewService.quickAdd(quickCreateMaterialDocVo, userId));
     }
 
     @GetMapping("/getunreversed/{docNumber}/{companyCode}/{showAll}")

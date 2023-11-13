@@ -143,7 +143,7 @@ public class StockBalanceService {
      * @return
      */
     @Transactional
-    public String importExcel(List<ImportStockBalanceVo> importStockBalanceVoList, String companyCode) throws ServiceException {
+    public String importExcel(List<ImportStockBalanceVo> importStockBalanceVoList, String companyCode, String userId) throws ServiceException {
         //所有字段均不允许为空
         for (int i = 0; i < importStockBalanceVoList.size(); i++) {
             if (StringUtils.isNull(importStockBalanceVoList.get(i).getPostingDate())) {
@@ -207,7 +207,7 @@ public class StockBalanceService {
             createMaterialDocSkuVo.setCurrencyCode(importStockBalanceVo.getCurrencyCode());
             createMaterialDocSkuVoList.add(createMaterialDocSkuVo);
             createMaterialDocVo.setCreateMaterialDocSkuVoList(createMaterialDocSkuVoList);
-            materialDocService.add(createMaterialDocVo);
+            materialDocService.add(createMaterialDocVo, userId);
         }
         return "成功";
     }

@@ -180,14 +180,14 @@ public class SoHeaderController extends BaseController {
      */
     @ApiOperation(value = "create so delivery ", notes = "销售订单发运")
     @PostMapping("/create_delivery")
-    public AjaxResult<DeliveryHeader> createDelivery(@RequestBody DeliveryInfoVo deliveryInfoVo) {
+    public AjaxResult<DeliveryHeader> createDelivery(@RequestHeader(name="X-Userid") String userId, @RequestBody DeliveryInfoVo deliveryInfoVo) {
 
         String deliveryType = deliveryInfoVo.getDeliveryType();
         if (org.apache.commons.lang3.StringUtils.isBlank(deliveryType)) {
             throw new IllegalArgumentException("deliveryType 为必填参数");
         }
 
-        return AjaxResult.success().withData(deliveryService.createDelivery(deliveryInfoVo));
+        return AjaxResult.success().withData(deliveryService.createDelivery(deliveryInfoVo, userId));
     }
 
     /**
@@ -201,8 +201,8 @@ public class SoHeaderController extends BaseController {
      */
     @ApiOperation(value = "modify so delivery ", notes = "修改Delivery")
     @PostMapping("/modify_delivery")
-    public AjaxResult<DeliveryHeader> modifyDelivery(@RequestBody DeliveryInfoVo deliveryInfoVo) {
-        return AjaxResult.success().withData(deliveryService.modifyDelivery(deliveryInfoVo));
+    public AjaxResult<DeliveryHeader> modifyDelivery(@RequestHeader(name="X-Userid") String userId, @RequestBody DeliveryInfoVo deliveryInfoVo) {
+        return AjaxResult.success().withData(deliveryService.modifyDelivery(deliveryInfoVo, userId));
     }
 
 
@@ -248,8 +248,8 @@ public class SoHeaderController extends BaseController {
      */
     @ApiOperation(value = "modify so shipped delivery ", notes = "修改已经发运的Delivery订单")
     @PostMapping("/modify_shipped_delivery")
-    public AjaxResult<DeliveryHeader> modifyShippedDelivery(@RequestBody DeliveryInfoVo deliveryInfoVo) {
-        return AjaxResult.success().withData(deliveryService.modifyShippedDelivery(deliveryInfoVo));
+    public AjaxResult<DeliveryHeader> modifyShippedDelivery(@RequestHeader(name="X-Userid") String userId,@RequestBody DeliveryInfoVo deliveryInfoVo) {
+        return AjaxResult.success().withData(deliveryService.modifyShippedDelivery(deliveryInfoVo, userId));
     }
 
     /**

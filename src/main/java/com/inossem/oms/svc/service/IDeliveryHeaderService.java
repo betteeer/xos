@@ -318,7 +318,7 @@ public class IDeliveryHeaderService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    public DeliveryHeader createDelivery(DeliveryInfoVo deliveryInfoVo) {
+    public DeliveryHeader createDelivery(DeliveryInfoVo deliveryInfoVo, String userId) {
         // 查询当前so发运了几次
         List<DeliveryItem> shippedNumbers = this.getShippedNumber(deliveryInfoVo);
         log.info("创建so delivery,参数{}", deliveryInfoVo);
@@ -530,7 +530,7 @@ public class IDeliveryHeaderService {
                         cmdVo.setStockStatus("A");
                         cmdVo.setReferenceType("DN");
                         cmdVo.setCreateMaterialDocSkuVoList(cmdSkuVoList);
-                        materialDocService.add(cmdVo);
+                        materialDocService.add(cmdVo, userId);
                     }
                 }
 
@@ -689,7 +689,7 @@ public class IDeliveryHeaderService {
      * @param deliveryInfoVo
      * @return
      */
-    public DeliveryHeader modifyDelivery(DeliveryInfoVo deliveryInfoVo) {
+    public DeliveryHeader modifyDelivery(DeliveryInfoVo deliveryInfoVo, String userId) {
         // 修改发运信息，必须带着posting date
         if ("".equals(deliveryInfoVo.getPostingDate()) || null == deliveryInfoVo.getPostingDate()) {
             throw new IllegalArgumentException("posting date is null");
@@ -897,7 +897,7 @@ public class IDeliveryHeaderService {
                     cmdVo.setStockStatus(ModuleConstant.STOCK_STATUS.NORMAL);
                     cmdVo.setReferenceType("DN");
                     cmdVo.setCreateMaterialDocSkuVoList(cmdSkuVoList);
-                    materialDocService.add(cmdVo);
+                    materialDocService.add(cmdVo, userId);
                 }
             }
 
@@ -1041,7 +1041,7 @@ public class IDeliveryHeaderService {
      * @return
      */
     @Transactional
-    public Object createPoDelivery(DeliveryInfoVo deliveryInfoVo) {
+    public Object createPoDelivery(DeliveryInfoVo deliveryInfoVo, String userId) {
         boolean isBlankDelivery = "".equals(deliveryInfoVo.getPostingDate()) || null == deliveryInfoVo.getPostingDate();
         // 如果收货时间为空  说明该订单的item没有填写发货数量   也就是表示这单不算发运 也就可以不用处理库存
 
@@ -1159,7 +1159,7 @@ public class IDeliveryHeaderService {
                         cmdVo.setStockStatus(ModuleConstant.STOCK_STATUS.NORMAL);
                         cmdVo.setReferenceType(ModuleConstant.REFERENCE_TYPE.ASN);
                         cmdVo.setCreateMaterialDocSkuVoList(cmdSkuVoList);
-                        materialDocService.add(cmdVo);
+                        materialDocService.add(cmdVo, userId);
                     }
                 }
 
@@ -1232,7 +1232,7 @@ public class IDeliveryHeaderService {
     }
 
     @Transactional
-    public Object modifyPoDelivery(DeliveryInfoVo deliveryInfoVo) {
+    public Object modifyPoDelivery(DeliveryInfoVo deliveryInfoVo, String userId) {
 
         // 发运时间为空，说明是空发运，直接拒绝
         if ("".equals(deliveryInfoVo.getPostingDate()) || null == deliveryInfoVo.getPostingDate()) {
@@ -1360,7 +1360,7 @@ public class IDeliveryHeaderService {
                     cmdVo.setStockStatus(ModuleConstant.STOCK_STATUS.NORMAL);
                     cmdVo.setReferenceType(ModuleConstant.REFERENCE_TYPE.ASN);
                     cmdVo.setCreateMaterialDocSkuVoList(cmdSkuVoList);
-                    materialDocService.add(cmdVo);
+                    materialDocService.add(cmdVo, userId);
                 }
             }
 
@@ -1640,7 +1640,7 @@ public class IDeliveryHeaderService {
      * @param deliveryInfoVo
      * @return
      */
-    public DeliveryHeader modifyShippedDelivery(DeliveryInfoVo deliveryInfoVo) {
+    public DeliveryHeader modifyShippedDelivery(DeliveryInfoVo deliveryInfoVo, String userId) {
         //根据soNumber查询delivery_item关联delivery  查询发运了几次
         List<DeliveryItem> deliveryItemList = this.getShippedNumber(deliveryInfoVo);
         if (deliveryItemList.size() >= 9) {
@@ -1882,7 +1882,7 @@ public class IDeliveryHeaderService {
             cmdVo.setStockStatus(ModuleConstant.STOCK_STATUS.NORMAL);
             cmdVo.setReferenceType("DN");
             cmdVo.setCreateMaterialDocSkuVoList(cmdSkuVoList);
-            materialDocService.add(cmdVo);
+            materialDocService.add(cmdVo, userId);
             //当创建完物料编码后 通过delivery_number更新delivery_header 及 delivery_item中的complete_delivery 为 1-已完成交付
             DeliveryHeader dh = new DeliveryHeader();
             dh.setId(deliveryInfoVo.getId());

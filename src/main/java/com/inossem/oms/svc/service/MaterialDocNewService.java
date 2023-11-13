@@ -222,7 +222,7 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
         return materialDocs;
     }
 
-    public List<MaterialDoc> quickAdd(QuickCreateMaterialDocVo q) {
+    public List<MaterialDoc> quickAdd(QuickCreateMaterialDocVo q, String userId) {
         // 找到匹配的类型
         TransactionType tt;
         try {
@@ -256,7 +256,7 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
         cmd.setCreateMaterialDocSkuVoList(createMaterialDocSkuVos);
 
         // 准备好了，交给materialDocService
-        return materialDocService.add(cmd);
+        return materialDocService.add(cmd, userId);
     }
 
     public List<MaterialDoc> getMaterialDocsList(MaterialDocFormDTO form) {

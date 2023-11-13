@@ -94,10 +94,10 @@ public class StockBalanceController extends BaseController {
      */
     @PostMapping("/import")
     @ApiOperation(value = "导入库存列表", notes = "导入库存列表")
-    public AjaxResult export(MultipartFile file, @RequestParam("companyCode") @NotBlank String companyCode) throws Exception {
+    public AjaxResult export(@RequestHeader(name="X-Userid") String userId, MultipartFile file, @RequestParam("companyCode") @NotBlank String companyCode) throws Exception {
         ExcelUtil<ImportStockBalanceVo> util = new ExcelUtil<>(ImportStockBalanceVo.class);
         List<ImportStockBalanceVo> importStockBalanceVoList = util.importExcel(file.getInputStream());
-        String message = stockBalanceService.importExcel(importStockBalanceVoList, companyCode);
+        String message = stockBalanceService.importExcel(importStockBalanceVoList, companyCode, userId);
         return AjaxResult.success(message);
     }
 

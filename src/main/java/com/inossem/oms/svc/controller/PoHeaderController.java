@@ -119,8 +119,8 @@ public class PoHeaderController extends BaseController {
      */
     @ApiOperation(value = "create po delivery ", notes = "创建PO Delivery")
     @PostMapping("/createDelivery")
-    public AjaxResult<DeliveryHeader> createDelivery(@RequestBody DeliveryInfoVo deliveryInfoVo) {
-        return AjaxResult.success().withData(deliveryService.createPoDelivery(deliveryInfoVo));
+    public AjaxResult<DeliveryHeader> createDelivery(@RequestHeader(name="X-Userid") String userId, @RequestBody DeliveryInfoVo deliveryInfoVo) {
+        return AjaxResult.success().withData(deliveryService.createPoDelivery(deliveryInfoVo, userId));
     }
 
     /**
@@ -132,8 +132,8 @@ public class PoHeaderController extends BaseController {
      */
     @ApiOperation(value = "modify po delivery ", notes = "修改PO Delivery")
     @PostMapping("/modifyDelivery")
-    public AjaxResult<DeliveryHeader> modifyDelivery(@RequestBody DeliveryInfoVo deliveryInfoVo) {
-        return AjaxResult.success().withData(deliveryService.modifyPoDelivery(deliveryInfoVo));
+    public AjaxResult<DeliveryHeader> modifyDelivery(@RequestHeader(name="X-Userid") String userId, @RequestBody DeliveryInfoVo deliveryInfoVo) {
+        return AjaxResult.success().withData(deliveryService.modifyPoDelivery(deliveryInfoVo, userId));
     }
 
     /**
