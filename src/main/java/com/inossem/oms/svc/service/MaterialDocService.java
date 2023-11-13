@@ -103,10 +103,9 @@ public class MaterialDocService {
      * @return
      */
     @Transactional
-    public List<MaterialDoc> add(CreateMaterialDocVo createMaterialDocVo) throws ServiceException {
+    public List<MaterialDoc> add(CreateMaterialDocVo createMaterialDocVo, String userId) throws ServiceException {
         List<MaterialDoc> materialDocList = new ArrayList<>();
         //获取用户信息
-        Long userId = Long.valueOf(UserInfoUtils.getSysUserId());
         Date createTime = new Date();
         //根据movementType查询类型信息
         LambdaQueryWrapper<MovementType> movementTypeLambdaQueryWrapper = new LambdaQueryWrapper<>();

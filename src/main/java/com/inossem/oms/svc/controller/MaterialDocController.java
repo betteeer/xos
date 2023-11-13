@@ -55,8 +55,8 @@ public class MaterialDocController extends BaseController {
     @ApiOperation(value = "创建订单",
             notes="通过json数据创建对象，输入json")
     @PostMapping("/add")
-    public AjaxResult<MaterialDoc> add(@RequestBody @Valid CreateMaterialDocVo createMaterialDocVo) throws ServiceException {
-        List<MaterialDoc> materialDoc =  materialDocService.add(createMaterialDocVo);
+    public AjaxResult<MaterialDoc> add(@RequestHeader(name = "X-Userid") String userId, @RequestBody @Valid CreateMaterialDocVo createMaterialDocVo) throws ServiceException {
+        List<MaterialDoc> materialDoc =  materialDocService.add(createMaterialDocVo, userId);
         return AjaxResult.success().withData(materialDoc);
     }
 
