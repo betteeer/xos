@@ -3,6 +3,7 @@ package com.inossem.oms.svc.service;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.api.bk.api.BkCoaMappingService;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.bk.model.BkCoaMappingModel;
@@ -10,6 +11,7 @@ import com.inossem.oms.api.bk.model.SoInvoiceModel;
 import com.inossem.oms.api.bk.model.TaxContentBuilder;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.SoBillingHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
 import com.inossem.oms.base.svc.domain.VO.SoBillResp;
 import com.inossem.oms.base.svc.mapper.*;
@@ -602,5 +604,40 @@ public class SoBillHeaderService {
             throw new RuntimeException("获取TOken失败，" + companyCode + " 未查到bk账号信息。");
         }
         return connects.get(0);
+    }
+
+    public List<SoBillHeader> getList(SoBillingHeaderFormDTO form) {
+        log.info(">>>查询列表，入参：[{}]", form);
+        MPJLambdaWrapper<SoBillHeader> wrapper = new MPJLambdaWrapper<>();
+        wrapper.select("distinct(t.id) as id");
+        wrapper.selectFilter(SoBillHeader.class, i -> !i.getColumn().equals("id"));
+        // 指定 company code数据范围
+        wrapper.eq(SoBillHeader::getCompanyCode, form.getCompanyCode());
+        // 查询 status
+        wrapper.in(StringUtils.isNotEmpty(form.getCurrencyCode()), SoBillHeader::getCurrencyCode, form.getCurrencyCode());
+        wrapper.between(StringUtils.isNotNull(form.getPostingDateStart()), SoBillHeader::getPostingDate, form.getPostingDateStart(), form.getPostingDateEnd());
+        wrapper.between(StringUtils.isNotNull(form.getNetAmountStart()), SoBillHeader::getNetAmount, form.getNetAmountStart(), form.getNetAmountEnd());
+        wrapper.between(StringUtils.isNotNull(form.getGrossAmountStart()), SoBillHeader::getGrossAmount, form.getGrossAmountStart(), form.getGrossAmountEnd());
+
+        wrapper.leftJoin(DeliveryItem.class, DeliveryItem::getDeliveryNumber, SoBillHeader::getReferenceDoc, ext ->{
+            return ext.leftJoin(SoHeader.class, SoHeader::getSoNumber, DeliveryItem::getReferenceDoc, ext2 -> {
+                ext2.nested(StringUtils.isNotEmpty(form.getSearchText()), i -> {
+                    i.like(SoBillHeader::getBillingNumber, form.getSearchText())
+                            .or().like(SoBillHeader::getAccountingDoc, form.getSearchText())
+                            .or().like(SoHeader::getBpName, form.getSearchText());
+                });
+                return  ext2.selectAs(SoHeader::getBpName, SoBillHeader::getBpName)
+                        .selectAs(SoHeader::getSoNumber, SoBillHeader::getSoNumber);
+            });
+        });
+        wrapper.leftJoin(DeliveryHeader.class, DeliveryHeader::getBillingNumber, SoBillHeader::getBillingNumber,
+                ext -> ext.selectAs(DeliveryHeader::getDeliveryNumber, SoBillHeader::getDeliveryNumber));
+
+        // 拼接order by
+        wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
+        // 排序的字段值相同则按照id倒序
+        wrapper.orderBy(true, false, SoBillHeader::getId);
+        List<SoBillHeader> soBillHeaders = soBillHeaderMapper.selectJoinList(SoBillHeader.class, wrapper);
+        return soBillHeaders;
     }
 }

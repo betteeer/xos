@@ -1,6 +1,6 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.SoBillHeader;
 import org.apache.ibatis.annotations.Param;
 
@@ -12,7 +12,7 @@ import java.util.List;
  * @author guoh
  * @date 2022-11-20
  */
-public interface SoBillHeaderMapper extends BaseMapper<SoBillHeader>
+public interface SoBillHeaderMapper extends MPJBaseMapper<SoBillHeader>
 {
     /**
      * 查询【请填写功能名称】

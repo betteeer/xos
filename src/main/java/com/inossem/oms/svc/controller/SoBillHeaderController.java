@@ -1,12 +1,15 @@
 package com.inossem.oms.svc.controller;
 
+import com.inossem.oms.base.svc.domain.DTO.SoBillingHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.SoBillHeader;
 import com.inossem.oms.svc.service.IDeliveryHeaderService;
 import com.inossem.oms.svc.service.SoBillHeaderService;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
+import com.inossem.sco.common.core.web.page.TableDataInfo;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -61,4 +64,11 @@ public class SoBillHeaderController extends BaseController {
     @PostMapping("/create")
     public AjaxResult create(@RequestBody List<SoBillHeader> soBillHeader) {
         return toAjax(soBillHeaderService.insertSoBillHeader(soBillHeader));
-    }}
+    }
+    @PostMapping("/list")
+    public TableDataInfo getList(@RequestBody @Validated SoBillingHeaderFormDTO form) {
+        startPage();
+        return getDataTable(soBillHeaderService.getList(form));
+    }
+
+}

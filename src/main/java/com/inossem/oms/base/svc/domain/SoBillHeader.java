@@ -109,4 +109,10 @@ public class SoBillHeader
     @TableField(exist = false)
     private BigDecimal exchangeRate = BigDecimal.ONE;
 
+    @TableField(exist = false)
+    private String bpName;
+    @TableField(exist = false)
+    private String soNumber;
+    @TableField(exist = false)
+    private String deliveryNumber;
 }
