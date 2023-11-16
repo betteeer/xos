@@ -34,4 +34,15 @@ public class DeliveryHeaderController extends BaseController {
         String num = deliveryHeaderService.getNextDeliveryNumber(soNumber, companyCode);
         return AjaxResult.success().withData(num);
     }
+
+    @PostMapping("/so/list")
+    public TableDataInfo getSoList(@RequestBody @Validated DeliveryHeaderFormDTO form) {
+        startPage();
+        return getDataTable(deliveryHeaderService.getSoList(form));
+    }
+    @PostMapping("/so/item/list")
+    public TableDataInfo getSoItem(@RequestBody @Validated DeliveryItemFormDTO form) {
+        startPage();
+        return getDataTable(deliveryHeaderService.getSoItem(form));
+    }
 }

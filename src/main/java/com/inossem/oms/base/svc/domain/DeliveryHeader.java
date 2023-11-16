@@ -155,4 +155,6 @@ public class DeliveryHeader {
     private String orderType;
     @TableField(exist = false)
     private String poNumber;
+    @TableField(exist = false)
+    private String soNumber;
 }

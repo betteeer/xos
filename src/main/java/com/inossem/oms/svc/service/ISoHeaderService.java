@@ -2,8 +2,10 @@ package com.inossem.oms.svc.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
+import com.inossem.oms.base.svc.domain.DTO.SoHeaderSearchForm;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
 import com.inossem.oms.base.svc.domain.VO.AddressSaveVo;
 import com.inossem.oms.base.svc.domain.VO.SalesOrderListQyery;
@@ -54,6 +56,7 @@ public class ISoHeaderService {
 
     @Resource
     private SkuService skuService;
+
     /**
      * get sales order list
      *
@@ -231,7 +234,7 @@ public class ISoHeaderService {
         } else {
             //根据soNumber查询delivery_item是否有值(忽略是否有空发运情况  有空发运了也不让修改)
             //允许修改
-            Boolean aBoolean = this.checkSoDelivery(soNumber,companyCode);
+            Boolean aBoolean = this.checkSoDelivery(soNumber, companyCode);
             if (aBoolean) {
                 //不允许修改
                 isUpdate = 1;
@@ -344,7 +347,7 @@ public class ISoHeaderService {
      *
      * @return
      */
-    private Boolean checkSoDelivery(String soOrderNumber,String companyCode) {
+    private Boolean checkSoDelivery(String soOrderNumber, String companyCode) {
         Boolean b = false;
         //根据soNumber查询delivery_item是否有值(忽略是否有空发运情况  有空发运了也不让修改)
         LambdaQueryWrapper<DeliveryItem> deliveryItemLambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -368,7 +371,7 @@ public class ISoHeaderService {
     @Transactional(rollbackFor = Exception.class)
     public SoHeader modify(SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
         //根据soNumber查询delivery_item是否有值(忽略是否有空发运情况  有空发运了也不让修改)
-        Boolean aBoolean = this.checkSoDelivery(soOrderHeaderInfoVo.getSoOrderNumber(),soOrderHeaderInfoVo.getCompanyCode());
+        Boolean aBoolean = this.checkSoDelivery(soOrderHeaderInfoVo.getSoOrderNumber(), soOrderHeaderInfoVo.getCompanyCode());
         if (aBoolean) {
             throw new RuntimeException("当前so存在已发运,不允许修改");
         }

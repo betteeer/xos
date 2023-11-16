@@ -134,5 +134,7 @@ public class SoItem {
     @TableField(exist = false)
     private String skuDescription;
 
+    @TableField(exist = false)
+    private String orderStatus;
 
 }

@@ -1,11 +1,11 @@
 package com.inossem.oms.base.svc.mapper;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import com.inossem.oms.base.svc.domain.SoHeader;
 import com.inossem.oms.base.svc.domain.VO.OrderHeaderResp;
 import com.inossem.oms.base.svc.domain.VO.SalesOrderListQyery;
-import com.inossem.oms.base.svc.domain.dashboard.vo.BestSellerVo;
 import com.inossem.oms.base.svc.domain.dashboard.req.DashboardReq;
+import com.inossem.oms.base.svc.domain.dashboard.vo.BestSellerVo;
 import com.inossem.oms.base.svc.domain.dashboard.vo.SalesPercentageVo;
 import org.apache.ibatis.annotations.Param;
 
@@ -17,7 +17,7 @@ import java.util.List;
  * @author shigf
  * @date 2022-10-17
  */
-public interface SoHeaderMapper extends BaseMapper<SoHeader> {
+public interface SoHeaderMapper extends MPJBaseMapper<SoHeader> {
 
 
     /**

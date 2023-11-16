@@ -1,9 +1,11 @@
 package com.inossem.oms.svc.controller;
 
 import com.alibaba.druid.util.StringUtils;
+import com.inossem.oms.base.svc.domain.DTO.SoHeaderSearchForm;
 import com.inossem.oms.base.svc.domain.DeliveryHeader;
 import com.inossem.oms.base.svc.domain.SoHeader;
 import com.inossem.oms.base.svc.domain.VO.*;
+import com.inossem.oms.svc.service.SoHeaderNewService;
 import com.inossem.sco.common.core.domain.R;
 import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
@@ -12,6 +14,7 @@ import com.inossem.oms.svc.service.IDeliveryHeaderService;
 import com.inossem.oms.svc.service.ISoHeaderService;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
@@ -31,6 +34,8 @@ public class SoHeaderController extends BaseController {
 
     @Resource
     private ISoHeaderService soHeaderService;
+    @Resource
+    private SoHeaderNewService soHeaderNewService;
 
     @Resource
     private IDeliveryHeaderService deliveryService;
@@ -266,4 +271,9 @@ public class SoHeaderController extends BaseController {
         return toAjax(soHeaderService.updateStatus(soNumber, companyCode));
     }
 
+    @PostMapping("/header/list")
+    public TableDataInfo list(@RequestBody @Validated SoHeaderSearchForm form) {
+        startPage();
+        return getDataTable(soHeaderNewService.getNewList(form));
+    }
 }

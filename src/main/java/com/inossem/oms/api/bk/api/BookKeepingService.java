@@ -7,6 +7,7 @@ import com.alibaba.fastjson2.JSONWriter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.inossem.oms.api.bk.model.PoInvoiceModel;
 import com.inossem.oms.api.bk.model.SoInvoiceModel;
+import com.inossem.oms.api.bk.model.UserModel;
 import com.inossem.oms.base.svc.domain.BkCoaRel;
 import com.inossem.oms.base.svc.domain.BusinessPartner;
 import com.inossem.oms.base.svc.domain.Company;
@@ -27,6 +28,7 @@ import javax.annotation.Resource;
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 /**
  * @author kgh
@@ -934,5 +936,31 @@ public class BookKeepingService {
         String logo = data.getString("logo");
         logger.info(">>> 获取公司logo成功");
         return logo;
+    }
+
+    public List<UserModel> getUserList(String companyCode, List<String> ids) throws IOException {
+        SystemConnect connect = getConnectCom(companyCode);
+
+        OkHttpClient client = new OkHttpClient().newBuilder()
+                .connectTimeout(30, TimeUnit.SECONDS)
+                .build();
+        String str_ids = ids.stream().map(id -> "id[$in][]=" + id).collect(Collectors.joining("&"));
+        String url = (connect.getApiUrl() + "/users/api/users?" + str_ids);
+        logger.info(">>> 根据用户ids:{}，查询用户信息,请求地址url:{}", ids, url);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .method("GET", null)
+                .addHeader("Authorization", getToken(connect))
+                .build();
+        Response response = client.newCall(request).execute();
+        if (response.code() != 200) {
+            throw new RuntimeException("调用接口失败");
+        }
+        String responseBody = response.body().string();
+        JSONObject jsonObject = JSONObject.parseObject(responseBody);
+        List<UserModel> users = JSON.parseArray(jsonObject.getJSONArray("data").toJSONString(), UserModel.class);
+        logger.info(">>> 获取users成功: {}", users);
+        return users;
     }
 }
