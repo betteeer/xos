@@ -276,4 +276,9 @@ public class SoHeaderController extends BaseController {
         startPage();
         return getDataTable(soHeaderNewService.getNewList(form));
     }
+
+    @GetMapping("/block/reason")
+    public AjaxResult blockReason(@RequestParam String type){
+        return AjaxResult.success().withData(soHeaderNewService.getBlockReason(type));
+    }
 }

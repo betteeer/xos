@@ -1,9 +1,12 @@
 package com.inossem.oms.svc.service;
 
+import com.github.yulichang.toolkit.JoinWrappers;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.inossem.oms.base.svc.domain.BlockReason;
 import com.inossem.oms.base.svc.domain.DTO.SoHeaderSearchForm;
 import com.inossem.oms.base.svc.domain.SalesChannel;
 import com.inossem.oms.base.svc.domain.SoHeader;
+import com.inossem.oms.base.svc.mapper.BlockReasonMapper;
 import com.inossem.oms.base.svc.mapper.SoHeaderMapper;
 import com.inossem.sco.common.core.utils.StringUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +20,9 @@ import java.util.List;
 public class SoHeaderNewService {
     @Resource
     private SoHeaderMapper soHeaderMapper;
+
+    @Resource
+    private BlockReasonMapper blockReasonMapper;
 
     public List<SoHeader> getNewList(SoHeaderSearchForm form) {
         log.info(">>>查询列表，入参：[{}]", form);
@@ -69,8 +75,15 @@ public class SoHeaderNewService {
         // 拼接order by
         wrapper.orderBy(StringUtils.isNotNull(form.getOrderBy()), form.getIsAsc(), StringUtils.toUnderScoreCase(form.getOrderBy()));
         // 排序的字段值相同则按照id倒序
-        wrapper.orderBy(true, false, SoHeader::getId);
+        wrapper.orderBy(true, false, SoHeader::getId, SoHeader::getId);
 
         return soHeaderMapper.selectJoinList(SoHeader.class, wrapper);
+    }
+
+    public List<BlockReason> getBlockReason(String type) {
+        MPJLambdaWrapper<BlockReason> wrapper = JoinWrappers.lambda(BlockReason.class)
+            .selectAll(BlockReason.class)
+            .eq(BlockReason::getBlockType, type);
+        return blockReasonMapper.selectList(wrapper);
     }
 }
