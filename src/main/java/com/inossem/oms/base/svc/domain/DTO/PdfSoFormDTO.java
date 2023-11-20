@@ -34,5 +34,6 @@ public class PdfSoFormDTO {
         private String salesQty;
         private String unitPrice;
         private String amount;
+        private String uom;
     }
 }

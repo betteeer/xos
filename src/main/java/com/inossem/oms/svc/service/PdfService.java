@@ -13,6 +13,7 @@ import com.itextpdf.html2pdf.HtmlConverter;
 import com.itextpdf.layout.font.FontProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
@@ -67,7 +68,7 @@ public class PdfService {
         }
         map.put("companyCode", so.getCompanyCode());
         setCompanyInfo(map, so.getCompanyCode());
-        setSplitStartEndFlag(map, so.getSkus() != null ? so.getSkus().size() : 0, 12);
+        setSplitStartEndFlag(map, so.getSkus() != null ? so.getSkus().size() : 0, 18);
         context.setVariables(map);
         String html = generatorHtml(context, "so");
         return convertToPdf(html);
@@ -77,7 +78,7 @@ public class PdfService {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(po);
 //        List<PdfPoFormDTO.Sku> skus = new ArrayList<>();
-//        for (int i = 0; i < 56; i++) {
+//        for (int i = 0; i < 15; i++) {
 //            PdfPoFormDTO.Sku sku = new PdfPoFormDTO.Sku();
 //            // 拷贝需要的属性
 //            BeanUtils.copyProperties(po.getSkus().get(0), sku);
@@ -92,7 +93,7 @@ public class PdfService {
         }
         map.put("companyCode", po.getCompanyCode());
         setCompanyInfo(map, po.getCompanyCode());
-        setSplitStartEndFlag(map, po.getSkus() != null ? po.getSkus().size() : 0, 11);
+        setSplitStartEndFlag(map, po.getSkus() != null ? po.getSkus().size() : 0, 17);
         context.setVariables(map);
         String html = generatorHtml(context, "po");
         return convertToPdf(html);
@@ -155,7 +156,7 @@ public class PdfService {
     private void setSplitStartEndFlag(Map<String, Object> map, int size, int firstPageCeil) {
         List<Integer[]> list = new ArrayList<>();
         list.add(new Integer[]{1, firstPageCeil});
-        int pageSize = 19;
+        int pageSize = 27;
         int start = firstPageCeil;
         int end = firstPageCeil + pageSize;
         while (start <= size) {
