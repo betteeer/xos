@@ -26,7 +26,7 @@ public class SoItemSearchFormDTO {
     private List<String> currencyCode;
     private List<String> taxExmpt;
 
-    @Pattern(regexp = "^salesQty|basicQty|unitPrice|netValue$", message = "order by should within salesQty,basicQty,unitPrice,netValue")
+    @Pattern(regexp = "^soNumber|salesQty|basicQty|unitPrice|netValue$", message = "order by should within soNumber,salesQty,basicQty,unitPrice,netValue")
     private String orderBy;
     private Boolean isAsc = true;
 
