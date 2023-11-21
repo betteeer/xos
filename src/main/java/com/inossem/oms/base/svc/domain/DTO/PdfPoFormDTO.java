@@ -16,6 +16,7 @@ public class PdfPoFormDTO {
     private String referenceNumber;
     private String paymentTerm;
     private String from;
+    private String vendorId;
     private String shipTo;
     private String billTo;
     private String netAmount;

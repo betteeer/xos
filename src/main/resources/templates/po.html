@@ -55,6 +55,7 @@
           height: 1px;
           background-color: #004fc1;
           clear: both;
+          margin-bottom: 20px;
         }
         .from {
           display: flex;
@@ -186,18 +187,28 @@
     </div>
     <div class="split"></div>
     <div class="from">
-        <div class="company">
-            <span>From:</span>
-            <span class="toCompany" th:text="${from}"></span>
-        </div>
-        <div class="address">
-            <div>
-                <span>Ship to:</span>
-                <span th:text="${shipTo}"></span>
+        <div class="left" style="width: 50%">
+            <div class="item">
+                <div class="key">To:</div>
+                <div class="value" th:text="${from}"></div>
             </div>
-            <div style="margin-top: 10px;">
-                <span>Bill to:</span>
-                <span th:text="${billTo}"></span>
+            <div class="item">
+                <div class="key">Address:</div>
+                <div class="value" th:text="${bpAddress}"></div>
+            </div>
+            <div class="item">
+                <div class="key">Email:</div>
+                <div class="value" th:text="${bpEmail}"></div>
+            </div>
+            <div class="item">
+                <div class="key">TEL:</div>
+                <div class="value" th:text="${bpTel}"></div>
+            </div>
+        </div>
+        <div class="right"  style="width: 50%">
+            <div class="item">
+                <div class="key">Ship to:</div>
+                <div class="value" th:text="${shipTo}"></div>
             </div>
         </div>
     </div>

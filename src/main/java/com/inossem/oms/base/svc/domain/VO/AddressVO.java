@@ -42,4 +42,8 @@ public class AddressVO {
 
     @TableField(exist = false)
     private String deleteTime;
+
+    public String getAddressStr() {
+        return this.street + " " + this.city + " " + this.province + " " + this.country + " " + this.postCode;
+    }
 }

@@ -1,12 +1,16 @@
 package com.inossem.oms.svc.service;
 
+import com.alibaba.fastjson2.JSONObject;
 import com.inossem.oms.api.bk.api.BookKeepingService;
 import com.inossem.oms.api.kyc.api.KycCommonService;
 import com.inossem.oms.api.kyc.model.KycCompany;
 import com.inossem.oms.base.common.domain.SpecialConfig;
+import com.inossem.oms.base.svc.domain.BusinessPartner;
 import com.inossem.oms.base.svc.domain.DTO.PdfPoFormDTO;
 import com.inossem.oms.base.svc.domain.DTO.PdfSoFormDTO;
+import com.inossem.oms.base.svc.domain.VO.AddressVO;
 import com.inossem.oms.common.service.SpecialConfigService;
+import com.inossem.oms.mdm.service.BpService;
 import com.inossem.sco.common.core.exception.ServiceException;
 import com.itextpdf.html2pdf.ConverterProperties;
 import com.itextpdf.html2pdf.HtmlConverter;
@@ -29,10 +33,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Slf4j
@@ -48,6 +49,9 @@ public class PdfService {
 
     @Resource
     private BookKeepingService bookKeepingService;
+
+    @Resource
+    private BpService bpService;
 
     public ResponseEntity<byte[]> generateSoPdf(PdfSoFormDTO so) throws IOException, IllegalAccessException {
         Context context = new Context();
@@ -78,7 +82,7 @@ public class PdfService {
         Context context = new Context();
         Map<String, Object> map = convertUsingReflection(po);
 //        List<PdfPoFormDTO.Sku> skus = new ArrayList<>();
-//        for (int i = 0; i < 15; i++) {
+//        for (int i = 0; i < 100; i++) {
 //            PdfPoFormDTO.Sku sku = new PdfPoFormDTO.Sku();
 //            // 拷贝需要的属性
 //            BeanUtils.copyProperties(po.getSkus().get(0), sku);
@@ -93,12 +97,27 @@ public class PdfService {
         }
         map.put("companyCode", po.getCompanyCode());
         setCompanyInfo(map, po.getCompanyCode());
-        setSplitStartEndFlag(map, po.getSkus() != null ? po.getSkus().size() : 0, 17);
+        setVendorInfo(map, po);
+        setSplitStartEndFlag(map, po.getSkus() != null ? po.getSkus().size() : 0, 13);
         context.setVariables(map);
         String html = generatorHtml(context, "po");
         return convertToPdf(html);
     }
 
+    private void setVendorInfo(Map<String, Object> map, PdfPoFormDTO po) throws IOException {
+        log.info(">>>开始根据venderId={}，设置信息", po.getVendorId());
+        BusinessPartner bp = bpService.getBp(po.getVendorId(), po.getCompanyCode());
+        if (bp != null) {
+            String bpAddress = Optional.ofNullable(bp)
+                    .map(BusinessPartner::getOfficeList)
+                    .map(list -> list.get(0))
+                    .map(AddressVO::getAddressStr).orElse("");
+            map.put("bpEmail", bp.getBpEmail());
+            map.put("bpTel", bp.getBpTel());
+            map.put("bpAddress", bpAddress);
+            log.info(">>>venderId={}，设置信息成功", po.getVendorId());
+        }
+    }
 
     private void setCompanyInfo(Map<String, Object> map, String companyCode) throws IOException {
         String companyLogo = bookKeepingService.getCompanyLogo(companyCode);
