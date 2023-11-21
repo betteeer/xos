@@ -68,7 +68,7 @@ public class PdfService {
         }
         map.put("companyCode", so.getCompanyCode());
         setCompanyInfo(map, so.getCompanyCode());
-        setSplitStartEndFlag(map, so.getSkus() != null ? so.getSkus().size() : 0, 18);
+        setSplitStartEndFlag(map, so.getSkus() != null ? so.getSkus().size() : 0, 17);
         context.setVariables(map);
         String html = generatorHtml(context, "so");
         return convertToPdf(html);
