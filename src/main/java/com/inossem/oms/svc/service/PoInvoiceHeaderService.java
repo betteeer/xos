@@ -17,7 +17,6 @@ import com.inossem.oms.base.svc.mapper.CurrencyExchangeMapper;
 import com.inossem.oms.base.svc.mapper.PoHeaderMapper;
 import com.inossem.oms.base.svc.mapper.PoInvoiceHeaderMapper;
 import com.inossem.oms.base.svc.mapper.PoInvoiceItemMapper;
-import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.BpService;
 import com.inossem.oms.mdm.service.CompanyService;
@@ -79,7 +78,7 @@ public class PoInvoiceHeaderService {
      * @return 结果
      */
     @Transactional(rollbackFor = Exception.class)
-    public int insertPoInvoiceHeader(PoInvoiceHeader poInvoiceHeader) {
+    public int insertPoInvoiceHeader(PoInvoiceHeader poInvoiceHeader, String userId) {
         String companyCode = poInvoiceHeader.getCompanyCode();
         List<PoInvoiceItem> poInvoiceItemList = new ArrayList<>();
         // 生成billNumber
@@ -88,9 +87,9 @@ public class PoInvoiceHeaderService {
             poInvoiceHeader.setInvoiceNumber(billNumber);
             Date date = new Date();
             poInvoiceHeader.setGmtCreate(date);
-            poInvoiceHeader.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            poInvoiceHeader.setCreateBy(userId);
             poInvoiceHeader.setGmtModified(date);
-            poInvoiceHeader.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            poInvoiceHeader.setModifiedBy(userId);
             poInvoiceHeaderMapper.insert(poInvoiceHeader);
             log.info("po invoice header save success .. ");
 
@@ -99,9 +98,9 @@ public class PoInvoiceHeaderService {
             for (PoInvoiceItem item : poInvoiceItemList) {
                 item.setInvoiceingNumber(billNumber);
                 item.setGmtCreate(date);
-                item.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+                item.setCreateBy(userId);
                 item.setGmtModified(date);
-                item.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+                item.setModifiedBy(userId);
                 poInvoiceItemMapper.insert(item);
 
             }
@@ -109,6 +108,8 @@ public class PoInvoiceHeaderService {
             //更新po中的开票状态
             PoHeader poHeader = new PoHeader();
             poHeader.setInvoiceStatus(ModuleConstant.SOPO_BILLIING_STATUS.FULLY_INVOICED);
+            poHeader.setModifiedBy(userId);
+            poHeader.setGmtModified(date);
             LambdaQueryWrapper<PoHeader> poHeaderQueryWrapper = new LambdaQueryWrapper<>();
             poHeaderQueryWrapper.eq(PoHeader::getPoNumber, poInvoiceHeader.getReferenceDoc());
             poHeaderQueryWrapper.eq(PoHeader::getCompanyCode, poInvoiceHeader.getCompanyCode());
@@ -137,6 +138,8 @@ public class PoInvoiceHeaderService {
                     .eq(PoInvoiceHeader::getCompanyCode, companyCode);
             PoInvoiceHeader poInvoiceHeader1 = new PoInvoiceHeader();
             poInvoiceHeader1.setAccountingDoc(s);
+            poInvoiceHeader1.setModifiedBy(userId);
+            poInvoiceHeader1.setGmtModified(new Date());
             poInvoiceHeaderMapper.update(poInvoiceHeader, poInvoiceHeaderLambdaQueryWrapper);
         } catch (Exception e) {
             log.info(e.getMessage());

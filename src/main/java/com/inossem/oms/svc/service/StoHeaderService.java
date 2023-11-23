@@ -139,7 +139,7 @@ public class StoHeaderService {
             log.info("构建的stoheader： [{}]", stoHeader);
             stoHeaderMapper.updateById(stoHeader);
             // 更新items
-            List<StoItem> stoItems = this.packingStoItemInfoWhenReSave(stoFormDTO, stoHeader.getStoNumber());
+            List<StoItem> stoItems = this.packingStoItemInfoWhenReSave(stoFormDTO, stoHeader);
             log.info("构建的stoitems： [{}]", stoItems);
             stoItemService.saveOrUpdateBatch(stoItems);
             stoHeader.setItems(stoItems);
@@ -173,6 +173,8 @@ public class StoHeaderService {
         stoHeader.setShipoutDate(stoFormDTO.getShipoutDate());
         stoHeader.setGmtCreate(new Date());
         stoHeader.setGmtModified(new Date());
+        stoHeader.setCreateBy(stoFormDTO.getUserId());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         stoHeader.setStoNotes(stoFormDTO.getStoNotes());
         return stoHeader;
     }
@@ -219,6 +221,8 @@ public class StoHeaderService {
             si.setBasicUom(items.get(i).getBasicUom());
             si.setGmtCreate(new Date());
             si.setGmtModified(new Date());
+            si.setCreateBy(stoFormDTO.getUserId());
+            si.setModifiedBy(stoFormDTO.getUserId());
             result.add(si);
         }
         return result;
@@ -240,6 +244,7 @@ public class StoHeaderService {
         stoHeader.setStoNotes(stoFormDTO.getStoNotes());
         stoHeader.setShipoutDate(stoFormDTO.getShipoutDate());
         stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         return stoHeader;
     }
 
@@ -251,7 +256,8 @@ public class StoHeaderService {
      * @return
      */
     @Transactional(rollbackFor = Exception.class)
-    List<StoItem> packingStoItemInfoWhenReSave(StoFormDTO stoFormDTO, String stoNumber) {
+    List<StoItem> packingStoItemInfoWhenReSave(StoFormDTO stoFormDTO, StoHeader stoHeader) {
+        String stoNumber = stoHeader.getStoNumber();
         StoItemMapper mapper = stoItemService.getBaseMapper();
         // 老的一堆items
         List<StoItem> originStoItems = mapper.selectList(new LambdaQueryWrapper<StoItem>().eq(StoItem::getStoNumber, stoNumber));
@@ -273,6 +279,8 @@ public class StoHeaderService {
                 si.setBasicUom(item.getBasicUom());
                 si.setGmtCreate(new Date());
                 si.setGmtModified(new Date());
+                si.setCreateBy(stoFormDTO.getUserId());
+                si.setModifiedBy(stoFormDTO.getUserId());
                 if (item.getIsDeleted() == 1) {
                     si.setIsDeleted(1);
                 }
@@ -293,6 +301,7 @@ public class StoHeaderService {
                         }
                     }
                     i.setGmtModified(new Date());
+                    i.setModifiedBy(stoFormDTO.getUserId());
                     result.add(i);
                 });
             }
@@ -306,7 +315,7 @@ public class StoHeaderService {
      * @param stoNumber
      * @return
      */
-    public StoHeader cancelOrder(String stoNumber) {
+    public StoHeader cancelOrder(String stoNumber, String userId) {
         log.info(">>> 开始取消sto, {}", stoNumber);
         StoHeader stoHeader = this.getStoHeaderByNumber(stoNumber);
         if (!stoHeader.getOrderStatus().equals(StoStatus.OPEN.getStatus())) {
@@ -314,6 +323,8 @@ public class StoHeaderService {
         }
         stoHeader.setOrderStatus(StoStatus.CANCELLED.getStatus());
         stoHeader.setIsDeleted(1);
+        stoHeader.setModifiedBy(userId);
+        stoHeader.setGmtModified(new Date());
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> 取消sto成功, {}", stoNumber);
         return stoHeader;
@@ -375,11 +386,12 @@ public class StoHeaderService {
             });
         });
         log.info(">>> 预构建的doc对象为：{}", preMaterialDocVos);
-        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
+        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos, stoFormDTO.getUserId());
         stockBalanceNewService.updateBalanceByMaterialDocsWhenTransfer(materialDocs);
         //更改header的状态
         stoHeader.setOrderStatus(StoStatus.IN_TRANSIT.getStatus());
         stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         stoHeader.setShipoutMaterialDoc(materialDocs.get(0).getDocNumber());
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> transfer sto transfer完成，stoNumber = {}", stoHeader.getStoNumber());
@@ -436,7 +448,7 @@ public class StoHeaderService {
             });
         });
         log.info(">>> 预构建的doc对象为：{}", preMaterialDocVos);
-        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos);
+        List<MaterialDoc> materialDocs = materialDocNewService.generateMaterialDoc(companyCode, preMaterialDocVos, stoFormDTO.getUserId());
         stockBalanceNewService.updateBalanceByMaterialDocsWhenReceive(materialDocs);
         //  更新stoHeader状态
         stoHeader.setOrderStatus(StoStatus.RECEIVED.getStatus());
@@ -447,6 +459,7 @@ public class StoHeaderService {
                 .updateIfNotNull(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
                 .val();
         stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         stoHeader.setReceiveMaterialDoc(materialDocs.get(0).getDocNumber());
         stoHeaderMapper.updateById(stoHeader);
         stoHeader.setItems(stoItems);
@@ -473,6 +486,7 @@ public class StoHeaderService {
         stoHeader.setShipoutMaterialDoc("");
         stoHeader.setShipoutDate(null);
         stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         stoHeader.setItems(stoItems);
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> transfer sto revert transfer完成，stoNumber = {}", stoHeader.getStoNumber());
@@ -498,6 +512,7 @@ public class StoHeaderService {
         stoHeader.setReceiveMaterialDoc("");
         stoHeader.setReceiveDate(null);
         stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         stoHeader.setItems(stoItems);
         stoHeaderMapper.updateById(stoHeader);
         log.info(">>> transfer sto revert received完成，stoNumber = {}", stoHeader.getStoNumber());
@@ -512,6 +527,8 @@ public class StoHeaderService {
                 .update(stoHeader::setTrackingNumber, stoFormDTO.getTrackingNumber())
                 .update(stoHeader::setStoNotes, stoFormDTO.getStoNotes())
                 .val();
+        stoHeader.setGmtModified(new Date());
+        stoHeader.setModifiedBy(stoFormDTO.getUserId());
         int i = stoHeaderMapper.updateById(stoHeader);
         return i > 0;
     }

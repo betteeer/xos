@@ -39,49 +39,55 @@ public class StoHeaderController extends BaseController {
     }
 
     @PostMapping("/save")
-    public AjaxResult saveOrder(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult saveOrder(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.saveOrder(stoFormDTO));
     }
     @PostMapping("/cancel")
-    public AjaxResult cancelOrder(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult cancelOrder(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
         if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
             return AjaxResult.error("stoNumber cannot be empty");
         }
-        return AjaxResult.success().withData(stoHeaderService.cancelOrder(stoFormDTO.getStoNumber()));
+        return AjaxResult.success().withData(stoHeaderService.cancelOrder(stoFormDTO.getStoNumber(), userId));
     }
     @PostMapping("/transfer")
-    public AjaxResult transferOrder(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult transferOrder(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.transferOrder(stoFormDTO));
     }
 
     @PostMapping("/receive")
-    public AjaxResult receiveOrder(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult receiveOrder(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
         if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
             return AjaxResult.error("stoNumber cannot be empty");
         }
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.receiveOrder(stoFormDTO));
     }
     @PostMapping("/revertToOpen")
-    public AjaxResult revertToOpen(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult revertToOpen(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
         if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
             return AjaxResult.error("stoNumber cannot be empty");
         }
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.revertToOpen(stoFormDTO));
     }
 
     @PostMapping("/revertToIntransit")
-    public AjaxResult revertToIntransit(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult revertToIntransit(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
         if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
             return AjaxResult.error("stoNumber cannot be empty");
         }
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.revertToIntransit(stoFormDTO));
     }
 
     @PostMapping("/freeField/save")
-    public AjaxResult saveFreeField(@RequestBody StoFormDTO stoFormDTO) {
+    public AjaxResult saveFreeField(@RequestHeader("X-Userid") String userId,  @RequestBody StoFormDTO stoFormDTO) {
         if (StringUtils.isEmpty(stoFormDTO.getStoNumber())) {
             return AjaxResult.error("stoNumber cannot be empty");
         }
+        stoFormDTO.setUserId(userId);
         return AjaxResult.success().withData(stoHeaderService.saveFreeField(stoFormDTO));
     }
 

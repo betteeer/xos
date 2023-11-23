@@ -6,7 +6,6 @@ import com.inossem.oms.base.common.constant.ModuleConstant;
 import com.inossem.oms.base.svc.domain.*;
 import com.inossem.oms.base.svc.domain.VO.*;
 import com.inossem.oms.base.svc.mapper.*;
-import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.SkuService;
 import lombok.extern.slf4j.Slf4j;
@@ -250,9 +249,9 @@ public class PoHeaderService {
 
             Date date = new Date();
             i.setGmtCreate(date);
-            i.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            i.setCreateBy(header.getCreateBy());
             i.setGmtModified(date);
-            i.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            i.setModifiedBy(header.getModifiedBy());
             i.setIsDeleted(0);
 
             items.add(i);
@@ -267,14 +266,14 @@ public class PoHeaderService {
         billAddress.setType(ADDRESS_TYPE);
         billAddress.setSubType(SUB_ADDRESS_SRC_TYPE);
         billAddress.setKey(po.getPoNumber());
-        addressService.save(billAddress);
+        addressService.save(billAddress, vo.getUserId());
 
         AddressSaveVo shipAddress = vo.getShipAddress();
         shipAddress.setCompanyCode(vo.getCompanyCode());
         shipAddress.setType(ADDRESS_TYPE);
         shipAddress.setSubType(SUB_ADDRESS_DEST_TYPE);
         shipAddress.setKey(po.getPoNumber());
-        addressService.save(shipAddress);
+        addressService.save(shipAddress, vo.getUserId());
     }
 
     private PoHeader getPoHeader(PoSaveVo po) {
@@ -321,9 +320,9 @@ public class PoHeaderService {
 
         Date date = new Date();
         header.setGmtCreate(date);
-        header.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        header.setCreateBy(po.getUserId());
         header.setGmtModified(date);
-        header.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        header.setModifiedBy(po.getUserId());
         header.setIsDeleted(0);
 
         header.setClearanceFee(po.getClearanceFee());
@@ -382,10 +381,8 @@ public class PoHeaderService {
         header.setQstAmount(po.getQstAmount());
         header.setReferenceNumber(po.getReferenceNumber());
         Date date = new Date();
-        header.setGmtCreate(date);
-        header.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
         header.setGmtModified(date);
-        header.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        header.setModifiedBy(po.getUserId());
         header.setIsDeleted(0);
         try {
             poHeaderMapper.updateById(header);
@@ -419,6 +416,8 @@ public class PoHeaderService {
             // 4.更新item
             List<PoItem> items = getPoItems(header, po);
             items.forEach(pItem -> {
+                pItem.setModifiedBy(po.getUserId());
+                pItem.setGmtModified(new Date());
                 poItemMapper.updateById(pItem);
             });
 
@@ -428,6 +427,8 @@ public class PoHeaderService {
                     PoItem poItem = new PoItem();
                     poItem.setId(key);
                     poItem.setIsDeleted(1);
+                    poItem.setModifiedBy(po.getUserId());
+                    poItem.setGmtModified(new Date());
                     poItemMapper.updateById(poItem);
                 });
             }
@@ -438,14 +439,14 @@ public class PoHeaderService {
             payAddress.setType(ADDRESS_TYPE);
             payAddress.setSubType(SUB_ADDRESS_SRC_TYPE);
             payAddress.setKey(po.getPoNumber());
-            addressService.modifyAddress(payAddress);
+            addressService.modifyAddress(payAddress, po.getUserId());
 
             AddressSaveVo shipAddress = po.getShipAddress();
             shipAddress.setCompanyCode(po.getCompanyCode());
             shipAddress.setType(ADDRESS_TYPE);
             shipAddress.setSubType(SUB_ADDRESS_DEST_TYPE);
             shipAddress.setKey(po.getPoNumber());
-            addressService.modifyAddress(shipAddress);
+            addressService.modifyAddress(shipAddress, po.getUserId());
         } catch (Exception e) {
             log.error("modify po order header failed", e);
             throw new RuntimeException(e);
@@ -455,10 +456,11 @@ public class PoHeaderService {
 
 
     @Transactional(rollbackFor = Exception.class)
-    public int updateStatus(String poNumber, String companyCode) {
+    public int updateStatus(String poNumber, String companyCode, String userId) {
         PoHeader po = new PoHeader();
         po.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
-
+        po.setModifiedBy(userId);
+        po.setGmtModified(new Date());
         LambdaQueryWrapper<PoHeader> poUpdateWrapper = new LambdaQueryWrapper<PoHeader>()
                 .and(poHeader -> poHeader.eq(PoHeader::getPoNumber, poNumber))
                 .and(poHeader -> poHeader.eq(PoHeader::getCompanyCode, companyCode));

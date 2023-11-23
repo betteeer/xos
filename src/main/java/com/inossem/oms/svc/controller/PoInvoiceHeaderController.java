@@ -7,10 +7,7 @@ import com.inossem.sco.common.core.web.controller.BaseController;
 import com.inossem.sco.common.core.web.domain.AjaxResult;
 import com.inossem.sco.common.core.web.page.TableDataInfo;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -32,9 +29,9 @@ public class PoInvoiceHeaderController extends BaseController
      * 新增【po开票】
      */
     @PostMapping(value = "/create")
-    public AjaxResult create(@RequestBody PoInvoiceHeader poInvoiceHeader)
+    public AjaxResult create(@RequestHeader(name = "X-Userid") String userId, @RequestBody PoInvoiceHeader poInvoiceHeader)
     {
-        return toAjax(poInvoiceHeaderService.insertPoInvoiceHeader(poInvoiceHeader));
+        return toAjax(poInvoiceHeaderService.insertPoInvoiceHeader(poInvoiceHeader, userId));
     }
 
     @PostMapping("/list")

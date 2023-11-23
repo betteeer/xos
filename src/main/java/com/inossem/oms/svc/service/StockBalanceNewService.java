@@ -117,6 +117,8 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
                     } else {
                         StockBalance fromStock = stockBalances.stream().filter(v -> v.getWarehouseCode().equals(warehouseCodes[0]) && v.getSkuNumber().equals(skuNumber)).findFirst().orElse(null);
                         StockBalance s = buildNoneStockBalanceBaseOnFromStock(fromStock, materialDoc);
+                        s.setCreateBy(materialDoc.getCreateBy());
+                        s.setGmtCreate(new Date());
                         result.add(s);
                     }
                 }
@@ -143,6 +145,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         b.setTotalAmount(s.getTotalAmount().subtract(materialDoc.getTotalAmount()));
         b.setTotalQty(s.getTotalQty().subtract(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
 
@@ -159,6 +162,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         b.setTotalTransferQty(s.getTotalTransferQty().add(materialDoc.getSkuQty()));
         b.setTotalQty(s.getTotalQty().add(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
 
@@ -181,6 +185,8 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         toBalance.setTotalQty(materialDoc.getSkuQty());
         toBalance.setGmtCreate(new Date());
         toBalance.setGmtModified(new Date());
+        toBalance.setCreateBy(materialDoc.getCreateBy());
+        toBalance.setModifiedBy(materialDoc.getModifiedBy());
         return toBalance;
     }
 
@@ -233,6 +239,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         }
         b.setTotalTransferQty(s.getTotalTransferQty().subtract(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
 
@@ -290,6 +297,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         b.setTotalAmount(s.getTotalAmount().subtract(materialDoc.getTotalAmount()));
         b.setTotalQty(s.getTotalQty().subtract(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
     private StockBalance addOnHand(StockBalance s, MaterialDoc materialDoc) {
@@ -299,6 +307,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         b.setTotalOnhandQty(s.getTotalOnhandQty().add(materialDoc.getSkuQty()));
         b.setTotalQty(s.getTotalQty().add(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
 
@@ -344,6 +353,7 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
         b.setTotalOnhandQty(s.getTotalOnhandQty().subtract(materialDoc.getSkuQty()));
         b.setTotalTransferQty(s.getTotalTransferQty().add(materialDoc.getSkuQty()));
         b.setGmtModified(new Date());
+        b.setModifiedBy(materialDoc.getModifiedBy());
         return b;
     }
 

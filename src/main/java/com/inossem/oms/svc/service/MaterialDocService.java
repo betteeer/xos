@@ -13,7 +13,6 @@ import com.inossem.oms.base.svc.mapper.MovementTypeMapper;
 import com.inossem.oms.base.svc.mapper.StockBalanceMapper;
 import com.inossem.oms.base.svc.vo.*;
 import com.inossem.oms.base.utils.NumberWorker;
-import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.service.CompanyService;
 import com.inossem.oms.mdm.service.SkuService;
 import com.inossem.oms.mdm.service.WarehouseService;
@@ -209,7 +208,10 @@ public class MaterialDocService {
                 stockBalance = calculateAveragePrice(movementType, stockBalance,
                         originTotalAmount, originTotalQty,
                         skuQty, increTotalAmount, skuNumber, companyCode, warehouseCode);
-
+                stockBalance.setCreateBy(userId);
+                stockBalance.setModifiedBy(userId);
+                stockBalance.setGmtCreate(new Date());
+                stockBalance.setGmtModified(new Date());
                 stockBalanceMapper.insert(stockBalance);
             } else {
                 //已存在，修改
@@ -230,6 +232,8 @@ public class MaterialDocService {
                 stockBalance = calculateAveragePrice(movementType, stockBalance,
                         originTotalAmount, originTotalQty,
                         skuQty, increTotalAmount, skuNumber, companyCode, warehouseCode);
+                stockBalance.setGmtModified(new Date());
+                stockBalance.setModifiedBy(userId);
                 stockBalanceMapper.updateById(stockBalance);
             }
 
@@ -538,10 +542,9 @@ public class MaterialDocService {
      * @return
      */
     @Transactional
-    public List<MaterialDoc> reverseMaterialDoc(ReversedMaterialDocVO reversedMaterialDocVO) throws ServiceException {
+    public List<MaterialDoc> reverseMaterialDoc(ReversedMaterialDocVO reversedMaterialDocVO, String userId) throws ServiceException {
         List<MaterialDoc> materialDocList = new ArrayList<>();
         //获取用户信息
-        Long userId = Long.valueOf(UserInfoUtils.getSysUserId());
         Date createTime = new Date();
         Long docNumber = numberWorker.generateId(reversedMaterialDocVO.getCompanyCode(), ModuleConstant.ORDER_NUMBER_TYPE.MATERIAL_DOC);
         int i = 0;

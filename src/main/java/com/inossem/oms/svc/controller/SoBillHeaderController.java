@@ -62,8 +62,8 @@ public class SoBillHeaderController extends BaseController {
      * 新增【开票】
      */
     @PostMapping("/create")
-    public AjaxResult create(@RequestBody List<SoBillHeader> soBillHeader) {
-        return toAjax(soBillHeaderService.insertSoBillHeader(soBillHeader));
+    public AjaxResult create(@RequestHeader(name = "X-Userid") String userId, @RequestBody List<SoBillHeader> soBillHeader) {
+        return toAjax(soBillHeaderService.insertSoBillHeader(soBillHeader, userId));
     }
     @PostMapping("/list")
     public TableDataInfo getList(@RequestBody @Validated SoBillingHeaderFormDTO form) {

@@ -15,7 +15,6 @@ import com.inossem.oms.base.svc.domain.DTO.SoBillingHeaderFormDTO;
 import com.inossem.oms.base.svc.domain.VO.AddressQueryVo;
 import com.inossem.oms.base.svc.domain.VO.SoBillResp;
 import com.inossem.oms.base.svc.mapper.*;
-import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.service.AddressService;
 import com.inossem.oms.mdm.service.BpService;
 import com.inossem.oms.mdm.service.CompanyService;
@@ -79,7 +78,7 @@ public class SoBillHeaderService {
      * @return 结果
      */
     @Transactional(rollbackFor = Exception.class)
-    public int insertSoBillHeader(List<SoBillHeader> soBillHeaders) {
+    public int insertSoBillHeader(List<SoBillHeader> soBillHeaders, String userId) {
         String billNumber = null;
         for (int i = 0; i < soBillHeaders.size(); i++) {
             SoBillHeader bill = soBillHeaders.get(i);
@@ -122,9 +121,9 @@ public class SoBillHeaderService {
             billInsert.setAccountingDoc("");
             Date date = new Date();
             billInsert.setGmtCreate(date);
-            billInsert.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            billInsert.setCreateBy(userId);
             billInsert.setGmtModified(date);
-            billInsert.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            billInsert.setModifiedBy(userId);
             List<SoBillItem> billItems = new ArrayList<>();
             try {
                 soBillHeaderMapper.insertSoBillHeader(billInsert);
@@ -148,9 +147,9 @@ public class SoBillHeaderService {
                     billItemInsert.setPstAmount(billItem.getPstAmount());
                     billItemInsert.setNetAmount(billItem.getNetAmount());
                     billItemInsert.setGmtCreate(date);
-                    billItemInsert.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+                    billItemInsert.setCreateBy(userId);
                     billItemInsert.setGmtModified(date);
-                    billItemInsert.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+                    billItemInsert.setModifiedBy(userId);
                     billItems.add(billItemInsert);
                     soBillItemMapper.insertSoBillItem(billItemInsert);
                 });
@@ -163,6 +162,8 @@ public class SoBillHeaderService {
                     DeliveryHeader deliveryHeader = new DeliveryHeader();
                     deliveryHeader.setCompleteBilling(1);
                     deliveryHeader.setBillingNumber(billNumber);
+                    deliveryHeader.setGmtModified(date);
+                    deliveryHeader.setModifiedBy(userId);
                     deliveryHeaderMapper.update(deliveryHeader, deliveryHeaderQueryWrapper);
                     if (ModuleConstant.SOPO_DELIVERY_STATUS.PARTIALLY_FULLFILLED.equals(soHeader.getDeliveryStatus())) {
                         sh.setBillingStatus(ModuleConstant.SOPO_BILLIING_STATUS.PARTIALLY_INVOICED);
@@ -178,6 +179,8 @@ public class SoBillHeaderService {
                 } else {
                     sh.setBillingStatus(ModuleConstant.SOPO_BILLIING_STATUS.FULLY_INVOICED);
                 }
+                sh.setGmtModified(date);
+                sh.setModifiedBy(userId);
                 LambdaQueryWrapper<SoHeader> soHeaderLambdaQueryWrapper = new LambdaQueryWrapper<>();
                 soHeaderLambdaQueryWrapper.eq(SoHeader::getSoNumber, soHeader.getSoNumber());
                 soHeaderLambdaQueryWrapper.eq(SoHeader::getCompanyCode, soHeader.getCompanyCode());
@@ -208,6 +211,8 @@ public class SoBillHeaderService {
                             .eq(SoBillHeader::getCompanyCode, billInsert.getCompanyCode());
                     SoBillHeader soBillHeader = new SoBillHeader();
                     soBillHeader.setAccountingDoc(s);
+                    soBillHeader.setModifiedBy(userId);
+                    soBillHeader.setGmtModified(new Date());
                     soBillHeaderMapper.update(soBillHeader, soBillHeaderLambdaQueryWrapper);
                 } catch (Exception e) {
                     throw new RuntimeException(e.getMessage());
@@ -271,6 +276,8 @@ public class SoBillHeaderService {
                         .eq(SoBillHeader::getCompanyCode, billInsert.getCompanyCode());
                 SoBillHeader soBillHeader = new SoBillHeader();
                 soBillHeader.setAccountingDoc(s);
+                soBillHeader.setModifiedBy(userId);
+                soBillHeader.setGmtModified(new Date());
                 soBillHeaderMapper.update(soBillHeader, soBillHeaderLambdaQueryWrappers);
             } catch (Exception e) {
                 throw new RuntimeException(e.getMessage());

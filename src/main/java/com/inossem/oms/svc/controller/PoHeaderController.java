@@ -98,7 +98,8 @@ public class PoHeaderController extends BaseController {
      * 新增【采购订单】
      */
     @PostMapping("/create")
-    public AjaxResult<PoHeader> create(@RequestBody PoSaveVo po) {
+    public AjaxResult<PoHeader> create(@RequestHeader(name = "X-Userid") String userId, @RequestBody PoSaveVo po) {
+        po.setUserId(userId);
         return AjaxResult.success().withData(poHeaderService.create(po));
     }
 
@@ -106,7 +107,8 @@ public class PoHeaderController extends BaseController {
      * 修改【采购订单】
      */
     @PostMapping("/modify")
-    public AjaxResult<PoHeader> modify(@RequestBody PoSaveVo po) {
+    public AjaxResult<PoHeader> modify(@RequestHeader(name = "X-Userid") String userId, @RequestBody PoSaveVo po) {
+        po.setUserId(userId);
         return AjaxResult.success().withData(poHeaderService.modify(po));
     }
 
@@ -202,7 +204,7 @@ public class PoHeaderController extends BaseController {
      */
     @ApiOperation(value = "update service po status", notes = "修改service po的order status")
     @GetMapping("/update_sepo_status/{poNumber}/{companyCode}")
-    public AjaxResult updateStatus(@PathVariable("poNumber") String poNumber, @PathVariable("companyCode") String companyCode) {
-        return toAjax(poHeaderService.updateStatus(poNumber, companyCode));
+    public AjaxResult updateStatus(@RequestHeader(name = "X-Userid") String userId, @PathVariable("poNumber") String poNumber, @PathVariable("companyCode") String companyCode) {
+        return toAjax(poHeaderService.updateStatus(poNumber, companyCode, userId));
     }
 }

@@ -102,4 +102,6 @@ public class SoOrderHeaderInfoVo {
     private BigDecimal logisticsCosts;
     private BigDecimal otherExpenses;
 
+    private String userId;
+
 }

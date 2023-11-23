@@ -22,4 +22,6 @@ public class StoFormDTO extends StoHeader {
 
     @NotEmpty(message = "items cannot be empty")
     private List<StoItem> items;
+
+    private String userId;
 }

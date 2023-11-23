@@ -81,7 +81,7 @@ public class ISoHeaderService {
         try {
             soHeaderMapper.insert(soHeader);
             //封装So_Item信息
-            List<SoItem> soItemList = this.soItemInfoPacking(soHeader, soOrderHeaderInfoVo);
+            List<SoItem> soItemList = this.soItemInfoPacking(soHeader, soOrderHeaderInfoVo, true);
             soItemMapper.insertBatch(soItemList);
             // 保存地址信息
             AddressSaveVo billAddress = soOrderHeaderInfoVo.getBillAddress();
@@ -89,21 +89,14 @@ public class ISoHeaderService {
             billAddress.setType(TYPE_ADDRESS_SO);
             billAddress.setSubType(SUBTYPE_ADDRESS_SO_BILL);
             billAddress.setKey(soHeader.getSoNumber());
-//            R<Address> res = remoteMdmService.saveAddress(billAddress);
-//            if (res.getCode() != 200) {
-//                throw new RuntimeException("远程服务调用失败，保存地址信息异常");
-//            }
-            addressService.save(billAddress);
+            addressService.save(billAddress, soOrderHeaderInfoVo.getUserId());
+
             AddressSaveVo shipAddress = soOrderHeaderInfoVo.getShipAddress();
             shipAddress.setCompanyCode(soOrderHeaderInfoVo.getCompanyCode());
             shipAddress.setType(TYPE_ADDRESS_SO);
             shipAddress.setSubType(SUBTYPE_ADDRESS_SO_SHIP);
             shipAddress.setKey(soHeader.getSoNumber());
-//            res = remoteMdmService.saveAddress(shipAddress);
-//            if (res.getCode() != 200) {
-//                throw new RuntimeException("远程服务调用失败，保存地址信息异常");
-//            }
-            addressService.save(shipAddress);
+            addressService.save(shipAddress, soOrderHeaderInfoVo.getUserId());
         } catch (Exception e) {
             log.error("create so order header failed", e);
             throw new RuntimeException(e);
@@ -156,9 +149,9 @@ public class ISoHeaderService {
         }
         Date date = new Date();
         soHeader.setGmtCreate(date);
-        soHeader.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        soHeader.setCreateBy(soOrderHeaderInfoVo.getUserId());
         soHeader.setGmtModified(date);
-        soHeader.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        soHeader.setModifiedBy(soOrderHeaderInfoVo.getUserId());
         soHeader.setIsDeleted(0);
 
         soHeader.setClearanceFee(soOrderHeaderInfoVo.getClearanceFee());
@@ -175,7 +168,7 @@ public class ISoHeaderService {
      * @param soOrderHeaderInfoVo
      * @return
      */
-    private List<SoItem> soItemInfoPacking(SoHeader soHeader, SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
+    private List<SoItem> soItemInfoPacking(SoHeader soHeader, SoOrderHeaderInfoVo soOrderHeaderInfoVo, Boolean isCreate) {
         List<SoItem> soItemList = new ArrayList<>();
         List<SoItem> soItemListParams = soOrderHeaderInfoVo.getSoItemList();
         soItemListParams.forEach(x -> {
@@ -200,9 +193,9 @@ public class ISoHeaderService {
             soItem.setTaxExmpt(x.getTaxExmpt());
             soItem.setCurrencyCode(x.getCurrencyCode());
             soItem.setGmtCreate(soHeader.getGmtCreate());
-            soItem.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            soItem.setCreateBy(soHeader.getCreateBy());
             soItem.setGmtModified(soHeader.getGmtModified());
-            soItem.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            soItem.setModifiedBy(soHeader.getModifiedBy());
             soItem.setIsDeleted(0);
             if (1 == x.getIsKitting()) {
                 soItem.setSkuVersion(x.getSkuVersion());
@@ -326,6 +319,7 @@ public class ISoHeaderService {
 //    }
 
 
+    @Deprecated
     @Transactional(rollbackFor = Exception.class)
     public void updateBpName(String companyCode, String bpNumber, String bpName) {
         try {
@@ -375,6 +369,7 @@ public class ISoHeaderService {
         if (aBoolean) {
             throw new RuntimeException("当前so存在已发运,不允许修改");
         }
+        SoHeader originSoHeader = soHeaderMapper.selectById(soOrderHeaderInfoVo.getSoOrderId());
         SoHeader soHeader = new SoHeader();
         soHeader.setId(soOrderHeaderInfoVo.getSoOrderId());
         soHeader.setCompanyCode(soOrderHeaderInfoVo.getCompanyCode());
@@ -406,10 +401,10 @@ public class ISoHeaderService {
             soHeader.setSoNotes(soOrderHeaderInfoVo.getSoNotes());
         }
         Date date = new Date();
-        soHeader.setGmtCreate(date);
-        soHeader.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        soHeader.setCreateBy(originSoHeader.getCreateBy());
+        soHeader.setGmtCreate(originSoHeader.getGmtCreate());
         soHeader.setGmtModified(date);
-        soHeader.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        soHeader.setModifiedBy(soOrderHeaderInfoVo.getUserId());
         soHeader.setIsDeleted(0);
         try {
             soHeaderMapper.updateById(soHeader);
@@ -440,7 +435,7 @@ public class ISoHeaderService {
             }
 
             //更新item
-            List<SoItem> soItemList = this.soItemInfoPacking(soHeader, soOrderHeaderInfoVo);
+            List<SoItem> soItemList = this.soItemInfoPacking(soHeader, soOrderHeaderInfoVo, false);
             soItemList.forEach(sItem -> {
                 if (sItem.getId() == null) {
                     soItemMapper.insert(sItem);
@@ -465,13 +460,13 @@ public class ISoHeaderService {
             billAddress.setType(TYPE_ADDRESS_SO);
             billAddress.setSubType(SUBTYPE_ADDRESS_SO_BILL);
             billAddress.setKey(soOrderHeaderInfoVo.getSoOrderNumber());
-            addressService.modifyAddress(billAddress);
+            addressService.modifyAddress(billAddress, soOrderHeaderInfoVo.getUserId());
             AddressSaveVo shipAddress = soOrderHeaderInfoVo.getShipAddress();
             shipAddress.setCompanyCode(soOrderHeaderInfoVo.getCompanyCode());
             shipAddress.setType(TYPE_ADDRESS_SO);
             shipAddress.setSubType(SUBTYPE_ADDRESS_SO_SHIP);
             shipAddress.setKey(soOrderHeaderInfoVo.getSoOrderNumber());
-            addressService.modifyAddress(shipAddress);
+            addressService.modifyAddress(shipAddress, soOrderHeaderInfoVo.getUserId());
         } catch (Exception e) {
             log.error("modify so order header failed", e);
             throw new RuntimeException(e);

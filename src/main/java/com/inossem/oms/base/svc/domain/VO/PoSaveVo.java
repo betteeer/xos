@@ -99,4 +99,6 @@ public class PoSaveVo {
     private BigDecimal clearanceFee;
     private BigDecimal logisticsCosts;
     private BigDecimal otherExpenses;
+
+    private String userId;
 }

@@ -70,7 +70,8 @@ public class SoHeaderController extends BaseController {
      */
     @ApiOperation(value = "create so order", notes = "创建销售订单")
     @PostMapping("/create")
-    public AjaxResult<SoHeader> create(@RequestBody SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
+    public AjaxResult<SoHeader> create(@RequestHeader(name = "X-Userid") String userId, @RequestBody SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
+        soOrderHeaderInfoVo.setUserId(userId);
         return AjaxResult.success().withData(soHeaderService.create(soOrderHeaderInfoVo));
     }
 
@@ -84,7 +85,8 @@ public class SoHeaderController extends BaseController {
      */
     @ApiOperation(value = "modify so order", notes = "发运前修改So信息")
     @PostMapping("/modify")
-    public AjaxResult<SoHeader> modify(@RequestBody SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
+    public AjaxResult<SoHeader> modify(@RequestHeader(name = "X-Userid") String userId, @RequestBody SoOrderHeaderInfoVo soOrderHeaderInfoVo) {
+        soOrderHeaderInfoVo.setUserId(userId);
         return AjaxResult.success().withData(soHeaderService.modify(soOrderHeaderInfoVo));
     }
 
@@ -233,6 +235,7 @@ public class SoHeaderController extends BaseController {
      *
      * @return
      */
+    @Deprecated
     @ApiOperation(value = "update so order header bpName", notes = "更新soHeader中的bpName")
     @GetMapping("/updateBpName/{company_code}/{bp_number}/{bp_name}")
     public R<SoHeader> updateBpName(

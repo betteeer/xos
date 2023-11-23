@@ -444,7 +444,7 @@ public class IDeliveryHeaderService {
             }
         }
 
-        DeliveryHeader deliveryHeader = this.deliveryHeaderInfoPacking(isBlankDelivery, deliveryInfoVo);
+        DeliveryHeader deliveryHeader = this.deliveryHeaderInfoPacking(isBlankDelivery, deliveryInfoVo, userId);
         try {
             deliveryHeaderMapper.insert(deliveryHeader);
             //封装Delivery_item所需参数
@@ -541,6 +541,8 @@ public class IDeliveryHeaderService {
                         .eq("is_deleted", 0);
                 DeliveryHeader dh = new DeliveryHeader();
                 dh.setCompleteDelivery(1);
+                dh.setGmtModified(new Date());
+                dh.setModifiedBy(userId);
                 deliveryHeaderMapper.update(dh, queryHeaderWrapper);
 
                 QueryWrapper<DeliveryItem> queryItemWrapper = new QueryWrapper<>();
@@ -611,6 +613,8 @@ public class IDeliveryHeaderService {
                 } else {
                     soHeader.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
                 }
+                soHeader.setGmtModified(new Date());
+                soHeader.setModifiedBy(userId);
                 QueryWrapper<SoHeader> shqw = new QueryWrapper<>();
                 shqw.eq("so_number", deliveryInfoVo.getSoNumber());
                 shqw.eq("company_code", deliveryInfoVo.getCompanyCode());
@@ -623,7 +627,7 @@ public class IDeliveryHeaderService {
             shipAddress.setType(TYPE_ADDRESS_SODN);
             shipAddress.setSubType(SUBTYPE_ADDRESS_SODN_SHIP);
             shipAddress.setKey(deliveryHeader.getDeliveryNumber());
-            addressService.save(shipAddress);
+            addressService.save(shipAddress, userId);
         } catch (Exception e) {
             log.error("create delivery failed", e);
             throw new RuntimeException(e);
@@ -637,7 +641,7 @@ public class IDeliveryHeaderService {
      * @param deliveryInfoVo
      * @return
      */
-    private DeliveryHeader deliveryHeaderInfoPacking(Boolean b, DeliveryInfoVo deliveryInfoVo) {
+    private DeliveryHeader deliveryHeaderInfoPacking(Boolean b, DeliveryInfoVo deliveryInfoVo, String userId) {
         DeliveryHeader dh = new DeliveryHeader();
         //参数封装
         //生成Delivery_Number
@@ -674,10 +678,8 @@ public class IDeliveryHeaderService {
         Date date = new Date();
         dh.setGmtCreate(date);
         dh.setGmtModified(date);
-        // ###todo###
-        dh.setCreateBy(String.valueOf(1));
-        // ###todo###
-        dh.setModifiedBy(String.valueOf(1));
+        dh.setCreateBy(userId);
+        dh.setModifiedBy(userId);
         dh.setIsDeleted(0);
         return dh;
     }
@@ -815,11 +817,8 @@ public class IDeliveryHeaderService {
         dhr.setCarrierCode(deliveryInfoVo.getCarrierCode());
         dhr.setTrackingNumber(deliveryInfoVo.getTrackingNumber());
         dhr.setDeliveryNotes(deliveryInfoVo.getDeliveryNotes());
-        Date date = new Date();
-        dhr.setGmtCreate(date);
-        dhr.setGmtModified(date);
-        dhr.setCreateBy(String.valueOf(1));
-        dhr.setModifiedBy(String.valueOf(1));
+        dhr.setGmtModified(new Date());
+        dhr.setModifiedBy(userId);
         dhr.setIsDeleted(0);
         try {
             deliveryHeaderMapper.updateById(dhr);
@@ -857,7 +856,7 @@ public class IDeliveryHeaderService {
                 shipAddress.setType(TYPE_ADDRESS_SODN);
                 shipAddress.setSubType(SUBTYPE_ADDRESS_SODN_SHIP);
                 shipAddress.setKey(dhr.getDeliveryNumber());
-                addressService.modifyAddress(shipAddress);
+                addressService.modifyAddress(shipAddress, userId);
                 if (BigDecimal.ZERO.equals(x.getDeliveredQty())) {
                     continue;
                 } else {
@@ -905,6 +904,8 @@ public class IDeliveryHeaderService {
             DeliveryHeader dh = new DeliveryHeader();
             dh.setId(deliveryInfoVo.getId());
             dh.setCompleteDelivery(1);
+            dh.setGmtModified(new Date());
+            dh.setModifiedBy(userId);
             deliveryHeaderMapper.updateById(dh);
             //修改明细
             deliveryInfoVo.getDeliveryItemList().forEach(x -> {
@@ -973,6 +974,8 @@ public class IDeliveryHeaderService {
             } else {
                 soHeader.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
             }
+            soHeader.setModifiedBy(userId);
+            soHeader.setGmtModified(new Date());
             QueryWrapper<SoHeader> shqw = new QueryWrapper<>();
             shqw.eq("so_number", deliveryInfoVo.getSoNumber());
             shqw.eq("company_code", deliveryInfoVo.getCompanyCode());
@@ -992,7 +995,7 @@ public class IDeliveryHeaderService {
      * @return
      */
     @Transactional
-    public DeliveryHeader deliveryPoHeaderInfoPacking(Boolean b, DeliveryInfoVo deliveryInfoVo) {
+    public DeliveryHeader deliveryPoHeaderInfoPacking(Boolean b, DeliveryInfoVo deliveryInfoVo, String userId) {
         DeliveryHeader dh = new DeliveryHeader();
         //参数封装
         //生成Delivery_Number
@@ -1024,11 +1027,8 @@ public class IDeliveryHeaderService {
         dh.setCarrierCode(deliveryInfoVo.getCarrierCode());
         dh.setTrackingNumber(deliveryInfoVo.getTrackingNumber());
         dh.setDeliveryNotes(deliveryInfoVo.getDeliveryNotes());
-        Date date = new Date();
-        dh.setGmtCreate(date);
-        dh.setGmtModified(date);
-        dh.setCreateBy(String.valueOf(1));
-        dh.setModifiedBy(String.valueOf(1));
+        dh.setGmtModified(new Date());
+        dh.setModifiedBy(userId);
         dh.setIsDeleted(0);
         dh.setShippingReference(deliveryInfoVo.getShippingReference());
         return dh;
@@ -1067,7 +1067,7 @@ public class IDeliveryHeaderService {
         if (wareHouseSet.size() > 1) {
             throw new ServiceException("Creation not allowed: Warehouse codes must be consistent");
         }
-        DeliveryHeader deliveryHeader = deliveryPoHeaderInfoPacking(isBlankDelivery, deliveryInfoVo);
+        DeliveryHeader deliveryHeader = deliveryPoHeaderInfoPacking(isBlankDelivery, deliveryInfoVo, userId);
         try {
             deliveryHeaderMapper.insert(deliveryHeader);
             //封装Delivery_item所需参数
@@ -1144,7 +1144,7 @@ public class IDeliveryHeaderService {
             shipAddress.setType(TYPE_ADDRESS_SODN);
             shipAddress.setSubType(SUBTYPE_ADDRESS_SODN_SHIP);
             shipAddress.setKey(deliveryHeader.getDeliveryNumber());
-            addressService.save(shipAddress);
+            addressService.save(shipAddress, userId);
             // 非空发运，增加库存，更新状态
             if (!isBlankDelivery) {
 
@@ -1170,6 +1170,8 @@ public class IDeliveryHeaderService {
                         .eq("is_deleted", 0);
                 DeliveryHeader dh = new DeliveryHeader();
                 dh.setCompleteDelivery(1);
+                dh.setModifiedBy(userId);
+                dh.setGmtModified(new Date());
                 deliveryHeaderMapper.update(dh, qw);
 
                 QueryWrapper<DeliveryItem> qw1 = new QueryWrapper<>();
@@ -1218,6 +1220,8 @@ public class IDeliveryHeaderService {
                 } else {
                     poHeader.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
                 }
+                poHeader.setModifiedBy(userId);
+                poHeader.setGmtModified(new Date());
                 QueryWrapper<PoHeader> shqw = new QueryWrapper<>();
                 shqw.eq("po_number", deliveryInfoVo.getPoNumber());
                 shqw.eq("company_code", deliveryInfoVo.getCompanyCode());
@@ -1274,13 +1278,8 @@ public class IDeliveryHeaderService {
         dhr.setCarrierCode(deliveryInfoVo.getCarrierCode());
         dhr.setTrackingNumber(deliveryInfoVo.getTrackingNumber());
         dhr.setDeliveryNotes(deliveryInfoVo.getDeliveryNotes());
-        Date date = new Date();
-        dhr.setGmtCreate(date);
-        dhr.setGmtModified(date);
-        dhr.setCreateBy("1");
-        dhr.setModifiedBy("1");
-//        dhr.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
-//        dhr.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        dhr.setGmtModified(new Date());
+        dhr.setModifiedBy(userId);
         dhr.setIsDeleted(0);
         try {
             deliveryHeaderMapper.updateById(dhr);
@@ -1320,7 +1319,7 @@ public class IDeliveryHeaderService {
                 shipAddress.setType(TYPE_ADDRESS_SODN);
                 shipAddress.setSubType(SUBTYPE_ADDRESS_SODN_SHIP);
                 shipAddress.setKey(dhr.getDeliveryNumber());
-                addressService.modifyAddress(shipAddress);
+                addressService.modifyAddress(shipAddress, userId);
 
                 if (BigDecimal.ZERO.equals(x.getDeliveredQty())) {
                     continue;
@@ -1371,6 +1370,8 @@ public class IDeliveryHeaderService {
                     .eq("is_deleted", 0);
             DeliveryHeader dh = new DeliveryHeader();
             dh.setCompleteDelivery(1);
+            dh.setModifiedBy(userId);
+            dh.setGmtModified(new Date());
             deliveryHeaderMapper.update(dh, qw);
             QueryWrapper<DeliveryItem> qw1 = new QueryWrapper<>();
             qw1.eq("delivery_number", deliveryInfoVo.getDeliveryNumber())
@@ -1419,6 +1420,8 @@ public class IDeliveryHeaderService {
             } else {
                 poHeader.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
             }
+            poHeader.setModifiedBy(userId);
+            poHeader.setGmtModified(new Date());
             QueryWrapper<PoHeader> shqw = new QueryWrapper<>();
             shqw.eq("po_number", deliveryInfoVo.getPoNumber());
             shqw.eq("company_code", deliveryInfoVo.getCompanyCode());
@@ -1786,7 +1789,7 @@ public class IDeliveryHeaderService {
             reversedMaterialDocItemVoList.add(reversedMaterialDocItemVo);
         });
         reversedMaterialDocVO.setReversedMaterialDocItemVos(reversedMaterialDocItemVoList);
-        materialDocService.reverseMaterialDoc(reversedMaterialDocVO);
+        materialDocService.reverseMaterialDoc(reversedMaterialDocVO, userId);
 
         //开始更新delivery操作
         DeliveryHeader dhr = new DeliveryHeader();
@@ -1802,13 +1805,8 @@ public class IDeliveryHeaderService {
         dhr.setCarrierCode(deliveryInfoVo.getCarrierCode());
         dhr.setTrackingNumber(deliveryInfoVo.getTrackingNumber());
         dhr.setDeliveryNotes(deliveryInfoVo.getDeliveryNotes());
-        Date date = new Date();
-        dhr.setGmtCreate(date);
-        dhr.setGmtModified(date);
-        dhr.setCreateBy("1");
-        dhr.setModifiedBy("1");
-//        dhr.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
-//        dhr.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+        dhr.setGmtModified(new Date());
+        dhr.setModifiedBy(userId);
         dhr.setIsDeleted(0);
         try {
             deliveryHeaderMapper.updateById(dhr);
@@ -1845,7 +1843,7 @@ public class IDeliveryHeaderService {
                 shipAddress.setType(TYPE_ADDRESS_SODN);
                 shipAddress.setSubType(SUBTYPE_ADDRESS_SODN_SHIP);
                 shipAddress.setKey(dhr.getDeliveryNumber());
-                addressService.modifyAddress(shipAddress);
+                addressService.modifyAddress(shipAddress, userId);
 
                 CreateMaterialDocSkuVo cmdSkuVo = new CreateMaterialDocSkuVo();
                 cmdSkuVo.setSkuNumber(x.getSkuNumber());
@@ -1887,6 +1885,8 @@ public class IDeliveryHeaderService {
             DeliveryHeader dh = new DeliveryHeader();
             dh.setId(deliveryInfoVo.getId());
             dh.setCompleteDelivery(1);
+            dh.setGmtModified(new Date());
+            dh.setModifiedBy(userId);
             deliveryHeaderMapper.updateById(dh);
             //修改明细
             deliveryInfoVo.getDeliveryItemList().forEach(x -> {
@@ -1955,6 +1955,8 @@ public class IDeliveryHeaderService {
             } else {
                 soHeader.setDeliveryStatus(ModuleConstant.SOPO_DELIVERY_STATUS.FULLFILLED);
             }
+            soHeader.setGmtModified(new Date());
+            soHeader.setModifiedBy(userId);
             QueryWrapper<SoHeader> shqw = new QueryWrapper<>();
             shqw.eq("so_number", deliveryInfoVo.getSoNumber());
             shqw.eq("company_code", deliveryInfoVo.getCompanyCode());

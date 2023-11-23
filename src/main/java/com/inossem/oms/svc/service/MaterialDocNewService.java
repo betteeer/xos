@@ -51,7 +51,7 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
 
     @Resource
     private MaterialDocService materialDocService;
-    public List<MaterialDoc> generateMaterialDoc(String companyCode, List<PreMaterialDocVo> preMaterialDocVos) {
+    public List<MaterialDoc> generateMaterialDoc(String companyCode, List<PreMaterialDocVo> preMaterialDocVos, String userId) {
         if (StringUtils.isEmpty(preMaterialDocVos)) {
             throw new ServiceException("no item pass to generate material doc");
         }
@@ -76,9 +76,11 @@ public class MaterialDocNewService extends ServiceImpl<MaterialDocMapper, Materi
             m.setInOut(movementType.getInOut());
             m.setTotalAmount(p.getAveragePrice().multiply(p.getSkuQty()).setScale(2, BigDecimal.ROUND_HALF_UP));
             m.setIsReversed(0);
+            m.setIsDeleted(0);
             m.setGmtCreate(new Date());
             m.setGmtModified(new Date());
-            m.setIsDeleted(0);
+            m.setCreateBy(userId);
+            m.setModifiedBy(userId);
             res.add(m);
         }
         log.info(">>> 生成的material doc对象为：{}", res);

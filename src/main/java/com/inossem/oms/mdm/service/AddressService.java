@@ -119,6 +119,24 @@ public class AddressService {
         addr.setGmtModified(date);
         addressMapper.insert(addr);
     }
+    public void save(AddressSaveVo address, String userId) {
+        Date date = new Date();
+        Address addr = new Address();
+        addr.setCompanyCode(address.getCompanyCode());
+        addr.setType(address.getType());
+        addr.setSubType(address.getSubType());
+        addr.setReferenceKey(address.getKey());
+        addr.setAddress1(address.getStreet());
+        addr.setCity(address.getStreet());
+        addr.setRegionCode(address.getProvince());
+        addr.setCountryCode(address.getCountry());
+        addr.setPostalCode(address.getPostCode());
+        addr.setCreateBy(userId);
+        addr.setGmtCreate(date);
+        addr.setModifiedBy(userId);
+        addr.setGmtModified(date);
+        addressMapper.insert(addr);
+    }
 
 
     public List<Address> getAddress(String companyCode, String orderNumber) {
@@ -146,6 +164,35 @@ public class AddressService {
             addr.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
             addr.setGmtCreate(date);
             addr.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            addr.setGmtModified(date);
+
+            QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("company_code", address.getCompanyCode());
+            queryWrapper.eq("type", address.getType());
+            queryWrapper.eq("sub_type", address.getSubType());
+            queryWrapper.eq("reference_key", address.getKey());
+            queryWrapper.eq("is_deleted", 0);
+            addressMapper.update(addr, queryWrapper);
+        } catch (Exception e) {
+            log.error("modify address failed", e);
+            throw new RuntimeException(e);
+        }
+    }
+    @Transactional(rollbackFor = Exception.class)
+    public void modifyAddress(AddressSaveVo address, String userId) {
+        try {
+            Date date = new Date();
+            Address addr = new Address();
+            addr.setCompanyCode(address.getCompanyCode());
+            addr.setType(address.getType());
+            addr.setSubType(address.getSubType());
+            addr.setReferenceKey(address.getKey());
+            addr.setAddress1(address.getStreet());
+            addr.setCity(address.getCity());
+            addr.setRegionCode(address.getProvince());
+            addr.setCountryCode(address.getCountry());
+            addr.setPostalCode(address.getPostCode());
+            addr.setModifiedBy(userId);
             addr.setGmtModified(date);
 
             QueryWrapper<Address> queryWrapper = new QueryWrapper<>();
