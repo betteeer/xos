@@ -105,25 +105,23 @@ public class PoItemService
         // 保留有效的数据
         wrapper.eq(PoItem::getIsDeleted, 0);
 //        // 拼接 itemType
-//        wrapper.in(StringUtils.isNotEmpty(form.getItemType()), PoItem::getItemType, form.getItemType());
-        // itemType全选或者全不选
-        if (form.getItemType().size() == 2 || form.getItemType().size() == 0) {
-            // warehouse不是空的
-            // 那么需要筛选 itemType=INVENTORY，WAREHOUSE满足条件的 + 所有的itemType=SERVICE的
+//        1. itemType的长度=2 【既包含SE又包含IN】或者 长度为0
+//           1. warehouse不是空， 则筛选 IN类型的并且warehouse满足的
+//           2. warehouse是空的， 则筛选所有IN和SE类型的
+//        2. itemType的长度=1
+//           1. itemType=IN， 则晒选IN类型的，并且warehouse满足的
+//           2. itemType=SE
+//              1. warehouse为空，则返回全部SE
+//              2. warehouse不为空，则返回空数组
+        if (form.getItemType().size() == 2 || form.getItemType().isEmpty()) {
             if (StringUtils.isNotEmpty(form.getWarehouseCode())) {
                 wrapper.nested(i -> {
-                   i.eq(PoItem::getItemType, "IN").in(PoItem::getWarehouseCode, form.getWarehouseCode())
-                           .or().eq(PoItem::getItemType, "SE");
+                   i.eq(PoItem::getItemType, "IN").in(PoItem::getWarehouseCode, form.getWarehouseCode());
                 });
             }
-            //如果warehouse是空的
-            // 那么需要筛选 所有
         } else {
-//            itemType只有一种, 先只筛这一种，然后如果是IN的，还需要再筛选warehouse
             wrapper.in(PoItem::getItemType, form.getItemType());
-            if (form.getItemType().contains("IN")) {
-                wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), PoItem::getWarehouseCode, form.getWarehouseCode());
-            }
+            wrapper.in(StringUtils.isNotEmpty(form.getWarehouseCode()), PoItem::getWarehouseCode, form.getWarehouseCode());
         }
         // 拼接unit price
         wrapper.between(StringUtils.isNotNull(form.getUnitPriceStart()), PoItem::getUnitPrice, form.getUnitPriceStart(), form.getUnitPriceEnd());
