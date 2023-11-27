@@ -45,20 +45,20 @@ public class SkuController extends BaseController {
 
     @ApiOperation(value = "create sku", notes = "create sku")
     @PostMapping("/create")
-    public AjaxResult create(@Valid @RequestBody SkuVO skuVO, BindingResult result) {
+    public AjaxResult create(@RequestHeader(name = "X-Userid") String userId, @Valid @RequestBody SkuVO skuVO, BindingResult result) {
         if (result.hasErrors()) {
             return AjaxResult.error(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
-        return AjaxResult.success("create success").withData(service.create(skuVO));
+        return AjaxResult.success("create success").withData(service.create(skuVO, userId));
     }
 
     @ApiOperation(value = "modify sku", notes = "modify sku")
     @PostMapping("/modify")
-    public AjaxResult modifySku(@Valid @RequestBody SkuVO skuVO, BindingResult result) {
+    public AjaxResult modifySku(@RequestHeader(name = "X-Userid") String userId, @Valid @RequestBody SkuVO skuVO, BindingResult result) {
         if (result.hasErrors()) {
             return AjaxResult.error(Objects.requireNonNull(result.getFieldError()).getDefaultMessage());
         }
-        return AjaxResult.success("modify success").withData(service.modifySku(skuVO));
+        return AjaxResult.success("modify success").withData(service.modifySku(skuVO, userId));
     }
 
     @ApiOperation(value = "get sku list", notes = "get sku page list")
@@ -118,8 +118,8 @@ public class SkuController extends BaseController {
 
     @PostMapping("/import")
     @ApiOperation(value = "导入SKU",notes = "导入SKU")
-    public AjaxResult importSku(MultipartFile file, @RequestParam("companyCode") @NotBlank String companyCode) {
-        service.importSKU(file,companyCode);
+    public AjaxResult importSku(@RequestHeader(name = "X-Userid") String userId, MultipartFile file, @RequestParam("companyCode") @NotBlank String companyCode) {
+        service.importSKU(file,companyCode, userId);
         return AjaxResult.success();
     }
 

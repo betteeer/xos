@@ -35,7 +35,7 @@ public class SkuGroupController extends BaseController {
      */
     @ApiOperation(value = "create/modify sku group", notes = "create/modify sku group")
     @PostMapping("/batch")
-    public AjaxResult batchOperation(@RequestBody() SkuGroupFormDTO formDTO) {
+    public AjaxResult batchOperation(@RequestHeader(name = "X-Userid") String userId, @RequestBody() SkuGroupFormDTO formDTO) {
         List<SkuGroup> addItems = formDTO.getAddItems();
         List<SkuGroup> modifyItems = formDTO.getModifyItems();
         String companyCode = formDTO.getCompanyCode();
@@ -45,6 +45,6 @@ public class SkuGroupController extends BaseController {
         //兜底为null的情况
         if (addItems == null) addItems = new ArrayList<>();
         if (modifyItems == null) modifyItems = new ArrayList<>();
-        return AjaxResult.success().withData(skuGroupService.batch(addItems, modifyItems, companyCode));
+        return AjaxResult.success().withData(skuGroupService.batch(addItems, modifyItems, companyCode, userId));
     }
 }

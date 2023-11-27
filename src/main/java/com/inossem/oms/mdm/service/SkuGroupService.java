@@ -36,22 +36,26 @@ public class SkuGroupService extends ServiceImpl<SkuGroupMapper, SkuGroup> imple
     public List<SkuGroup> getList(String companyCode, Boolean onlyEnabled) {
         LambdaQueryWrapper<SkuGroup> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(SkuGroup::getCompanyCode, companyCode);
-        wrapper.eq(onlyEnabled==true, SkuGroup::getIsDeleted, 0);
+        wrapper.eq(onlyEnabled, SkuGroup::getIsDeleted, 0);
         return skuGroupMapper.selectList(wrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public boolean batch(List<SkuGroup> addItems, List<SkuGroup> modifyItems, String companyCode) {
+    public boolean batch(List<SkuGroup> addItems, List<SkuGroup> modifyItems, String companyCode, String userId) {
         log.info(">>>Sku group,新增入参:{}", addItems.toString());
         log.info(">>>Sku group,修改入参:{}", modifyItems.toString());
         addItems.forEach(a -> {
             a.setCompanyCode(companyCode);
             a.setIsDeleted(0);
             a.setGmtCreate(new Date());
+            a.setCreateBy(userId);
+            a.setModifiedBy(userId);
+            a.setGmtModified(new Date());
         });
         modifyItems.forEach(m -> {
             m.setCompanyCode(companyCode);
             m.setGmtModified(new Date());
+            m.setModifiedBy(userId);
         });
         List<SkuGroup> joint = new ArrayList<>();
         joint.addAll(addItems);
@@ -61,18 +65,18 @@ public class SkuGroupService extends ServiceImpl<SkuGroupMapper, SkuGroup> imple
         if (hasSameInSelf(collect) || hasSameInDatabase(companyCode, addItems, modifyItems)) {
             throw new ServiceException("Duplicate enabled sku groups");
         }
-        if (modifyItems.size() != 0) {
+        if (!modifyItems.isEmpty()) {
             // todo
             // 还需判断即将被禁用的sku group有没有sku在用
             List<SkuGroup> disabledGroups = modifyItems.stream().filter(v -> v.getIsDeleted() == 1).collect(Collectors.toList());
-            if (disabledGroups.size() > 0) {
+            if (!disabledGroups.isEmpty()) {
                 if (checkHasUsingSku(disabledGroups, companyCode)) {
                     throw new ServiceException("sku group is in use");
                 }
             }
             updateBatchById(modifyItems);
         }
-        if (addItems.size() != 0) {
+        if (!addItems.isEmpty()) {
             saveBatch(addItems);
         }
         return true;
@@ -124,7 +128,7 @@ public class SkuGroupService extends ServiceImpl<SkuGroupMapper, SkuGroup> imple
         for (SkuGroup modifyItem : modifyItems) {
             if (ids.contains(modifyItem.getId())) {
                 groups.forEach(v -> {
-                    if (v.getId() == modifyItem.getId()) {
+                    if (v.getId().equals(modifyItem.getId())) {
                         v.setSkuGroupCode(modifyItem.getSkuGroupCode());
                     }
                 });

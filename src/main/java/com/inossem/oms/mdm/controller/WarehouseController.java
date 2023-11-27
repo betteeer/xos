@@ -26,14 +26,14 @@ public class WarehouseController extends BaseController {
 
     @ApiOperation(value = "create warehouse",notes = "create warehouse")
     @PostMapping("/create")
-    public AjaxResult Create(@RequestBody WarehouseVO warehouse) {
-        return AjaxResult.success("create success").withData(warehouseService.Create(warehouse));
+    public AjaxResult Create(@RequestHeader(name = "X-Userid") String userId, @RequestBody WarehouseVO warehouse) {
+        return AjaxResult.success("create success").withData(warehouseService.Create(warehouse, userId));
     }
 
     @ApiOperation(value = "modify warehouse",notes = "modify warehouse")
     @PostMapping("/modify")
-    public AjaxResult ModifyWarehouse(@RequestBody WarehouseVO warehouse) {
-        return AjaxResult.success("modify success").withData(warehouseService.Modify(warehouse));
+    public AjaxResult ModifyWarehouse(@RequestHeader(name = "X-Userid") String userId, @RequestBody WarehouseVO warehouse) {
+        return AjaxResult.success("modify success").withData(warehouseService.Modify(warehouse, userId));
     }
 
     @ApiOperation(value = "get warehouse list",notes = "get warehouse list")

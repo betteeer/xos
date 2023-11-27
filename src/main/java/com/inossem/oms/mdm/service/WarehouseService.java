@@ -7,7 +7,6 @@ import com.inossem.oms.base.svc.domain.VO.WarehouseVO;
 import com.inossem.oms.base.svc.domain.Warehouse;
 import com.inossem.oms.base.svc.mapper.AddressMapper;
 import com.inossem.oms.base.svc.mapper.WarehouseMapper;
-import com.inossem.oms.base.utils.UserInfoUtils;
 import com.inossem.oms.mdm.common.Util;
 import com.inossem.oms.svc.service.WareHouseApiService;
 import com.inossem.sco.common.core.utils.StringUtils;
@@ -36,7 +35,7 @@ public class WarehouseService {
     @Resource
     private WareHouseApiService wareHouseApiService;
     @Transactional(rollbackFor = Exception.class)
-    public Warehouse Create(WarehouseVO warehouseVO) {
+    public Warehouse Create(WarehouseVO warehouseVO, String userId) {
         try {
             Warehouse oldWarehouse = warehouseMapper.selectOne(new LambdaQueryWrapper<Warehouse>()
                     .eq(Warehouse::getWarehouseCode, warehouseVO.getWarehouseCode())
@@ -51,11 +50,9 @@ public class WarehouseService {
             warehouse.setName(warehouseVO.getName());
             warehouse.setWarehouseCode(warehouseVO.getWarehouseCode());
             warehouse.setStatus(warehouseVO.getStatus());
-            warehouse.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
-            //warehouse.setCreateBy("test01");
+            warehouse.setCreateBy(userId);
             warehouse.setGmtCreate(nowTime);
-            warehouse.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
-            //warehouse.setModifiedBy("test01");
+            warehouse.setModifiedBy(userId);
             warehouse.setGmtModified(nowTime);
             warehouse.setIsDeleted(0);
             warehouseMapper.insert(warehouse);
@@ -69,11 +66,9 @@ public class WarehouseService {
             address.setRegionCode(warehouseVO.getProvince());
             address.setCountryCode(warehouseVO.getCountry());
             address.setPostalCode(warehouseVO.getPostCode());
-            //address.setCreateBy("test01");
-            address.setCreateBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            address.setCreateBy(userId);
             address.setGmtCreate(nowTime);
-            //address.setModifiedBy("test01");
-            address.setModifiedBy(String.valueOf(UserInfoUtils.getSysUserId()));
+            address.setModifiedBy(userId);
             address.setGmtModified(nowTime);
             addressMapper.insert(address);
             warehouse.setStreet(address.getAddress1());
@@ -89,7 +84,7 @@ public class WarehouseService {
     }
 
     @Transactional(rollbackFor = Exception.class)
-    public int Modify(WarehouseVO warehouseVO) {
+    public int Modify(WarehouseVO warehouseVO, String userId) {
         try {
             String wareHouseCode = warehouseVO.getWarehouseCode();
             String companyCode = warehouseVO.getCompanyCode();
@@ -108,7 +103,7 @@ public class WarehouseService {
                     //.set(Warehouse::getName, warehouseVO.getName())
                     //.set(Warehouse::getWarehouseCode, warehouseVO.getWarehouseCode())
                     .set(Warehouse::getStatus, warehouseVO.getStatus())
-                    .set(Warehouse::getModifiedBy, String.valueOf(UserInfoUtils.getSysUserId()))
+                    .set(Warehouse::getModifiedBy, userId)
                     .set(Warehouse::getGmtModified, nowTime)
                     .eq(Warehouse::getWarehouseCode, warehouseVO.getWarehouseCode())
                     .eq(Warehouse::getCompanyCode, warehouseVO.getCompanyCode());
@@ -134,7 +129,7 @@ public class WarehouseService {
                     .set(Address::getRegionCode, warehouseVO.getProvince())
                     .set(Address::getCountryCode, warehouseVO.getCountry())
                     .set(Address::getPostalCode, warehouseVO.getPostCode())
-                    .set(Address::getModifiedBy, String.valueOf(UserInfoUtils.getSysUserId()))
+                    .set(Address::getModifiedBy, userId)
                     .set(Address::getGmtModified, nowTime)
                     .eq(Address::getReferenceKey, warehouseVO.getWarehouseCode())
                     .eq(Address::getCompanyCode, warehouseVO.getCompanyCode());
