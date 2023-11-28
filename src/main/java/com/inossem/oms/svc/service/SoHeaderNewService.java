@@ -64,9 +64,9 @@ public class SoHeaderNewService {
         // payment term
         wrapper.in(StringUtils.isNotEmpty(form.getPaymentTerm()), SoHeader::getPaymentTerm, form.getPaymentTerm());
         // is delivery block
-        wrapper.in(StringUtils.isNotEmpty(form.getIsDeliveryBlock()), SoHeader::getIsDeliveryBlock, form.getIsDeliveryBlock());
+        wrapper.in(StringUtils.isNotEmpty(form.getDeliveryBlock()), SoHeader::getDeliveryBlock, form.getDeliveryBlock());
         // is billing block
-        wrapper.in(StringUtils.isNotEmpty(form.getIsBillingBlock()), SoHeader::getIsBillingBlock, form.getIsBillingBlock());
+        wrapper.in(StringUtils.isNotEmpty(form.getBillingBlock()), SoHeader::getBillingBlock, form.getBillingBlock());
         // create by
         wrapper.in(StringUtils.isNotEmpty(form.getCreateBy()), SoHeader::getCreateBy, form.getCreateBy());
         // modified by
@@ -83,7 +83,7 @@ public class SoHeaderNewService {
     public List<BlockReason> getBlockReason(String type) {
         MPJLambdaWrapper<BlockReason> wrapper = JoinWrappers.lambda(BlockReason.class)
             .selectAll(BlockReason.class)
-            .eq(BlockReason::getBlockType, type);
+            .eq(StringUtils.isNotEmpty(type), BlockReason::getBlockType, type);
         return blockReasonMapper.selectList(wrapper);
     }
 }

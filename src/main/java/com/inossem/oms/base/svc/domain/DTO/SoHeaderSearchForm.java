@@ -33,8 +33,8 @@ public class SoHeaderSearchForm {
     private List<String> currencyCode;
     private List<String> channelIds;
     private List<String> paymentTerm;
-    private List<String> isDeliveryBlock;
-    private List<String> isBillingBlock;
+    private List<String> deliveryBlock;
+    private List<String> billingBlock;
 
     private List<String> createBy;
     private List<String> modifiedBy;

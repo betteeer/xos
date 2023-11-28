@@ -74,14 +74,14 @@ public class SoHeader {
     /**
      * 是否不要发货（预留，本期留空）
      */
-    @ApiModelProperty(value = "是否不要发货", name = "isDeliveryBlock")
-    private String isDeliveryBlock;
+    @ApiModelProperty(value = "不要发货理由代码", name = "deliveryBlock")
+    private String deliveryBlock;
 
     /**
      * 是否不要开票（预留，本期留空）
      */
-    @ApiModelProperty(value = "是否不要开票", name = "isBillingBlock")
-    private String isBillingBlock;
+    @ApiModelProperty(value = "不要开票理由代码", name = "billingBlock")
+    private String billingBlock;
 
     @ApiModelProperty(value = "货币", name = "currencyCode")
     private String currencyCode;
