@@ -38,7 +38,7 @@ public class BkCoaMappingService {
         String url =  (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel";
 
         HttpUrl.Builder urlBuilder = HttpUrl.parse(url).newBuilder()
-            .addQueryParameter("company_id", company.getOrgidEx())
+//            .addQueryParameter("company_id", company.getOrgidEx())
             .addQueryParameter("company_code", companyCode)
             .addQueryParameter("type", String.valueOf(3))
             .addQueryParameter("$limit", String.valueOf(-1))
