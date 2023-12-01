@@ -175,7 +175,7 @@ public class BookKeepingService {
 
         //RequestBody body = RequestBody.create(mediaType, reqBody);
         logger.info("调用bk v2 coa mapping");
-        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?company_id=" + companyIdEx + "&company_code=" + companyCodeEx + "&type=2&$limit=-1";
+        String url = (inner ? "http://system-preferences-service:3030" : (connect.getApiUrl() + "/system-preferences")) + "/api/v1/coa-rel?" + "company_code=" + companyCodeEx + "&type=2&$limit=-1";
         Request request = new Request.Builder()
                 .url(url)
                 .method("GET", null)

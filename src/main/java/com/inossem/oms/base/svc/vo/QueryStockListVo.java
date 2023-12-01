@@ -43,4 +43,9 @@ public class QueryStockListVo extends BaseEntity {
 
     private String transferQtySort;
 
+    @ApiModelProperty(value = "只按skuNumber去查询",name = "onlySkuNumber")
+    // 加这个字段是为了避免前端通过传递searchText来查库存时查到额外数据的情况，比如传递了skuNUmber=12345，但是也会将123456的库存也返回
+    // 加了它，就只会用skuNumber=searchText去查，而不会去模糊查询
+    private Boolean onlySkuNumber = false;
+
 }

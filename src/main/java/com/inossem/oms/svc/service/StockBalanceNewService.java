@@ -372,8 +372,12 @@ public class StockBalanceNewService extends ServiceImpl<StockBalanceMapper, Stoc
                                 .selectAs(SkuMaster::getSkuName, QueryStockBalanceResVo::getSkuName))
                 .eq(StringUtils.isNotEmpty(query.getCompanyCode()),StockBalance::getCompanyCode, query.getCompanyCode())
                 .eq(StringUtils.isNotEmpty(query.getWarehouseCode()), StockBalance::getWarehouseCode, query.getWarehouseCode())
-                .like(StringUtils.isNotEmpty(query.getSearchText()), StockBalance::getSkuNumber, query.getSearchText())
                 .eq(StockBalance::getIsDeleted, 0);
+        if (query.getOnlySkuNumber()) {
+            wrapper.eq(StringUtils.isNotEmpty(query.getSearchText()), StockBalance::getSkuNumber, query.getSearchText());
+        } else {
+              wrapper.like(StringUtils.isNotEmpty(query.getSearchText()), StockBalance::getSkuNumber, query.getSearchText());
+        }
         if (StringUtils.isNotEmpty(query.getSkuCodeSort())) {
             wrapper.orderBy(true, query.getSkuCodeSort().equals("ASC"), StockBalance::getSkuNumber);
         } else if(StringUtils.isNotEmpty(query.getTotalStockQtySort())) {
