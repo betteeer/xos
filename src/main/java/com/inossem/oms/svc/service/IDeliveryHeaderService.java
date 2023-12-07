@@ -222,6 +222,9 @@ public class IDeliveryHeaderService {
                             kitItems.setId(itemId);
                             BigDecimal shippedQTY = deliveryItemMapper.getShippedQTY(kitItems.getComponentSku(), soNumber, companyCode,
                                     x.getSkuNumber(), null);
+                            if (shippedQTY == null) {
+                                shippedQTY = BigDecimal.ZERO;
+                            }
                             kitItems.setSalesQty(x.getSalesQty().multiply(kitItems.getComponentQty()).subtract(shippedQTY));
                             if (i1 == x.getKittingItems().size() - 1) {
                                 BigDecimal divide = shippedQTY.divide(kitItems.getComponentQty(), 2, BigDecimal.ROUND_HALF_UP);
@@ -232,6 +235,9 @@ public class IDeliveryHeaderService {
                     } else {
                         //根据skuNumber和soNumber和companyCode 查询deliveryItem 得到sku已经发运的数量
                         BigDecimal shippedQTY = deliveryItemMapper.getShippedQTY(x.getSkuNumber(), soNumber, companyCode, null, x.getSoItem());
+                        if (shippedQTY == null) {
+                            shippedQTY = BigDecimal.ZERO;
+                        }
                         x.setBasicQty(x.getBasicQty().subtract(shippedQTY));
 
                         // 去掉delivery_type，用于兼容 inventory so and service so
