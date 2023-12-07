@@ -416,9 +416,15 @@ public class PoHeaderService {
             // 4.更新item
             List<PoItem> items = getPoItems(header, po);
             items.forEach(pItem -> {
-                pItem.setModifiedBy(po.getUserId());
-                pItem.setGmtModified(new Date());
-                poItemMapper.updateById(pItem);
+                if (pItem.getId() == null) {
+                    pItem.setCreateBy(po.getUserId());
+                    pItem.setGmtCreate(new Date());
+                    poItemMapper.insert(pItem);
+                } else {
+                    pItem.setModifiedBy(po.getUserId());
+                    pItem.setGmtModified(new Date());
+                    poItemMapper.updateById(pItem);
+                }
             });
 
             //判断是否存在删除行
