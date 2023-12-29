@@ -1,7 +1,0 @@
-com.inossem.oms.api.oms.api.factory.RemoteBpFallbackFactory
-com.inossem.oms.api.oms.api.factory.RemoteMdmFallbackFactory
-com.inossem.oms.api.oms.api.factory.RemoteSvcFallbackFactory
-com.inossem.oms.api.wms.factory.RemoteOuterBpFallbackFactory
-com.inossem.oms.api.wms.factory.RemoteOuterSkuFallbackFactory
-com.inossem.oms.api.wms.factory.RemoteOuterCompanyFallbackFactory
-com.inossem.sco.system.api.factory.RemoteInnerLoginFallbackFactory

@@ -10,7 +10,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.inossem.nt</groupId>
-    <artifactId>oms</artifactId>
+    <artifactId>phone</artifactId>
     <version>1.0</version>
     <name>oms</name>
     <description>project for Spring Boot</description>
@@ -125,11 +125,6 @@
             <version>${mybatisplus.version}</version>
         </dependency>
         <dependency>
-            <groupId>com.baomidou</groupId>
-            <artifactId>dynamic-datasource-spring-boot-starter</artifactId>
-            <version>3.4.1</version>
-        </dependency>
-        <dependency>
             <groupId>com.alibaba.fastjson2</groupId>
             <artifactId>fastjson2</artifactId>
             <version>2.0.11</version>
@@ -197,7 +192,7 @@
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
-            <version>${guava.version}</version>
+            <version>28.2-jre</version>
         </dependency>
         <!-- Druid 数据连接池依赖 -->
         <dependency>
@@ -218,12 +213,12 @@
         </dependency>
         <!--shiro end-->
 <!--        <dependency>-->
-<!--            <groupId>com.inossem.sco-msa</groupId>-->
+<!--            <groupId>com.test.sco-msa</groupId>-->
 <!--            <artifactId>sco-common-core</artifactId>-->
 <!--            <version>${sco-msa.version}</version>-->
 <!--        </dependency>-->
 <!--        <dependency>-->
-<!--            <groupId>com.inossem.sco-msa</groupId>-->
+<!--            <groupId>com.test.sco-msa</groupId>-->
 <!--            <artifactId>sco-api-system</artifactId>-->
 <!--            <version>1.8.2-SNAPSHOT</version>-->
 <!--        </dependency>-->

@@ -1,19 +1,8 @@
-useInnerInterfaceCall: false
-KYC:
-  baseUrl: http://kyc-test.inossemcanada.com/api-v2-test
 spring:
   datasource:
-    dynamic:
-      primary: oms
-      datasource:
-        oms:
-          url: jdbc:mysql://dc-test.inossemcanada.com:3306/oms?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
-          username: ntdbuser
-          password: Init6666
-        tms:
-          url: jdbc:mysql://dc-test.inossemcanada.com:3306/timesheet-service?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
-          username: ntdbuser
-          password: Init6666
+    url: jdbc:mysql://localhost:3306/concurrent?useUnicode=true&characterEncoding=UTF-8&useSSL=false&serverTimezone=UTC&allowMultiQueries=true&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
   redis:
     database: 0
     host: 127.0.0.1
@@ -23,7 +12,7 @@ spring:
 logging:
   level:
     #打印执行的SQL语句
-    com.inossem: debug
+    com.test.yqq: debug
   file:
     name: ./logs/spring.log
 
